@@ -3,8 +3,8 @@
   <channel>
     <title>Amir Razmjou</title>
     <description>Thinking in Lamndas</description>
-    <link>http://www.newaeonweb.com.br/sasa-jekyll-theme</link>
-    <atom:link href="http://www.newaeonweb.com.br/sasa-jekyll-theme/feed.xml" rel="self" type="application/rss+xml" />
+    <link>http://www.amirrazmjou.net</link>
+    <atom:link href="http://www.amirrazmjou.net/feed.xml" rel="self" type="application/rss+xml" />
     
   </channel>
 </rss>
