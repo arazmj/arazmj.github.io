@@ -1,8 +1,8 @@
 <!doctype html>
 <html>
   <head>
-    <meta content='Amir Razmjou' property='og:title' />
-    <title>Amir Razmjou</title>
+    <meta content='SASa, a Jekyll theme - Amir Razmjou' property='og:title' />
+    <title>SASa, a Jekyll theme - Amir Razmjou</title>
     <!-- Charset and Facebook Like link-->
 	<meta content='text/html; charset=utf-8' http-equiv='content-type' />
 	<meta content="419725124863594" property="fb:app_id" />
@@ -12,10 +12,10 @@
 <!-- Custom Meta Content -->
 	<meta name="description" content="Thinking in Lamndas">
 	
-		<meta content='http://www.amirrazmjou.net' property='og:url' />
-		<meta content="Thinking in Lamndas" property='og:description' />
-		<meta content="blog" property="og:type" />
-	
+		<meta content='http://www.amirrazmjou.net/2014/01/01/sasa-jekyll-theme/' property='og:url' />
+		<meta content="Hello i'm a **Jekyll** Theme, build with [SASa Block Grind!](http://www.newaeonweb.com.br/sasa), a simple alternative..." property='og:description' />
+		<meta content="article" property="og:type" />
+		
 <!-- /Custom Meta Content -->
 <!-- Viewport and device width -->
 	<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
@@ -88,22 +88,58 @@
 
     <div class='container'>
       <div class="row">
-        <!--Content from index.html (root)-->
         <div class="col12">
-	<section class="post-home">
-		<h1>Latest From the Blog</h1>
-		<ul class="post-list">
-			
-			<li>
-				<small class="datetime" data-time="2014-01-01 11:27:31 -0500">01 Jan 2014 </small>
-				<a href="/2014/01/01/sasa-jekyll-theme/">SASa, a Jekyll theme</a>
-			</li>
-			
-		</ul>
-	</section>
-</div>
+          <section class='post'>
+            <article class="post-entry">
+              <span class='date'>01 Jan 2014</span>
+              <span class="paging">
+  
+  
+</span>
+              <h1 class="post-title">
+              SASa, a Jekyll theme
+              </h1>
+              <p>Hello i&rsquo;m a <strong>Jekyll</strong> Theme, build with <a href="http://www.newaeonweb.com.br/sasa">SASa Block Grind!</a>, a simple alternative to others great Jekyll themes like Scribble and Jekyll Bootstrap.
+The reason for this is only for didatic purposes.</p>
 
+<p>I&rsquo;m <strong>Open Source</strong> you can fork me or download me, and made the changes you want, <strong>BUT</strong> is much better if you contribute with me.</p>
+
+<h2>Contributing</h2>
+
+<ol>
+<li>Fork it!</li>
+<li>Create your own branch</li>
+<li>Commit your changes</li>
+<li>Submit a pull request</li>
+</ol>
+
+            <br />
+<p>
+  See you soon,<br/>
+  <em>Amir Razmjou</em>
+  <span>at 11:27</span>
+</p>
+
+            </article>            
+          </section>
+        </div>
       </div>
+      
+
+      
+        <div class="block">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+      var disqus_shortname = "arazm"; 
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+      
     </div>
     <footer>
 	<div class="container">
@@ -163,5 +199,12 @@ $(document).ready(function() {
     })();
   //]]>
 </script>
+    <script>
+      $(window).load(function () {
+        $('html, body').animate({
+          scrollTop: $(".post").offset().top
+        }, 1000);
+      });
+    </script>
   </body>
 </html>
