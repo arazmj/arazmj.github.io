@@ -4,7 +4,7 @@
 <generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2015-02-22T00:44:31-05:00</updated>
+<updated>2015-02-22T00:48:20-05:00</updated>
 <id>/</id>
 <author>
   <name>Amir Razmjou</name>
@@ -27,7 +27,22 @@
     <email>arazmjou2014@my.fit.edu</email>
   </author>
   <content type="html">
-    &lt;h2 id=&quot;whats-azure-and-why-did-i-use-that-for-project&quot;&gt;What’s Azure and why did I use that for project?&lt;/h2&gt;
+    &lt;section id=&quot;table-of-contents&quot; class=&quot;toc&quot;&gt;
+  &lt;header&gt;
+    &lt;h3&gt;Overview&lt;/h3&gt;
+  &lt;/header&gt;
+&lt;div id=&quot;drawer&quot;&gt;
+&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#whats-azure-and-why-did-i-use-that-for-project&quot;&gt;What’s Azure and why did I use that for project?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#why-is-it-necessary-and-why-you-cant-do-it-without&quot;&gt;Why is it necessary and why you can’t do it without?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#definition-of-edges-of-network&quot;&gt;Definition of Edges of Network&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;/div&gt;
+&lt;/section&gt;
+&lt;!-- /#table-of-contents --&gt;
+
+&lt;h2 id=&quot;whats-azure-and-why-did-i-use-that-for-project&quot;&gt;What’s Azure and why did I use that for project?&lt;/h2&gt;
 
 &lt;p&gt;The pay-as-you-go plan offers adaptability with no upfront costs and no long-term commitment, which makes cloud computing suitable for research projects and prototyping. Instead of investing in expensive hardware and waiting for them to be ordered and delivered, research teams can provision their hardware and software needs at a glance. It allows other researchers, or even review peers, to validate your experiment results through services or directly with no hassle[1]. It’s also easier to obtain funding for a given project by implementing a prototype of it in cloud with only having a credit card at hand and spending only few dollars especially when you are running out of space in your lab and we are not sure that the given project will be even funded or not.&lt;/p&gt;
 
