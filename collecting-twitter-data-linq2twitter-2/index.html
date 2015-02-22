@@ -1,0 +1,518 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Collecting Data Using Windows Azure Part 2 &#8211; Amir Razmjou</title>
+<meta name="description" content="How to obtain beautifull network graphs by collecting twitter data">
+<meta name="keywords" content="complex networks, linq2twitter, azure">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="Collecting Data Using Windows Azure Part 2">
+<meta name="twitter:description" content="How to obtain beautifull network graphs by collecting twitter data">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="/images/default-thumb.png">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Collecting Data Using Windows Azure Part 2">
+<meta property="og:description" content="How to obtain beautifull network graphs by collecting twitter data">
+<meta property="og:url" content="/collecting-twitter-data-linq2twitter-2/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+
+<link rel="canonical" href="/collecting-twitter-data-linq2twitter-2/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/posts/" >Sample Posts</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/theme-setup/" >Theme Setup</a></li>
+				
+				    
+				        
+				        
+				    <li><a href="http://mademistakes.com" target="_blank">Made Mistakes</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+	<img src="/images/bio-photo.jpg" class="bio-photo" alt="Amir Razmjou bio photo">
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Researcher</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  <a href="http://twitter.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-twitter-square"></i> Twitter</a>
+  <a href="http://facebook.com/amir.razmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-facebook-square"></i> Facebook</a>
+  <a href="http://plus.google.com/+113817162653877217251" class="author-social" target="_blank"><i class="fa fa-fw fa-google-plus-square"></i> Google+</a>
+  <a href="http://linkedin.com/in/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-linkedin-square"></i> LinkedIn</a>
+  <a href="http://instagram.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-instagram"></i> Instagram</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  
+  <a href="http://lastfm.com/user/shotormotor" class="author-social" target="_blank"><i class="fa fa-fw fa-music"></i> Last.fm</a>
+  
+  <a href="http://www.pinterest.com/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-pinterest"></i> Pinterest</a>
+  <a href="http://foursquare.com/user/88238703" class="author-social" target="_blank"><i class="fa fa-fw fa-foursquare"></i> Foursquare</a>
+  
+  <a href="https://youtube.com/user/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-youtube-square"></i> Youtube</a>
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/collecting-twitter-data-linq2twitter-2/" rel="bookmark" title="Collecting Data Using Windows Azure Part 2">Collecting Data Using Windows Azure Part 2</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <h2 id="whats-azure-and-why-did-i-use-that-for-project">What’s Azure and why did I use that for project?</h2>
+
+<p>The pay-as-you-go plan offers adaptability with no upfront costs and no long-term commitment, which makes cloud computing suitable for research projects and prototyping. Instead of investing in expensive hardware and waiting for them to be ordered and delivered, research teams can provision their hardware and software needs at a glance. It allows other researchers, or even review peers, to validate your experiment results through services or directly with no hassle[1]. It’s also easier to obtain funding for a given project by implementing a prototype of it in cloud with only having a credit card at hand and spending only few dollars especially when you are running out of space in your lab and we are not sure that the given project will be even funded or not.</p>
+
+<p>Specifically speaking, Microsoft Azure differs not much to other cloud providers on the market. Obviously Microsoft specific technologies and products are better supported but it’s not restricted to them. It offers the same very IaaS thing as Amazon EC2 offers which surprisingly enables one to create non-windows VMs on Microsoft data-centers. The same as other cloud infrastructures you can network these VMs together according to the desired architecture.</p>
+
+<p>Virtual Machines: It’s basically Microsoft Hyper-V technology.
+Storage: it comes to storage of unstructured data and horizontal scalability they offer Azure Storage that only stores blobs of data.
+Mobile Services: Enables to build and host mobile back-end applications for different mobile platforms using ready to use front-end application templates and libraries.
+HDInsight: It’s merely deployment of Apache Hadoop on windows clusters but we have the choice .NET programming language in addition of Java.
+Service Bus: Generic naming and communication mechanism for connecting and tracking any type of services and devices together.
+Management Services: Sends alerts via emails if certain measurement reached to a critical point.
+Network Service: Allows to establish different network topologies across virtual machines (virtual network)
+Technologically specific speaking, Microsoft Azure allows you to run tasks, namely WebJobs, without having to pay for a VM and OS overhead but demand or on planned-schedules. There’s some benefits that come with WebJobs. First of all Azure can recover WebJob in case of failure, e.g. twitter rate limits reached, twitter service shutdowns. It also logs the event. Secondly there’s set monitoring tools to monitor the WebJob activities easily, e.g. CPU usage, network usage. I created a WebJob for “Twitter Network Builder Project” be ran on arbitrary time intervals and on each run it fetches data off twitter and stores them in MongoDB.</p>
+
+<p>Why is it necessary and why you can’t do it without?</p>
+
+<p>I believe it’s more a matter of benefits than necessary. I could still use Mono framework on Mac OSX and use my favorite programming language and library. Regarding profits:</p>
+
+<p>I can provision new development environment with pre-installed softwares without having to pay for licenses and going through the process of time-consuming software installation and configuration
+I can keep an eye on my Twitter Network Builder projects from almost everywhere using my smart phone.
+I can scale-out servers or increase my storage and computation power if later on we decided to work more on this project.
+You and any other students can check or even my share work. We can even hand Complex Networks students with a template VM, a VM that comes with preinstalled libraries, software and even a working base-code of Data Collector if you want to class to be less technical-oriented.
+Microsoft SQL Server Reporting/Analysis/Integration Services are set of tools for BI developers that I’m already familiar with so in case of that tasks such as data cleansing, data visualization, data-mining needed I will be able to do them these tasks quickly and consequently stay focused on research aspect of course. But these software require licenses which we don’t have to pay them on Azure Academic Subscription.
+The solution</p>
+
+<p>I have prepared three Azure WebJobs to accomplish the following tasks: “CiteTrack Data Collector” which collects tweets using Twitter REST API. The authentication method is based on SingleUser model. It takes care of twitter rate limiting and never lets a duplicated tweet to be added to our collection. It finds the latest TweetId so we can start were we left of in case of failure or crash.</p>
+
+<p>“CiteTrack Data Sweeper” Twitter does a great job of lengthening short urls in tweets. Short url services like bitly.com, goo.gl and tinyurl.com reduce the length of urls to overcome twitter 140 character text limits and also make tweets more human-readable. When you post a shorten url to tweeter, tweeter bots start to resolve the url and check if the url redirect to another url (probably the lengthier one). Fortunatly twitter API provides you with both shortened and lengthened url and you can access the lengthened url by JSON member variable of Tweet.Entities.URLEntities.ExpandedURL. Unfortunately tweeter may record the shortened url once it finds out that the ExpandedURL is too big to be kept in their database systems due to lack of storage (or security vulnarability it may posses?). This WebJob searches through MongoDB documents, stored tweets and expands every Tweet.Entities.URLEntities.ExpandedURL that doesn’t look like a link to arxiv.org</p>
+
+<p>“CiteTrack Extract Metadata” Since 2007 all submissions to arxiv.org retain a consistent schema form is arXiv:YYMM.NNNN, where YY is the year, year MM is the month number, NNNN is a sequence number. Having the identification number in hand one would directly find the abstraction of article by getting to link http://arxiv.org/abs/1408.4311 for example. This WebJob checks the expanded and trimmed url against our regular expression and extracts the arXiv identification and inserts it to our document collection. So we will have an idea that to which paper or arXiv we are referring to exactly.</p>
+
+<p>“CiteTrack Add arXiv Metadata” Once having exact arxiv identification at hand we can obtain quite good amount of metadata regarding the paper using arXiv API like authors name, title, summary, published date and category of paper. It’s a simple REST API and works great.</p>
+
+<p>Sample Document stored in MongoDB, I trimmed unimportant fields in this blog post.</p>
+
+<p>{
+	// Data Collected by CiteTrack Data Collector WebJob
+	“_id” : ObjectId(“54169502b8d30b1b1897fb55”),
+    “JsonContent” : null,
+    “CreatedAt” : ISODate(“2014-09-09T07:08:47.000Z”),
+    “StatusID” : NumberLong(509236962994454528),
+    “Text” : “Although it sadly didn’t get into NIPS2014, my paper Generalized Mixability via Convex Duality is up on arXiv http://t.co/6GGOpW9TZM”,
+    “User” : {
+        “UserID” : NumberLong(0),
+        “UserIDResponse” : “2671503234”,
+        “ScreenNameResponse” : “mendibot”,
+        “Name” : “mendibot”
+    },
+    “Entities” : {
+        “UserMentionEntities” : [],
+        “UrlEntities” : [ 
+            {
+                “Start” : 110,
+                “End” : 132,
+                “Url” : “http://t.co/6GGOpW9TZM”,
+                “DisplayUrl” : “bit.ly/1s8s9n5”,
+                “ExpandedUrl” : “http://arxiv.org/abs/1406.6130”
+            }
+        ]
+    },
+    “RetweetedStatus” : {
+        “RetweetCount” : 0
+    }</p>
+
+<pre><code>// ArxivId extracted by CiteTrack CiteTrack Data Sweeper
+"ArxivId" : "1406.6130",
+
+// Arxiv Metadata obtained by CiteTrack Add arXiv Metadata through arXiv REST API
+"ArxivMetadata" : {
+    "id" : "http://arxiv.org/abs/1406.6130v1",
+    "updated" : "2014-06-24T03:31:16Z",
+    "published" : "2014-06-24T03:31:16Z",
+    "title" : "Generalized Mixability via Entropic Duality",
+    "summary" : "  Mixability is a property of a loss which characterizes when fast convergence\nis possible in the game of prediction with expert advice. We show that a key\nproperty of mixability generalizes, and the exp and log operations present in\nthe usual theory are not as special as one might have thought. In doing this we\nintroduce a more general notion of $\\Phi$-mixability where $\\Phi$ is a general\nentropy (\\ie, any convex function on probabilities). We show how a property\nshared by the convex dual of any such entropy yields a natural algorithm (the\nminimizer of a regret bound) which, analogous to the classical aggregating\nalgorithm, is guaranteed a constant regret when used with $\\Phi$-mixable\nlosses. We characterize precisely which $\\Phi$ have $\\Phi$-mixable losses and\nput forward a number of conjectures about the optimality and relationships\nbetween different choices of entropy.\n",
+    "author" : [ 
+        {
+            "name" : "Mark D. Reid"
+        }, 
+        {
+            "name" : "Rafael M. Frongillo"
+        }, 
+        {
+            "name" : "Robert C. Williamson"
+        }, 
+        {
+            "name" : "Nishant Mehta"
+        }
+    ],
+    "arxiv:comment" : {
+        "@xmlns:arxiv" : "http://arxiv.org/schemas/atom",
+        "#text" : "20 pages, 1 figure. Supersedes the work in arXiv:1403.2433 [cs.LG]"
+    },
+    "link" : [ 
+        {
+            "@href" : "http://arxiv.org/abs/1406.6130v1",
+            "@rel" : "alternate",
+            "@type" : "text/html"
+        }, 
+        {
+            "@title" : "pdf",
+            "@href" : "http://arxiv.org/pdf/1406.6130v1",
+            "@rel" : "related",
+            "@type" : "application/pdf"
+        }
+    ],
+    "arxiv:primary_category" : {
+        "@xmlns:arxiv" : "http://arxiv.org/schemas/atom",
+        "@term" : "cs.LG",
+        "@scheme" : "http://arxiv.org/schemas/atom"
+    },
+    "category" : {
+        "@term" : "cs.LG",
+        "@scheme" : "http://arxiv.org/schemas/atom"
+    }
+} } Definition of Edges of Network
+</code></pre>
+
+<p>We defined relation of two arXiv articles as “two articles are related if they appear by the same user over a specified time window”. In the same context we have a network weighted edges as “The weight of an edge is proportional to number of times its connected pair of nodes(articles) appear on the same tweet by different users”</p>
+
+<p>image</p>
+
+<p>The following MongoDB JavaScript will output all relations between papers taking into consideration that the number of times that pair of papers tweeted by different users and also number of times they retweeted together.</p>
+
+<p>1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+db.Tweets
+    .aggregate([
+        {$group: {_id: “$ArxivId”, UserIDResponses: { $addToSet: ‘$User.UserIDResponse’ }, 
+                    RetweetCount: { $sum: ‘$RetweetCount’ }}}, 
+        {$project: {UserIDResponses: 1, RetweetCount: {$add: [‘$RetweetCount’, 1]}}}])
+    .result
+    .forEach(function(article) {
+            article[“UserIDResponses”].forEach(function(user) {
+                db.Tweets.aggregate([
+                    {$match: {‘User.UserIDResponse’: user, ArxivId: { $exists: 1}}},
+                    {$group: {_id: ‘$ArxivId’, RetweetCount: {$sum: article.RetweetCount}}}])
+                        .result
+                        .forEach(function(userArticles){
+                            if (article[‘_id’] != userArticles[‘_id’])
+                                print(article[‘_id’] + “,” + userArticles[‘_id’] + “,”+ userArticles[‘RetweetCount’]);
+                        })
+            })
+        })
+Example output. Thrid column represents the edge weight.</p>
+
+<p>1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+node1,node2,wieight
+1409.5171,1409.3394,11
+1409.5171,1409.3345,2
+1409.5171,1409.3220,45
+1409.5171,1409.3381,23
+1409.5171,1409.3322,27
+1409.5171,1409.1645,1
+1409.5171,1409.3799,2
+1409.5171,1409.3269,3
+1409.5171,1409.3219,6
+1409.5171,1409.2132,4
+1409.5171,1409.3894,1
+According to this https://forum.gephi.org/viewtopic.php?t=2299, As duplicate edges are found, the weight of the edge is increased, so I won’t bother with looking up for duplicate edges. There’s some arXiv bots that autmatically post every new paper submission to twitter. They give us no usefull information unless two papers are related. We have to filter them out. So I came up with this new MongoDB JavaScript</p>
+
+<p>1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+// users over posting twitter about arXiv
+var bots = db.Tweets.aggregate([
+    { $group: { _id: ‘$User.UserIDResponse’ , count: { $sum: 1 }} },
+    { $sort: { count: -1} },
+    { $limit: 30},
+    { $group: { _id: ‘’, Bots: { $addToSet: ‘$_id’ }}}
+    ])
+    .result[0]
+    .Bots</p>
+
+<p>print(“nodedef&gt;name VARCHAR,title VARCHAR,category VARCHAR”);
+db.Tweets.aggregate([
+    {$group: {_id: “$ArxivId”, Title: {$first: ‘$ArxivMetadata.title’}, Category: {$first: “$ArxivMetadata.category.@term”}}}    ])
+    .result
+    .forEach(function(paper) { 
+        print(
+            paper._id + “,’” + 
+            (paper.Title || “NA”).replace(/(\r\n|\n|\r)/gm,””) + “’,” + 
+            (paper.Category|| “NA”).toString().replace(/,/g,”;”)); });</p>
+
+<p>print(“edgedef&gt;node1 VARCHAR,node2 VARCHAR, weight INT”);
+db.Tweets
+    .aggregate([
+        {$match: {ArxivId: { $exists: 1}}},
+        {$match: {‘User.UserIDResponse’ : {$not: {$in: bots}}}},          <br />
+        {$group: {_id: “$ArxivId”, UserIDResponses: { $addToSet: ‘$User.UserIDResponse’}, RetweetCount: { $sum: ‘$RetweetCount’ }}}, 
+        {$project: {UserIDResponses: 1, RetweetCount: {$add: [‘$RetweetCount’, 1]}}}])
+    .result
+    .forEach(function(article) {
+            article[“UserIDResponses”].forEach(function(user) {
+                db.Tweets.aggregate([
+                    {$match: {ArxivId: { $exists: 1}}},
+                    {$match: {‘User.UserIDResponse’ : {$not: {$in: bots}}}},
+                    {$match: {‘User.UserIDResponse’: user}},
+                    {$group: {_id: ‘$ArxivId’, RetweetCount: {$sum: article.RetweetCount}}}])
+                .result
+                .forEach(function(userArticles){
+                    if (article[‘_id’] != userArticles[‘_id’]) {
+                        var weight = Math.pow(userArticles[‘RetweetCount’] / 1600, 1/4)
+                        print(article[‘_id’] + “,” + userArticles[‘_id’] + “,”+ weight.toPrecision(3));
+                    }
+                })
+            })
+        })
+I also had to get rid of node with no degree so I used gephi filters to filter out degrees with no node.</p>
+
+<p>After hours of procesing I came up with this graph image</p>
+
+<p>image image</p>
+
+<p>To Download GDF Data</p>
+
+<p>Why did I prefer Twitter REST API over Streaming API?</p>
+
+
+      <hr />
+      <footer role="contentinfo">
+        <div class="social-share">
+  <h4>Share on</h4>
+  <ul>
+    <li>
+      <a href="https://twitter.com/intent/tweet?text=/collecting-twitter-data-linq2twitter-2/" class="twitter" title="Share on Twitter"><i class="fa fa-twitter"></i><span> Twitter</span></a>
+    </li>
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=/collecting-twitter-data-linq2twitter-2/" class="facebook" title="Share on Facebook"><i class="fa fa-facebook"></i><span> Facebook</span></a>
+    </li>
+    <li>
+      <a href="https://plus.google.com/share?url=/collecting-twitter-data-linq2twitter-2/" class="google-plus" title="Share on Google Plus"><i class="fa fa-google-plus"></i><span> Google+</span></a>
+    </li>
+  </ul>
+</div><!-- /.social-share -->
+        <p class="byline"><strong>Collecting Data Using Windows Azure Part 2</strong> was published on <time datetime="2014-09-28T12:27:31-04:00">September 28, 2014</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+    <section id="disqus_thread"></section><!-- /#disqus_thread -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/hello-complex-networks/" title="Hello Complex Networks!!!">Hello Complex Networks!!!</a></li>
+    
+      <li><a href="/collecting-twitter-data-linq2twitter/" title="Collecting Twitter Data using Linq2Twitter">Collecting Twitter Data using Linq2Twitter</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+  
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'arazm'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+	        
+
+</body>
+</html>
