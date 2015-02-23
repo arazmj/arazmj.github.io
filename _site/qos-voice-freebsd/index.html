@@ -1,0 +1,398 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>QoS optimization for real-time services in FreeBSD &#8211; Amir Razmjou</title>
+<meta name="description" content="VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.">
+<meta name="keywords" content="">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="QoS optimization for real-time services in FreeBSD">
+<meta name="twitter:description" content="VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-4.jpg">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QoS optimization for real-time services in FreeBSD">
+<meta property="og:description" content="VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.">
+<meta property="og:url" content="/qos-voice-freebsd/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+
+<link rel="canonical" href="/qos-voice-freebsd/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/posts/" >Posts</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-4.jpg"
+    
+  alt="QoS optimization for real-time services in FreeBSD feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+	<img src="/images/bio-photo.jpg" class="bio-photo" alt="Amir Razmjou bio photo">
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Researcher</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  <a href="http://twitter.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-twitter-square"></i> Twitter</a>
+  <a href="http://facebook.com/amir.razmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-facebook-square"></i> Facebook</a>
+  <a href="http://plus.google.com/+113817162653877217251" class="author-social" target="_blank"><i class="fa fa-fw fa-google-plus-square"></i> Google+</a>
+  <a href="http://linkedin.com/in/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-linkedin-square"></i> LinkedIn</a>
+  <a href="http://instagram.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-instagram"></i> Instagram</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  <a href="http://lastfm.com/user/shotormotor" class="author-social" target="_blank"><i class="fa fa-fw fa-music"></i> Last.fm</a>
+  
+  <a href="http://www.pinterest.com/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-pinterest"></i> Pinterest</a>
+  <a href="http://foursquare.com/user/88238703" class="author-social" target="_blank"><i class="fa fa-fw fa-foursquare"></i> Foursquare</a>
+  
+  <a href="https://youtube.com/user/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-youtube-square"></i> Youtube</a>
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/qos-voice-freebsd/" rel="bookmark" title="QoS optimization for real-time services in FreeBSD">QoS optimization for real-time services in FreeBSD</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <section id="table-of-contents" class="toc">
+  <header>
+    <h3>Overview</h3>
+  </header>
+<div id="drawer">
+<ul id="markdown-toc">
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#test-environment">Test Environment</a></li>
+  <li><a href="#my-attempts">My Attempts</a>    <ul>
+      <li><a href="#proposed-solutions-to-lbta-fcs-phenomena">Proposed Solutions to LBTA-FCS Phenomena</a></li>
+    </ul>
+  </li>
+  <li><a href="#solution-viq">Solution: VIQ</a></li>
+  <li><a href="#challenges">Challenges</a>    <ul>
+      <li><a href="#transition-costs">Transition Costs</a></li>
+      <li><a href="#solution-2-h323-proxy">Solution 2: H.323 Proxy</a></li>
+    </ul>
+  </li>
+  <li><a href="#risks">Risks</a></li>
+</ul>
+
+  </div>
+</section>
+<!-- /#table-of-contents -->
+
+<h2 id="introduction">Introduction</h2>
+<p>VSAT  systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm. During technical sessions we have had with my customer we witnessed the following challenges in terms QoS:</p>
+
+<ul>
+  <li>
+    <p>Real-Time service (voice, video) do not fit very well to VSAT data infrastructure very well and results in bad customer experience in both Data Loss and Data Delay quality metrics of these services.</p>
+  </li>
+  <li>
+    <p>VSAT specific bandwidth sharing methods (Multiple Access methods like TDMA, DAMA and etc.) and general QoS optimization on end-point devices (BOD  from SATPath Company) conflict with most of QoS devices exist on market since these QoS devices in the market are targeted for more common type of networks.</p>
+  </li>
+  <li>
+    <p>Expensive-to-implement nature of VSAT link relays made some big differences in to a typical form of QoS network users got accustomed to. DAMA  allows maximum link utilization based on the bandwidth a site demands resulting poor QoS of most services and increasing network fluctuations which compensates for a reasonable good TCO to restricted-budget customers.</p>
+  </li>
+  <li>
+    <p>Long distance between 	Access Satellites in geosynchronous orbit   and VSAT terminal on earth result in long RTTs  in network. Since most QoS techniques are centered around the presence or absence of ACK packet of outgoing TCP packets. Meanwhile RTT around 600ms is common and even ideal in the VSAT environments. It’s almost impossible to determine whether the ACK packet is on the way back or it’s lost.  </p>
+  </li>
+  <li>
+    <p>Expensive nature VSAT links persuade customers to have more tendencies toward employing compression-oriented protocols which make it difficult to guaranty any type of QoS to these services and link maximum utilization. The uncertainty of bandwidth consumption on a compressed voice connection over a packet-based network results in more fluctuation and unintentionally dropping quality-critic packets like voice packets. 
+It’s important that any type of QoS in this type of environments must offer the best QoS possible and best link utilization for any type traffic (so-called bulk data) at the same time. </p>
+  </li>
+</ul>
+
+<h2 id="test-environment">Test Environment</h2>
+<p>The test environment consisted of two different networks in the same building of my customer. Two networks are connected to each other using a DAMA/Mesh VSAT link and they use SatPath products as modem. Our Product-In-Test sits exactly between the network switch of each one of these networks and the modem.  There’s exactly one PC on each one of networks that constantly download/upload files using FileZilla ftp protocol to push the network into congestion. On both networks my customer had employed voice gateways from Tenor Company which are configured to get connected to other voice gateways using H.323 protocol family. On each tests we call one IP phones and listen through from the other IP phone and check the voice quality both in terms of voice lost and voice lags respectively. </p>
+
+<p>The important situation to note is both VSAT end-points are set to use 64Kb bandwidths. Normally H.323 consumes 32Kb in its peak bandwidth usage and 2Kb in its lowest bandwidth usage. </p>
+
+<figure>
+    <a href="/images/vsat/image002.png"><img src="/images/vsat/image002.png" /></a>
+    <figcaption><a href="/images/vsat/image002.png" title="Figure 1">Figure 1</a>.</figcaption>
+</figure>
+
+<h2 id="my-attempts">My Attempts</h2>
+<p>During three technical sessions with have had with my customer we tried several solutions keeping in mind the following practices:
+1.	The solution must be as simple enough to solve the customer problem, over-perfect solutions not only increase maintenance and support costs but also we might miss the goal in the end. The best approach is to start with simple solutions and increase complexity to project on demand and that’s where the complexity pays off for itself in terms of value and customer satisfaction .
+2.	Concentrate on customer concerns.
+3.	Quality matters 
+4.	Customer needs change always.
+Session 1: (Warm-up): Experimenting with PRIQ<br />
+PRIQ is a queue discipline from AltQ family which prioritizes traffic over other type of traffic. Although the solution came very promising at first glance we came to the conclusion that:
+1.	PRIQ prioritizes traffic in terms of dequeing the prioritized packets and when it comes to congestion it has no idea which type of traffic to drop to avoid congestion.
+2.	PRIQ is more suitable when the prioritized traffic relative to whole bandwidth is at small ratio like an SSH traffic over 2Mb traffic.
+3.	Traffic acceleration and traffic shaping techniques are entirely useless when there’s reasonable amount of congestion in the link.
+4.	Even when you employ simple PRIQ traffic acceleration methods in uncongested networks you can only accelerate outgoing traffic not incoming traffic, considering we have a long RTT between two endpoints you will need one acceleration device in each end-points at least.
+Session 2: Experimenting with HFSC 
+Apparently HFSC lacks good borrowing mechanism in our scenario and we ended up utilizing roughly half of bandwidth for bulk data. I believe more investigation is needed on HFSC as it is poorly documented in all UNIX man pages and over the internet.
+Session 3: Experimenting with CBQ 
+CBQ had three main characteristics which made the best experiment results we ever had in our scenarios. 
+1.	Borrowing
+2.	Prioritizing
+3.	Shaping (the bulk traffic)
+Using CBQ we almost reached 90% of voice quality relative to ideal situation (when no bulk traffic exists along voice traffic) in terms of Packet Loss (voice lost) and Packet Delays (voice lags) and getting most of all available bandwidth when no voice data crosses over the link. Next we are going to explain the reasons why we cannot currently approach 100% voice quality.
+Late Bulk Traffic Adaptation to Fluctuated Critical Services Phenomena 
+Unlike uncompressed voice protocols, compressed voice protocols like G.XXX of H.323 protocol family usually use compression in terms of both lossy data compression and lossless compression for their multimedia services. One problem with lossy data compression algorithms is that they are too reliant on acoustic characteristics of the data crossing the wire, some of voice parts and frequencies might easily be eliminated off voice packets without any deceiving affects (e.g. the frequencies that overlap each other). On the other hand lossless compression algorithms depend on abnormality that a voice packet adheres (the more abnormal the packet data is the less it gets compressed). Silence in phone conversations are considered the less abnormal data a carrier can carry so these packets get compressed the most, in comparison to other voice packets in a voice session. There are still some environmental noises in silence although. 
+Though compression of voice packets saves a considerable amount of bandwidth, it also makes these types of services to have a fluctuating traffic so no conventional queue discipline can anticipate the bandwidth they will require in advance even for next few milliseconds . What queue disciplines like CBQ do is to simply make available the unused bandwidth on voice queue to bulk queue too immediately with zero heuristic ahead and once the voice service wants reclaim the borrowed traffic from bulk traffic queue it takes a little while for bulk traffic to get adopted to new bandwidth (the bandwidth without borrow from voice bandwidth), the problem gets even more severe when RTT is too long (in our case VSAT environment) and TCP hosts have no idea whether they lost the packet or the packet is on the way back because of absence of ACK packets. The problem is illustrated in figure 2.</p>
+
+<figure>
+    <a href="/images/vsat/image003.png"><img src="/images/vsat/image003.png" /></a>
+    <figcaption><a href="/images/vsat/image003.png" title="Figure 2">Figure 2</a>.</figcaption>
+</figure>
+
+<p>Horizontal axis represents time and the vertical axis represents amount of traffic .The vertical axis for bulk traffic and voice traffic are in opposite direction to highlight clearly the situation where both traffics overlap (the red area) and packet drops happen either by network interfaces or queue disciplines </p>
+
+<h3 id="proposed-solutions-to-lbta-fcs-phenomena">Proposed Solutions to LBTA-FCS Phenomena</h3>
+<p>They are two solutions our development team came up with, during a brainstorming session we had recently. Both solutions approach the voice quality to almost 100% of ideal situation (when no bulk traffic exists on link).
+Solution 1: VIQ , A Modification to CBQ
+This solution proposed adding a new feature to standard CBQ queue discipline named VIQ.  A queue in CBQ hierarchy marked with VIQ flag and provided with a T time parameter is defined as blow.
+The other queues on hierarchy can borrow unused VIQ queue bandwidth if and only if no packet has crossed the queue in last T milliseconds.
+altq on em0 cbq bandwidth 2Mb queue { icmp, default }
+queue icmp bandwidth 500Kb priority 2  cbq(viq 1000)
+queue default bandwidth 1.5Mb priority  1 cbq(default, borrow)
+pass out proto ICMP to queue icmp</p>
+
+<figure>
+    <a href="/images/vsat/image004.png"><img src="/images/vsat/image005.png" /></a>
+    <figcaption><a href="/images/vsat/image004.png" title="Figure 3">Figure 3 illustrates the mechanism of VIQ</a>.</figcaption>
+</figure>
+
+<p>A simple configuration file for pf.conf using new viq is shown in figure 3, According to definition we can induce that default queue cannot borrow 500Kb bandwidth of icmp queue unless no ICMP packet has crossed the icmp queue for 1000 milliseconds. In real world scenarios one can do the same type of QoS to solve LBTA-FCS problem for any type of real-time services over long RTT networks by just adjusting the right value for T.</p>
+
+<h2 id="solution-viq">Solution: VIQ</h2>
+<p>We can see VIQ doesn’t borrow the bandwidth from bulk traffic between first two hills in voice traffic whereas the time intervals between first two hills are less than 1000 milliseconds. But as you can see VIQ borrows all voice bandwidth from bulk bandwidth between 2nd and 3ird hills that’s because the time interval between 2nd and 3rd hills are less than 1000 milliseconds.<br />
+VIQ seems a promising approach although there’s some disadvantages with it. There’s still some red area in figure 3. The red area (critical point) is due to the fact that it’s impossible for VIQ to predict the 3rd hill even though timeout has been expired and it also takes a little time for bulk traffic to adapt.</p>
+
+<h2 id="challenges">Challenges</h2>
+<p>VIQ must be implemented in Kernel, The modification is very delicate because of criticality of kernel space, every single programming fault can break the whole kernel not only VIQ and network stack. 
+CBQ is a part of AltQ module. AltQ module is not a loadable module so one has to rebuild kernel for each modification to AltQ (I know fastbuild exists on FreeBSD development model but it takes 2 minutes on my PC to fastbuilt FreeBSD kernel)
+Kernel Debugging is still daunting task to people. We haven’t done that before and it’s probably more time consuming than user-land debugging.</p>
+
+<h3 id="transition-costs">Transition Costs</h3>
+<p>Despite the disadvantages VIQ it has, it can be considered a general solution to wide-range of real-time services. Even in case of H.323 protocols this solution is less prone to changes that occur during H.323 protocol updates or vendor specific modifications to this protocol.
+# Research Value
+It increases development understanding of AltQ and kernel network stack internals. These type insights solidify development team troubleshooting skills when something wrong happens in kernel network stack. This is currently the only opportunity to investigate development of new queue discipline for a real-world need. It also sounds more likely for such solutions to be included in our future products like UTMs and make them available to customers with no fear of how the real-time service is implemented.</p>
+
+<h3 id="solution-2-h323-proxy">Solution 2: H.323 Proxy</h3>
+<p>All H.323 protocols as defined in their RFC must establish a TCP connection known as Control Connection Control Connection is responsible for all type of control messages two peers need to send each other including establishing a Data Connection, authentication, negotiation for QoS or data connection protocols and ports. Sniffing the whole connection controls brings us valuable information such as</p>
+
+<ul>
+  <li>When Data Connection started exactly.</li>
+  <li>What the source and destination IP address of two peers are.</li>
+  <li>What the source and destination ports of two peers are.</li>
+  <li>When Data Connection stopped exactly.</li>
+</ul>
+
+<p>Using the exact start and stop time of Data Connection we can allocate new queues for the just established Data Connection and keep this queue as long as Data Connection lasts. Having the exact starting time of data connection at hand we even won’t have the tiny red area of congestion introduced in VIQ solution. We can also release the bandwidth allocated for voice queue exactly at the time that peers don’t require their dedicated bandwidth anymore. We believe this solution approaches voice quality up to 100% of ideal situation.
+Construction
+We can use the other part of information extracted from control connection to discover the exact source and destination information (IP and port) using these information we can make a zero-configuration device that doesn’t require new configuration in 
+1.	New deployments of device in new environments will become a trivial task for both our support staffs and customers.
+2.	Network topology changes won’t affect this device, including IP changes of both IP Phones and VOIP gateways.
+3.	Lowering the cost to support and train customers.
+4.	Offering more customer-friendly and plug-and-play product.</p>
+
+<h2 id="risks">Risks</h2>
+<p>H.323 Proxy must not be error-prone to situations where:
+1. H.323 Control Connection sends special messages that might be mistaken by negotiation messages.
+2. Vendor specific features that take advantages of open parts of H.323 control connection RFC.
+3. Administrator specific configurations that affects the behavior of device.
+There’s no guarantee that device will receive the stop message from peers that TCP connection might be lost or even each one of peer might be defected so it’s a good practice to consider a time-out value for data-connection and release voice bandwidth even if there’s to stop message from control connection.
+## Research Value
+This type of research experiences can be valuable to other type of full connection deep packet inspection; such applications can be IDS and IPS which inspect the connection for all types of viruses, intrusions and etc.</p>
+
+      <hr />
+      <footer role="contentinfo">
+        <div class="social-share">
+  <h4>Share on</h4>
+  <ul>
+    <li>
+      <a href="https://twitter.com/intent/tweet?text=/qos-voice-freebsd/" class="twitter" title="Share on Twitter"><i class="fa fa-twitter"></i><span> Twitter</span></a>
+    </li>
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=/qos-voice-freebsd/" class="facebook" title="Share on Facebook"><i class="fa fa-facebook"></i><span> Facebook</span></a>
+    </li>
+    <li>
+      <a href="https://plus.google.com/share?url=/qos-voice-freebsd/" class="google-plus" title="Share on Google Plus"><i class="fa fa-google-plus"></i><span> Google+</span></a>
+    </li>
+  </ul>
+</div><!-- /.social-share -->
+        <p class="byline"><strong>QoS optimization for real-time services in FreeBSD</strong> was published on <time datetime="2012-09-05T00:00:00-04:00">September 05, 2012</time> and last modified on <time datetime="2012-09-05">September 05, 2012</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+    <section id="disqus_thread"></section><!-- /#disqus_thread -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/playing-with-k-nearest-neighbors-algorithm/" title="Playing With K-nearest Neighbors Algorithm">Playing With K-nearest Neighbors Algorithm</a></li>
+    
+      <li><a href="/what-is-computer-security/" title="What Is Computer Security?">What Is Computer Security?</a></li>
+    
+      <li><a href="/why-does-functional-programming-matter/" title="Why does functional programming matter?">Why does functional programming matter?</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'amirrazmjousfitblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+	        
+
+</body>
+</html>
