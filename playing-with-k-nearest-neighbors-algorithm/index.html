@@ -6,25 +6,25 @@
 <head>
 <meta charset="utf-8">
 <title>Playing With K-nearest Neighbors Algorithm &#8211; Amir Razmjou</title>
-
+<meta name="description" content="This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.">
 <meta name="keywords" content="">
 
 
 
 <!-- Twitter Cards -->
 <meta name="twitter:title" content="Playing With K-nearest Neighbors Algorithm">
-
+<meta name="twitter:description" content="This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.">
 <meta name="twitter:site" content="@arazmj">
 <meta name="twitter:creator" content="@arazmj">
 
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="/images/default-thumb.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-4.jpg">
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Playing With K-nearest Neighbors Algorithm">
-
+<meta property="og:description" content="This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.">
 <meta property="og:url" content="/playing-with-k-nearest-neighbors-algorithm/">
 <meta property="og:site_name" content="Amir Razmjou">
 
@@ -105,6 +105,15 @@
 </div><!-- /.navigation-wrapper -->
 
 
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-4.jpg"
+    
+  alt="Playing With K-nearest Neighbors Algorithm feature image">
+  
+  </div><!-- /.image-wrap -->
+
 
 <div id="main" role="main">
   <div class="article-author-side">
@@ -152,89 +161,99 @@
   </header>
 <div id="drawer">
 <ul id="markdown-toc">
-  <li><a href="#overview">Overview</a></li>
   <li><a href="#testing-method">Testing Method</a></li>
+  <li><a href="#cross-validation">Cross-validation</a></li>
+  <li><a href="#worst-case">Worst-case</a></li>
 </ul>
 
   </div>
 </section>
 <!-- /#table-of-contents -->
 
-<h2 id="overview">Overview</h2>
 <p>This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.
 This program accepts a CSV file, k nearest neighbors, decision boundary value and K value for cross-validation all as parameter. It calculates accuracy value for different values of decision boundary and k values. The program accepts a coordinate as second and third parameter to classify it either as positive (red) or negative (blue) using the dataset provided. It basically finds the longest distance of in k-neighbor set relative to the given coordinate then it sums up all instances that can be reached from the coordinate, omitting the given coordinate itself. </p>
 
 <h2 id="testing-method">Testing Method</h2>
 <p>This example shows two different approaches for validation of classifier, cross-validation and worst-case.</p>
 
-<pre><code>* Cross-Validation: First all instances are shuffled, then they are split into X folds, which the value of X is already provided as a parameter to the program. The program uses each one of folds as training set and the remaining as test set until it covered all the folds as test set. It also applies one of aggregation functions to summarize results. Different type of aggregation functions implemented (i.e. average, maximum, minimum) to choose (hard-coded). In case of cross-validation average aggregation function has been applied.  
+<ul>
+  <li>
+    <p>Cross-Validation: First all instances are shuffled, then they are split into X folds, which the value of X is already provided as a parameter to the program. The program uses each one of folds as training set and the remaining as test set until it covered all the folds as test set. It also applies one of aggregation functions to summarize results. Different type of aggregation functions implemented (i.e. average, maximum, minimum) to choose (hard-coded). In case of cross-validation average aggregation function has been applied.  </p>
+  </li>
+  <li>
+    <p>Worst-Case: In case of worst case the training set is the outer set of 800 of instances relative to center and inner 200 instances for the test set. In the case of worst-case minimum aggregation function has been applied.</p>
+  </li>
+</ul>
 
-* Worst-Case: In case of worst case the training set is the outer set of 800 of instances relative to center and inner 200 instances for the test set. In the case of worst-case minimum aggregation function has been applied.
-</code></pre>
+<figure>
+    <a href="/images/knn/image004.png"><img src="/images/knn/image004.png" /></a>
+    <figcaption><a href="/images/knn/image004.png" title="Figure 1">Dataset</a>.</figcaption>
+</figure>
 
-<p>Presentation and discussion of the results for each case in tasks 2 and 3
-	* Visualization of dataset in Euclidian space shows distribution of almost all of positive instances in first quadrant and negative instances in third quadrant. 
-	There’s some negative instances penetrated into first quadrant but there’s almost no positive case entering into third quadrant.</p>
+<p>Visualization of dataset in Euclidian space shows distribution of almost all of positive instances in first quadrant and negative instances in third quadrant. 
+There’s some negative instances penetrated into first quadrant but there’s almost no positive case entering into third quadrant.</p>
 
 <p>Training set as test set: all instances used for both training set and test set.</p>
 
 <figure>
-    <a href="/images/image004.png"><img src="/images/image004.png" /></a>
-    <figcaption><a href="/images/image004.png" title="Figure 2">Accuracy decreases as k, the number of neighbors increases</a>.</figcaption>
+    <a href="/images/knn/image007.png"><img src="/images/knn/image007.png" /></a>
+    <figcaption><a href="/images/knn/image007.png" title="Figure 2">Accuracy decreases as k, the number of neighbors increases</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image007.png"><img src="/images/image007.png" /></a>
-    <figcaption><a href="/images/image007.png" title="Figure 3">True Positive Rate remains constant while False Positive Rate increases gradually as k increases</a>.</figcaption>
+    <a href="/images/knn/image009.png"><img src="/images/knn/image009.png" /></a>
+    <figcaption><a href="/images/knn/image009.png" title="Figure 3">True Positive Rate remains constant while False Positive Rate increases gradually as k increases</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image009.png"><img src="/images/image009.png" /></a>
-    <figcaption><a href="/images/image009.png" title="Figure 4">Accuracy forms a “downward parabola curve” similar to Gaussian distribution for decision boundary range between zero and one</a>.</figcaption>
+    <a href="/images/knn/image011.png"><img src="/images/knn/image011.png" /></a>
+    <figcaption><a href="/images/knn/image011.png" title="Figure 4">Accuracy forms a “downward parabola curve” similar to Gaussian distribution for decision boundary range between zero and one</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image011.png"><img src="/images/image011.png" /></a>
-    <figcaption><a href="/images/image011.png" title="Figure 5">TPR decreases as decision boundary increases while FPR increases as decision boundary increases</a>.</figcaption>
+    <a href="/images/knn/image013.png"><img src="/images/knn/image013.png" /></a>
+    <figcaption><a href="/images/knn/image013.png" title="Figure 5">TPR decreases as decision boundary increases while FPR increases as decision boundary increases</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image011.png"><img src="/images/image011.png" /></a>
-    <figcaption><a href="/images/image011.png" title="Figure 6">TPR decreases as decision boundary increases while FPR increases as decision boundary increases</a>.</figcaption>
+    <a href="/images/knn/image015.png"><img src="/images/knn/image015.png" /></a>
+    <figcaption><a href="/images/knn/image015.png" title="Figure 7">ROC graph shows a near-perfect classifier</a>.</figcaption>
+</figure>
+
+<h2 id="cross-validation">Cross-validation</h2>
+<p>K folds as test set and K-1 as training set repeatedly covering all data set as test set.</p>
+
+<figure>
+    <a href="/images/knn/image019.png"><img src="/images/knn/image019.png" /></a>
+    <figcaption><a href="/images/knn/image019.png" title="Figure 7">Cross Validation shows more realistic results</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image015.png"><img src="/images/image015.png" /></a>
-    <figcaption><a href="/images/image015.png" title="Figure 7">ROC graph shows a near-perfect classifier</a>.</figcaption>
+    <a href="/images/knn/image021.png"><img src="/images/knn/image019.png" /></a>
+    <figcaption><a href="/images/knn/image019.png" title="Figure 8">Cross Validation shows a jump on FPR around K=450</a>.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/image019.png"><img src="/images/image019.png" /></a>
-    <figcaption><a href="/images/image019.png" title="Figure 7">Cross-validation: K folds as test set and K-1 as training set repeatedly covering all data set as test set</a>.</figcaption>
+    <a href="/images/knn/image023.png"><img src="/images/knn/image023.png" /></a>
+    <figcaption><a href="/images/knn/image023.png" title="Figure 9">ROC curve obtained by cross validation, still near-perfect but shows some fluctuation</a>.</figcaption>
 </figure>
+
+<h2 id="worst-case">Worst-case</h2>
+<p>Inner part of dataset used as training set and outer part of dataset used as test set. The purpose is to get worst AUC we can get off the dataset using the same classifier.</p>
 
 <figure>
-    <a href="/images/image019.png"><img src="/images/image019.png" /></a>
-    <figcaption><a href="/images/image019.png" title="Figure 7">Cross-validation: K folds as test set and K-1 as training set repeatedly covering all data set as test set</a>.</figcaption>
+    <a href="/images/knn/image025.png"><img src="/images/knn/image025.png" /></a>
+    <figcaption><a href="/images/knn/image025.png" title="Figure 9">Worst-Case validation shows worst AUC</a>.</figcaption>
 </figure>
 
-<p>Figure 7 - Cross Validation shows more realistic results</p>
+<p>Accuracy curve confirms to the previous results except that they show less complexity (more consistent value with less fluctuation). Remarkably, FPR and TPR show more complexity compared to last results. </p>
 
-<p>Figure 8 - Cross Validation shows a jump on FPR around K=450</p>
+<p>Analysis and conclusions comparing all results. Please provide a critical interpretation of what you’re observing in the graphs.</p>
 
-<p>Figure 9 - ROC curve obtained by cross validation, still near-perfect but shows some fluctuation.</p>
-
-<p>Worst-case: Inner part of dataset used as training set and outer part of dataset used as test set. The purpose is to get worst AUC we can get off the dataset using the same classifier.</p>
-
-<p>Figure 10 - Worst-Case validation shows worst AUC
-Accuracy curve confirms to the previous results except that they show less complexity (more consistent value with less fluctuation). Remarkably, FPR and TPR show more complexity compared to last results. </p>
-
-<p>Analysis and conclusions comparing all results. Please provide a critical interpretation of what you’re observing in the graphs.
-	Increasing k for KNN algorithm causes more FPs than TPs. The reason for that is there’s less likely to have a red points in first quadrant to be justified as blue. As red points are relatively adjacent to each other and big k values would not affect classifier substantially. Inversely, some of blue points are scattered into red region and a fairly large value of k can predict them as red as they are all surrounded by red points.
-	Decision boundary is the trade-off of optimism and pessimism. The lower decision boundary increases TPs also increases FPs and vice versa. The curve depicting accuracy over decision boundary value almost forms a Gaussian distribution and implies that a moderate value for decision boundary is most likely the best bet for the given dataset. 
-	Dataset contains very few anomalies so ROC shows a near-perfect classifier and AUC is almost maximum.
-	Comparing the fluctuation in results obtained in task 2 and task 3. It may imply that cross-validation alleviates the complexity of accuracy curve and increase of fluctuation FPR and TPR curves and consequently ROC curve increase. But in both cases value curves remain consistent on values for decision boundary near 0 or 1.</p>
-
+<p>Increasing k for KNN algorithm causes more FPs than TPs. The reason for that is there’s less likely to have a red points in first quadrant to be justified as blue. As red points are relatively adjacent to each other and big k values would not affect classifier substantially. Inversely, some of blue points are scattered into red region and a fairly large value of k can predict them as red as they are all surrounded by red points.
+Decision boundary is the trade-off of optimism and pessimism. The lower decision boundary increases TPs also increases FPs and vice versa. The curve depicting accuracy over decision boundary value almost forms a Gaussian distribution and implies that a moderate value for decision boundary is most likely the best bet for the given dataset. 
+Dataset contains very few anomalies so ROC shows a near-perfect classifier and AUC is almost maximum.
+Comparing the fluctuation in results obtained in task 2 and task 3. It may imply that cross-validation alleviates the complexity of accuracy curve and increase of fluctuation FPR and TPR curves and consequently ROC curve increase. But in both cases value curves remain consistent on values for decision boundary near 0 or 1.</p>
 
       <hr />
       <footer role="contentinfo">
@@ -255,6 +274,8 @@ Accuracy curve confirms to the previous results except that they show less compl
         <p class="byline"><strong>Playing With K-nearest Neighbors Algorithm</strong> was published on <time datetime="2015-02-22T23:28:34-05:00">February 22, 2015</time>.</p>
       </footer>
     </div><!-- /.article-wrap -->
+  
+    <section id="disqus_thread"></section><!-- /#disqus_thread -->
   
   </article>
 </div><!-- /#main -->
@@ -300,6 +321,30 @@ Accuracy curve confirms to the previous results except that they show less compl
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
+
+  
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'amirrazmjousfitblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
 	        
 

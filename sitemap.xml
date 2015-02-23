@@ -31,27 +31,33 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>/</loc>
-    <lastmod>2015-02-22T23:46:47-05:00</lastmod>
+    <loc>/about/</loc>
+    <lastmod>2015-02-23T09:23:22-05:00</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>/theme-setup/</loc>
-    <lastmod>2015-02-22T23:46:47-05:00</lastmod>
+    <loc>/portfolio/</loc>
+    <lastmod>2015-02-23T09:23:22-05:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>/posts/</loc>
-    <lastmod>2015-02-22T23:46:47-05:00</lastmod>
+    <lastmod>2015-02-23T09:23:22-05:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>/about/</loc>
-    <lastmod>2015-02-22T23:46:47-05:00</lastmod>
+    <loc>/theme-setup/</loc>
+    <lastmod>2015-02-23T09:23:22-05:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>/</loc>
+    <lastmod>2015-02-23T09:23:22-05:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
 </urlset>
