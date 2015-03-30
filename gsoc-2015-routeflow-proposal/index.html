@@ -1,0 +1,319 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>GSoC 2015 RouteFlow Proposal &#8211; Amir Razmjou</title>
+<meta name="description" content="Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015">
+<meta name="keywords" content="routeflow, test, gsoc">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="GSoC 2015 RouteFlow Proposal">
+<meta name="twitter:description" content="Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-4.jpg">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GSoC 2015 RouteFlow Proposal">
+<meta property="og:description" content="Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015">
+<meta property="og:url" content="/gsoc-2015-routeflow-proposal/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+
+<link rel="canonical" href="/gsoc-2015-routeflow-proposal/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/posts/" >Posts</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/presentations/" >Presentations</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-4.jpg"
+    
+  alt="GSoC 2015 RouteFlow Proposal feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+	<img src="/images/bio-photo.jpg" class="bio-photo" alt="Amir Razmjou bio photo">
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Researcher</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  <a href="http://twitter.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-twitter-square"></i> Twitter</a>
+  <a href="http://facebook.com/amir.razmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-facebook-square"></i> Facebook</a>
+  <a href="http://plus.google.com/+113817162653877217251" class="author-social" target="_blank"><i class="fa fa-fw fa-google-plus-square"></i> Google+</a>
+  <a href="http://linkedin.com/in/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-linkedin-square"></i> LinkedIn</a>
+  <a href="http://instagram.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-instagram"></i> Instagram</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  <a href="http://lastfm.com/user/shotormotor" class="author-social" target="_blank"><i class="fa fa-fw fa-music"></i> Last.fm</a>
+  
+  <a href="http://www.pinterest.com/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-pinterest"></i> Pinterest</a>
+  <a href="http://foursquare.com/user/88238703" class="author-social" target="_blank"><i class="fa fa-fw fa-foursquare"></i> Foursquare</a>
+  
+  <a href="https://youtube.com/user/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-youtube-square"></i> Youtube</a>
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/gsoc-2015-routeflow-proposal/" rel="bookmark" title="GSoC 2015 RouteFlow Proposal">GSoC 2015 RouteFlow Proposal</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <section id="table-of-contents" class="toc">
+  <header>
+    <h3>Overview</h3>
+  </header>
+<div id="drawer">
+<ul id="markdown-toc">
+  <li><a href="#executive-summary">Executive Summary</a></li>
+  <li><a href="#introduction">Introduction</a>    <ul>
+      <li><a href="#related-works">Related works</a></li>
+      <li><a href="#goals-and-objectives">Goals and Objectives</a></li>
+      <li><a href="#procedures">Procedures</a></li>
+    </ul>
+  </li>
+  <li><a href="#timeline-and-milestones">Timeline and milestones</a></li>
+</ul>
+
+  </div>
+</section>
+<!-- /#table-of-contents -->
+
+<p>Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015 </p>
+
+<h3 id="executive-summary">Executive Summary</h3>
+<p>The purpose of this paper is to propose an automated test suite for RouteFlow (RF) project. RF project has gone through reasonable number of architectural changes since its origin. The unified test project for RF aims to provide a series of tests to ensure that the integrated components of RF function as expected in both development and production environments.  It is expected this project to expedite the project development path by avoiding manual tests. The biggest impact is that developers can make changes in RF components without worrying about breaking the integrity of the whole RF framework. </p>
+
+<h3 id="introduction">Introduction</h3>
+<p>The overall objective of this proposal is to ensure that we can cover requirements for unified test project as much possible in advance. </p>
+
+<p>As part of a developer activity, a typical RT test case scenario would be to set up a proper RT development environment, make component modifications, and verify the expected behavior change in RT while ensuring the integrity and correctness of the RT codebase being modified. For example, in the case of altering RFProtocol specification, not only must the whole RF framework be rebuilt, but the flows in switches must also be flushed and the connection between host be confirmed. </p>
+
+<p>RF provides virtualized IP routing services for OpenFlow networks.  It is mainly the integration of several interconnected and distributed systems and technologies, each built using different protocols from a variety of organizations as well as its main components developed by RF community. The verification and validation of overall system functionalities of the whole system during development can be viewed as a tedious and challenging task, taking into account possible combination of components and configurations. </p>
+
+<p>One challenging aspect is RF independency from specific routing engine implementation (i.e. Quagga, XORP, Bird), which entails the use LXC virtualization environment in order to retain multiple instances of routing engines and routing tables simultaneously in isolation, which evidently presents more complexity to the architecture as well as the virtual network connectivity of containers of components in addition to IPC mechanism of them must also be verified.</p>
+
+<p>Another challenging aspect is to embed a  portion of test scenarios as an auto-self-test module to the RT platform so end-users can take advantage of auto-self-test, to validate RT configuration regardless of underlying OpenFlow switches or network topology. </p>
+
+<h4 id="related-works">Related works</h4>
+<p>GNU AutoTest: Basically is going to be used in integrity test suite. It simplifies tests that depend on text matching it also allow us to easily put a wrapper around each test by using a macro to invoke it. It can also integrated with the project make file to make sure it is invoked as part of built process.  </p>
+
+<p>Mininet: it is a network emulator, which creates a network of virtual hosts, switches, controllers, and links. Mininet hosts run standard Linux network software, and its switches support OpenFlow for highly flexible custom routing and Software-Defined Networking.</p>
+
+<h4 id="goals-and-objectives">Goals and Objectives</h4>
+<p>Currently the RF package includes two shell scripts that automatically configure and run RF components, one illustrating a single network and the other one a network topology with four routers exchanging routes through OSPF routing protocol. The former one instantiates LXC containers representing physical hosts and while the second one employs MiniNet to create a corresponding physical network topology. </p>
+
+<p>Three main categories of requirements Connectivity tests, Component integrity test, Components integrity test for E2E tests in this proposal are going to be addressed. </p>
+
+<figure>
+    <a href="/images/routeflow.png"><img src="/images/routeflow.png" /></a>
+    <figcaption><a href="/images/routeflow.png" title="Figure 1">Integrity vs Connectivity Tests</a>.</figcaption>
+</figure>
+
+<p><strong>Connectivity tests</strong>: ensure the connectivity between end-hosts, their corresponding virtual router gateway. 
+Throughout the connectivity tests we employ both positive and negative tests by not only testing the connectivity of hosts (positive) but also ensuring that the connection can not be maintained without means of RT. Specifically by disconnecting temporarily these components (negative test) (disconnecting the controller temporarily and flush out all flows switch and running the connectivity test again). This test suit also output related matrix indicating the connectivity state of all end-hosts as an end.</p>
+
+<p><strong>Components integrity test</strong>: this test suite verifies the expected state of RF components and the connectivity between all RF components once they are all properly configured and started by initial scripts. This test suite covers the connectivity between RFVMs and the host management interface. It also verifies of RFClient, Quagga specific processes, specifically, zebra, bgpd, ospfd as well on RFVMs as well as RF-Server, OpenFlow Controller (Ryu, Floodlight, POX, NOX) and RF-Proxy, MongoDB by verifying both status of the running process and expected listening port on that process. This test suite is also responsible to verify expected version of depended components (i.e. MongoDB, Open vSwitch, Linux Kernel, etc)</p>
+
+<p><strong>Consistency tests</strong>: This test suite is suitable to expedite test cycles by restricting the system under test (SUT) limited to only to hardware or software switches which in case that the automated test of this suite compares and verifies each RFVMs routing table entries and ARP table entries with the corresponding flow entries in the datapath under the test.</p>
+
+<h4 id="procedures">Procedures</h4>
+<p><em>Warm up</em>: BGP Test rftest3: Just another shell script for RF demonstration just like rftest2 but employing BGP routing protocol instead of OSPF between virtual routers. </p>
+
+<p><em>Integrity Tests</em>: This test suite is basically a series of shell scripts and python script which are invoked by AutoTest scripts to verify RF components status, listening ports, the connection between RFVMs and the host. This test suite must possibility test anything that might go wrong with deployment of RT framework thus new tests, features must be added to package during this summer project and throughout RT project development. </p>
+
+<p><em>Connectivity Test</em>: This test suite involves development of a Mininet modules and porting older RF tests into Python. In particular Mininet module allows for even more integration between RT framework and Mininet, it also makes the definition of implementation of new test scenarios much easier in future by using both Python scripts and Mininet CLI. </p>
+
+<p>Mininet Python Module (mininet.rf): this module provides RF specific extension to Mininet main object as new collection and functions:
+o	net.rfvms: the collection representing RFVMs objects.<br />
+o	net.addRfvm(): adds a new RFVM to RF controller
+o	net.mapSwitchRfvm() as well as supplying Quagga specific configurration to specific RFVMs.
+•	Revisited Tests (rftest1.py, rftest2.py, rftest3.py) the same and behavior and functionality of rftest1, rftest2 and rftest3, except that all tests are runnable in Mininet though there will be only a single initial script to configuration and start the main components environment which will be the same main script in Vandervechen branch, projectw.sh). 
+•	Once we have needed material constructed needed infrastructure to easily reuse built-in connectivity test features of the Mininet and also implement new a new command to implement positive and negative connectivity tests on end-hosts.  </p>
+
+<p>Consistency Tests: This test suite is a Shell Script making use of AutoTest M4 scripts, which verifies RFVM routing table entries with the switch in the test. 
+Self-Tests: Merging and rftest1 and ping.py in projectw.sh 
+Documentation: RouteFlow Mininet Module (mininet.rf) API Documentation, user  documentation, instructions on how to run integrity tests, connectivity tests (using Mininet).</p>
+
+<p>In general the only RT component that will be affected is the RF-Test and in the case Vandervechen branch the script file project.sh.</p>
+
+<h3 id="timeline-and-milestones">Timeline and milestones</h3>
+<ol>
+  <li>BGP Test Scenario (rftest3) due on 16 May</li>
+  <li>MiniNet Python version of rftest1, rftest2, rftest3 due on 30 May</li>
+  <li>Consistency Tests due on 13 June</li>
+  <li>Integrity Tests due on 26 June</li>
+  <li>Consistency Tests due on 11 July</li>
+  <li>Finalizing and documenting due on 31 July</li>
+</ol>
+
+      <hr />
+      <footer role="contentinfo">
+        <div class="social-share">
+  <h4>Share on</h4>
+  <ul>
+    <li>
+      <a href="https://twitter.com/intent/tweet?text=/gsoc-2015-routeflow-proposal/" class="twitter" title="Share on Twitter"><i class="fa fa-twitter"></i><span> Twitter</span></a>
+    </li>
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=/gsoc-2015-routeflow-proposal/" class="facebook" title="Share on Facebook"><i class="fa fa-facebook"></i><span> Facebook</span></a>
+    </li>
+    <li>
+      <a href="https://plus.google.com/share?url=/gsoc-2015-routeflow-proposal/" class="google-plus" title="Share on Google Plus"><i class="fa fa-google-plus"></i><span> Google+</span></a>
+    </li>
+  </ul>
+</div><!-- /.social-share -->
+        <p class="byline"><strong>GSoC 2015 RouteFlow Proposal</strong> was published on <time datetime="2015-03-30T15:23:06-04:00">March 30, 2015</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/playing-with-k-nearest-neighbors-algorithm/" title="Playing With K-nearest Neighbors Algorithm">Playing With K-nearest Neighbors Algorithm</a></li>
+    
+      <li><a href="/what-is-computer-security/" title="What Is Computer Security?">What Is Computer Security?</a></li>
+    
+      <li><a href="/why-does-functional-programming-matter/" title="Why does functional programming matter?">Why does functional programming matter?</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+	        
+
+</body>
+</html>
