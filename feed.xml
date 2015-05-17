@@ -4,7 +4,7 @@
 <generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2015-05-16T22:15:45-04:00</updated>
+<updated>2015-05-17T16:31:08-04:00</updated>
 <id>/</id>
 <author>
   <name>Amir Razmjou</name>
@@ -1004,6 +1004,10 @@ b.	If two bridges have the same cost to root, they use their port ID as a tiebre
     &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
       &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;plot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;#histogram&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hArray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/demo/cse5656_01.html&quot;&gt;Full Screen Version&lt;/a&gt;&lt;/p&gt;
+
+&lt;iframe src=&quot;/assets/demo/cse5656_01.html&quot; style=&quot;border:none&quot; width=&quot;100%&quot; height=&quot;800&quot;&gt;&lt;/iframe&gt;
 
 
     &lt;p&gt;&lt;a href=&quot;/hello-complex-networks/&quot;&gt;Hello Complex Networks!!!&lt;/a&gt; was originally published by Amir Razmjou at &lt;a href=&quot;&quot;&gt;Amir Razmjou&lt;/a&gt; on August 26, 2014.&lt;/p&gt;
