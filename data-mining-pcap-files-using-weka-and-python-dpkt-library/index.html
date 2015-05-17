@@ -1,0 +1,361 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Data-Mining PCAP files using Weka and Python DPKT library &#8211; Amir Razmjou</title>
+<meta name="description" content="Using Weka, Python DPKT to find malicious traffic flows in FTP server control flows.">
+<meta name="keywords" content="">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="Data-Mining PCAP files using Weka and Python DPKT library">
+<meta name="twitter:description" content="Using Weka, Python DPKT to find malicious traffic flows in FTP server control flows.">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="/images/default-thumb.png">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Data-Mining PCAP files using Weka and Python DPKT library">
+<meta property="og:description" content="Using Weka, Python DPKT to find malicious traffic flows in FTP server control flows.">
+<meta property="og:url" content="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+
+<link rel="canonical" href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/posts/" >Posts</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/presentations/" >Presentations</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/papers/" >Papers</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+	<img src="/images/bio-photo.jpg" class="bio-photo" alt="Amir Razmjou bio photo">
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Researcher</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  <a href="http://twitter.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-twitter-square"></i> Twitter</a>
+  <a href="http://facebook.com/amir.razmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-facebook-square"></i> Facebook</a>
+  <a href="http://plus.google.com/+113817162653877217251" class="author-social" target="_blank"><i class="fa fa-fw fa-google-plus-square"></i> Google+</a>
+  <a href="http://linkedin.com/in/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-linkedin-square"></i> LinkedIn</a>
+  <a href="http://instagram.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-instagram"></i> Instagram</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  <a href="http://lastfm.com/user/shotormotor" class="author-social" target="_blank"><i class="fa fa-fw fa-music"></i> Last.fm</a>
+  
+  <a href="http://www.pinterest.com/amirrazmjou" class="author-social" target="_blank"><i class="fa fa-fw fa-pinterest"></i> Pinterest</a>
+  <a href="http://foursquare.com/user/88238703" class="author-social" target="_blank"><i class="fa fa-fw fa-foursquare"></i> Foursquare</a>
+  
+  <a href="https://youtube.com/user/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-youtube-square"></i> Youtube</a>
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/" rel="bookmark" title="Data-Mining PCAP files using Weka and Python DPKT library">Data-Mining PCAP files using Weka and Python DPKT library</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <p>While different types of data-mining algorithms have been studied for classification of network traffics, the application of structure data mining on network flows remained almost unexplored. Also the number of protocol standards are getting numerous as more services and applications emerge into the market. Also interpretation of a certain protocol usage often requires relevant domain knowledge of the protocol. </p>
+
+<p>Meanwhile, not all protocols specifications are public due to either security reasons or regulations that standardization organization imposes to keep open standard intact as much as possible. Also simply confirming traffic flow against protocol specification doesn’t always imply legitimate usage of the service some examples are XML XXE attacks and FTP bounce attacks all perfectly match to the protocol specifications.</p>
+
+<p>The objective of this experiment is to examine the possibility of intrusion detection assuming that there is no prior knowledge about the protocol specification at hand. I  expected this approach to have several advantages: </p>
+
+<ul>
+  <li>Capability to check for anomalies in vendor-specific and closed protocols.</li>
+  <li>Capability to detect suspicious usages of standard protocol as not all of features specified in protocol specification can be identified harmless depending on the context they are being used (i.e. XXE attacks ).</li>
+  <li>Provides the opportunity the IDS to react more intelligently to detect anomalies making it even possible to detect unknown attacks.  </li>
+</ul>
+
+<figure>
+    <a href="/images/pcap/ftpclient.png"><img src="/images/pcap/ftpclient.png" /></a>
+    <figcaption><a href="/images/pcap/ftpclient.png" title="Figure 2">Simple FTP server user interaction</a></figcaption>
+</figure>
+
+<p>In order to induce the classifier we need a general hypothesis language  to express typical interactions of users with FTP servers. We first started to extract application-layer features relevant from the PCAP dump file, we used DPKT Python library to aggregate packets into their relevant traffic flows, later we used regular expressions to extract FTP commands and their corresponding response code in each flow.  </p>
+
+<figure>
+    <a href="/images/pcap/process.png"><img src="/images/pcap/process.png" /></a>
+    <figcaption><a href="/images/pcap/process.png" title="Figure 1">Data Pipline</a></figcaption>
+</figure>
+
+<p>The first step would be to classify different flows in a Python dictionary, the Python code snippet below parses PCAP file and turns the it into dictionary where keys are the TCP tuple (source IP, destination IP, source port, destination port) and the values are accululated content of application traffic. </p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">dpkt</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="c"># Connections with current buffer</span>
+
+<span class="k">def</span> <span class="nf">parse_pcap_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+	<span class="n">pcap</span> <span class="o">=</span> <span class="n">dpkt</span><span class="o">.</span><span class="n">pcap</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+	
+	<span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">buf</span> <span class="ow">in</span> <span class="n">pcap</span><span class="p">:</span>
+		<span class="n">eth</span> <span class="o">=</span> <span class="n">dpkt</span><span class="o">.</span><span class="n">ethernet</span><span class="o">.</span><span class="n">Ethernet</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">eth</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">dpkt</span><span class="o">.</span><span class="n">ethernet</span><span class="o">.</span><span class="n">ETH_TYPE_IP</span><span class="p">:</span>
+			<span class="k">continue</span>
+		<span class="n">ip</span> <span class="o">=</span> <span class="n">eth</span><span class="o">.</span><span class="n">data</span>
+		<span class="k">if</span> <span class="n">ip</span><span class="o">.</span><span class="n">p</span> <span class="o">!=</span> <span class="n">dpkt</span><span class="o">.</span><span class="n">ip</span><span class="o">.</span><span class="n">IP_PROTO_TCP</span><span class="p">:</span>
+			<span class="k">continue</span>	
+		<span class="n">tcp</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">data</span>
+	
+		<span class="n">tupl</span> <span class="o">=</span> <span class="p">((</span><span class="n">ip</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">tcp</span><span class="o">.</span><span class="n">sport</span><span class="p">),</span> <span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dst</span> <span class="p">,</span> <span class="n">tcp</span><span class="o">.</span><span class="n">dport</span><span class="p">))</span>
+		<span class="n">rtupl</span> <span class="o">=</span> <span class="p">((</span><span class="n">ip</span><span class="o">.</span><span class="n">dst</span> <span class="p">,</span> <span class="n">tcp</span><span class="o">.</span><span class="n">dport</span><span class="p">),</span> <span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">tcp</span><span class="o">.</span><span class="n">sport</span><span class="p">))</span>
+
+		<span class="k">if</span> <span class="n">tupl</span> <span class="ow">in</span> <span class="n">conn</span><span class="p">:</span>
+			<span class="n">conn</span><span class="p">[</span><span class="n">tupl</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tcp</span><span class="o">.</span><span class="n">data</span>
+		<span class="k">elif</span> <span class="n">rtupl</span> <span class="ow">in</span> <span class="n">conn</span><span class="p">:</span>
+			<span class="n">conn</span><span class="p">[</span><span class="n">rtupl</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tcp</span><span class="o">.</span><span class="n">data</span>			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">conn</span><span class="p">[</span><span class="n">tupl</span><span class="p">]</span> <span class="o">=</span> <span class="n">tcp</span><span class="o">.</span><span class="n">data</span>
+	
+	<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
+
+<p>Once the dictionary object has been constructed I can furthre classify my traffic based on their content. In my case I need the know the exact implementation of FTP server. I already extracted distinct FTP signitures by parsing the payloads. The PCAP file is consisted of at least 64 different implementations of FTP  distinguished by FTP servers’ welcome messages. Once different signatures detected each flow were corresponding FTP server label as a new attribute. </p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">signitures</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s">&#39;</span><span class="se">\r\n</span><span class="s">You do not have permission&#39;</span><span class="p">:</span> <span class="s">&#39;nopermission&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; FTP server (OEM FTPD version 1.01)&#39;</span><span class="p">:</span> <span class="s">&#39;ftpd1.01&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; FTP server (UNIX(r) System V Release 4.0)&#39;</span><span class="p">:</span> <span class="s">&#39;unixsystemv&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; FTP server (Version 4.125&#39;</span><span class="p">:</span> <span class="s">&#39;ftp4125&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; FTP server (WinQVT/Net v3.9)&#39;</span><span class="p">:</span> <span class="s">&#39;ftpwinqvt&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; Microsoft FTP Service (Version 3.0)&#39;</span><span class="p">:</span> <span class="s">&#39;msftp3&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; Microsoft FTP Service (Version 4.0)&#39;</span><span class="p">:</span> <span class="s">&#39;msftp4&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt; Microsoft FTP Service (Version 5.0)&#39;</span><span class="p">:</span> <span class="s">&#39;msftp5&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;*&gt;..&lt;*&gt;.&lt;*&gt; FTP server (Version wu-2.6.1-20)&#39;</span><span class="p">:</span> <span class="s">&#39;wu261&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP Server Ready&#39;</span><span class="p">:</span> <span class="s">&#39;general2&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Compaq Tru64 UNIX Version 5.60)&#39;</span><span class="p">:</span> <span class="s">&#39;true64&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Digital UNIX Version 5.60)&#39;</span><span class="p">:</span> <span class="s">&#39;digitalunix&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Lawrence Berkeley National Laboratory&#39;</span><span class="p">:</span> <span class="s">&#39;lawrence&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (QVT/Net 4.0)&#39;</span><span class="p">:</span> <span class="s">&#39;qvtnet4&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (SunOS 4.1)&#39;</span><span class="p">:</span> <span class="s">&#39;sunos41&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (SunOS 5.6)&#39;</span><span class="p">:</span> <span class="s">&#39;sunos56&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (SunOS 5.7)&#39;</span><span class="p">:</span> <span class="s">&#39;sunos57&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (SunOS 5.8)&#39;</span><span class="p">:</span> <span class="s">&#39;sunos58&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version 1.7.212.2&#39;</span><span class="p">:</span> <span class="s">&#39;general172122&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version 1.7.212.5&#39;</span><span class="p">:</span> <span class="s">&#39;general172125&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version 6.00LS)&#39;</span><span class="p">:</span> <span class="s">&#39;general6.00ls&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version wu-2.6.1-0.6x.21)&#39;</span><span class="p">:</span> <span class="s">&#39;wu2610621&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version wu-2.6.1-16.7x.1)&#39;</span><span class="p">:</span> <span class="s">&#39;wu2611671&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version wu-2.6.1-20)&#39;</span><span class="p">:</span> <span class="s">&#39;wu2616120&#39;</span><span class="p">,</span>
+	<span class="s">&#39;220 &lt;domain&gt; FTP server (Version wu-2.6.2(1)&#39;</span><span class="p">:</span> <span class="s">&#39;wu2616121&#39;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>Having different signitures at hand we can look into payloads for the FTP commands user sends to the server and the responses code they receive using some regular expressions and pattern matching in Python.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+	<span class="n">srcip</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">inet_ntoa</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+	<span class="n">dstip</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">inet_ntoa</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+	<span class="n">sport</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+	<span class="n">dport</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+	<span class="n">protocol</span> <span class="o">=</span> <span class="s">&quot;other&quot;</span>
+	<span class="k">for</span> <span class="n">signiture</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">signitures</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+		<span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">signiture</span><span class="p">):</span>
+			<span class="n">protocol</span> <span class="o">=</span> <span class="n">label</span>
+
+	<span class="n">trans</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r\n</span><span class="s">([a-zA-Z]+).*?</span><span class="se">\r\n</span><span class="s">(\d+) &#39;</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+		<span class="n">command</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+		<span class="n">code</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+		<span class="k">print</span> <span class="s">&#39;{}:{}-{}:{},{},{},{}&#39;</span><span class="o">.</span><span class="n">format</span> <span class="p">(</span><span class="n">srcip</span><span class="p">,</span> <span class="n">sport</span><span class="p">,</span> <span class="n">dstip</span><span class="p">,</span> <span class="n">dport</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span></code></pre></div>
+
+<p>The resulting dataset is something like this</p>
+<figure>
+    <a href="/images/pcap/dataset.png"><img src="/images/pcap/dataset.png" /></a>
+    <figcaption><a href="/images/pcap/dataset.png" title="Figure 3">Dataset</a></figcaption>
+</figure>
+
+<p>Later we used a data-mining algorithm to train a classifier our dataset. The classifier must be general enough to cover most of our dataset at the same time and also leave room for valid user behavioral changes. It also must take into account the order of FTP commands. We first investigated rule induction algorithms and association rules. Association rules are not suitable hypothesis language to capture underling protocol behavior as capture only dependency of events not considering the sequential property of them.
+Sequential Pattern Mining algorithms introduced as a new method for discovering sequential patterns. The input data is a set of sequences called data sequences were each data sequence is a list of transactions and each transaction is a sets of items. Typically there is a transaction 􏰎time associated with each transaction. A sequential pattern also consists of a list of sets of items [1]. Although this problem initially was motivated by applications in retailing industry but it seems a reasonably good match for capturing our underlying concept of legitimate network traffic. 
+In our dataset, each transaction represents an FTP command along to its responding code. It worth to mention that all the items in an element of a sequential pattern must be present in a single transaction for the data sequence to support the pattern [1]
+For example in figure 1 [] PASS along with its response code of 230 appeared after USER command in all five rules. In first two cases PASS command appeared with response code of 230 which means it can only support instances having the same command and response code but the third rule appearing after USER command. But as it shows in rest of rules PASS command appeared with no corresponding return code so it can support all instances with a PASS command regardless of the value of response code. </p>
+
+<figure>
+    <a href="/images/pcap/result.png"><img src="/images/pcap/result.png" /></a>
+    <figcaption><a href="/images/pcap/result.png" title="Figure 1"></a></figcaption>
+</figure>
+<p>These rules can be interpreted accordingly as one of these case scenarios where the FTP server
+* Authorizes user as an anonymous user (1, 2).
+* Users enters invalid username (3, 4)
+* User enters invalid username and later he also enters invalid password (5).
+All these rules matches with our understanding of possible interactions between users and FTP servers and anything out these cases can be considered suspicious interaction. </p>
+<figure>
+    <a href="/images/pcap/pie.png"><img src="/images/pcap/pie.png" /></a>
+    <figcaption><a href="/images/pcap/pie.png" title="Figure 1"></a></figcaption>
+</figure>
+
+<p>One of intrinsic features of GSP algorithm is that it eliminates redundant appearance of items in rules so no matter how many times an invalid username is inputted to the FTP server (USER, 331) it’s going to appear only once in the GSP rules. That is one of drawbacks of this approach, which makes it ineffective against Brute-Force or application-layer DoS attacks.</p>
+
+
+      <hr />
+      <footer role="contentinfo">
+        <div class="social-share">
+  <h4>Share on</h4>
+  <ul>
+    <li>
+      <a href="https://twitter.com/intent/tweet?text=/data-mining-pcap-files-using-weka-and-python-dpkt-library/" class="twitter" title="Share on Twitter"><i class="fa fa-twitter"></i><span> Twitter</span></a>
+    </li>
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=/data-mining-pcap-files-using-weka-and-python-dpkt-library/" class="facebook" title="Share on Facebook"><i class="fa fa-facebook"></i><span> Facebook</span></a>
+    </li>
+    <li>
+      <a href="https://plus.google.com/share?url=/data-mining-pcap-files-using-weka-and-python-dpkt-library/" class="google-plus" title="Share on Google Plus"><i class="fa fa-google-plus"></i><span> Google+</span></a>
+    </li>
+  </ul>
+</div><!-- /.social-share -->
+        <p class="byline"><strong>Data-Mining PCAP files using Weka and Python DPKT library</strong> was published on <time datetime="2015-05-16T17:51:49-04:00">May 16, 2015</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/openstack-nova-api-direct-call/" title="OpenStack REST API Direct Call">OpenStack REST API Direct Call</a></li>
+    
+      <li><a href="/gsoc-2015-routeflow-proposal/" title="GSoC 2015 RouteFlow Proposal">GSoC 2015 RouteFlow Proposal</a></li>
+    
+      <li><a href="/playing-with-k-nearest-neighbors-algorithm/" title="Playing With K-nearest Neighbors Algorithm">Playing With K-nearest Neighbors Algorithm</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+	        
+
+</body>
+</html>

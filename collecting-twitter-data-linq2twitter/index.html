@@ -5,35 +5,15 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Collecting Data using Windows Azure Part 2 &#8211; Amir Razmjou</title>
-<meta name="description" content="
-  
-    Overview
-  
-
-
-  
-
-
-
-">
+<title>Collecting Data using Windows Azure Part 1 &#8211; Amir Razmjou</title>
+<meta name="description" content="I decided to develop an Azure WebJob to collect my twitter data into MongoDB, using LinqToTwitter library along with MongoDB made this job pretty easy.">
 <meta name="keywords" content="">
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="Collecting Data using Windows Azure Part 2">
-<meta name="twitter:description" content="
-  
-    Overview
-  
-
-
-  
-
-
-
-">
+<meta name="twitter:title" content="Collecting Data using Windows Azure Part 1">
+<meta name="twitter:description" content="I decided to develop an Azure WebJob to collect my twitter data into MongoDB, using LinqToTwitter library along with MongoDB made this job pretty easy.">
 <meta name="twitter:site" content="@arazmj">
 <meta name="twitter:creator" content="@arazmj">
 
@@ -43,18 +23,8 @@
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Collecting Data using Windows Azure Part 2">
-<meta property="og:description" content="
-  
-    Overview
-  
-
-
-  
-
-
-
-">
+<meta property="og:title" content="Collecting Data using Windows Azure Part 1">
+<meta property="og:description" content="I decided to develop an Azure WebJob to collect my twitter data into MongoDB, using LinqToTwitter library along with MongoDB made this job pretty easy.">
 <meta property="og:url" content="/collecting-twitter-data-linq2twitter/">
 <meta property="og:site_name" content="Amir Razmjou">
 
@@ -182,7 +152,7 @@
   <article class="post">
     <div class="headline-wrap">
       
-        <h1><a href="/collecting-twitter-data-linq2twitter/" rel="bookmark" title="Collecting Data using Windows Azure Part 2">Collecting Data using Windows Azure Part 2</a></h1>
+        <h1><a href="/collecting-twitter-data-linq2twitter/" rel="bookmark" title="Collecting Data using Windows Azure Part 1">Collecting Data using Windows Azure Part 1</a></h1>
       
     </div><!--/ .headline-wrap -->
     <div class="article-wrap">
@@ -200,7 +170,7 @@
 <!-- /#table-of-contents -->
 
 <h2 id="overview">Overview</h2>
-<p>I decided to use C# and LinqToTwitter library along with MongoDB. I chose C# since it’s pretty fun to have to have dynamism and imperative and function paradigms at the same time. I’m also tired of learning a new programming language.</p>
+<p>I decided to develop an Azure WebJob to collect my twitter data into MongoDB, using LinqToTwitter library along with MongoDB made this job pretty easy.</p>
 
 <div class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">auth</span> <span class="p">=</span> <span class="k">new</span> <span class="n">SingleUserAuthorizer</span>
 <span class="p">{</span>
@@ -211,9 +181,11 @@
         <span class="n">AccessToken</span> <span class="p">=</span> <span class="n">ConfigurationManager</span><span class="p">.</span><span class="n">AppSettings</span><span class="p">[</span><span class="s">&quot;twitterAccessToken&quot;</span><span class="p">],</span>
         <span class="n">AccessTokenSecret</span> <span class="p">=</span> <span class="n">ConfigurationManager</span><span class="p">.</span><span class="n">AppSettings</span><span class="p">[</span><span class="s">&quot;twitterAccessTokenSecret&quot;</span><span class="p">]</span>
     <span class="p">}</span>
-<span class="p">};</span>
+<span class="p">};</span></code></pre></div>
 
-<span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">twitterCtx</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TwitterContext</span><span class="p">(</span><span class="n">auth</span><span class="p">))</span>
+<p>Once CredentialStore object constructed it is time to extract tweets by a LINQ statement and to store them in the MongoDB.  </p>
+
+<div class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">twitterCtx</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TwitterContext</span><span class="p">(</span><span class="n">auth</span><span class="p">))</span>
 <span class="p">{</span>
     <span class="n">twitterCtx</span><span class="p">.</span><span class="n">Log</span> <span class="p">=</span> <span class="n">Console</span><span class="p">.</span><span class="n">Out</span><span class="p">;</span>
 
@@ -263,7 +235,7 @@
     </li>
   </ul>
 </div><!-- /.social-share -->
-        <p class="byline"><strong>Collecting Data using Windows Azure Part 2</strong> was published on <time datetime="2014-01-24T11:27:31-05:00">January 24, 2014</time>.</p>
+        <p class="byline"><strong>Collecting Data using Windows Azure Part 1</strong> was published on <time datetime="2014-01-24T11:27:31-05:00">January 24, 2014</time>.</p>
       </footer>
     </div><!-- /.article-wrap -->
   
@@ -277,11 +249,11 @@
   <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
     <ul>
     
+      <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/" title="Data-Mining PCAP files using Weka and Python DPKT library">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
+    
+      <li><a href="/openstack-nova-api-direct-call/" title="OpenStack REST API Direct Call">OpenStack REST API Direct Call</a></li>
+    
       <li><a href="/gsoc-2015-routeflow-proposal/" title="GSoC 2015 RouteFlow Proposal">GSoC 2015 RouteFlow Proposal</a></li>
-    
-      <li><a href="/playing-with-k-nearest-neighbors-algorithm/" title="Playing With K-nearest Neighbors Algorithm">Playing With K-nearest Neighbors Algorithm</a></li>
-    
-      <li><a href="/what-is-computer-security/" title="What Is Computer Security?">What Is Computer Security?</a></li>
     
     </ul>
     <hr />
