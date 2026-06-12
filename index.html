@@ -27,7 +27,7 @@
   --surface: rgba(255, 255, 255, 0.65);
   --border: rgba(15, 23, 42, 0.10);
   --text: #10182b;
-  --muted: #5a6478;
+  --muted: #4b5469;
   --accent-1: #0d9488;
   --accent-2: #6366f1;
   --accent-3: #a855f7;
@@ -148,7 +148,7 @@ h1 {
   text-shadow: 0 1px 14px rgba(247, 248, 251, 0.95);
 }
 
-.tagline strong { color: var(--text); font-weight: 500; }
+
 
 .hero-links { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
 
@@ -200,8 +200,24 @@ h2 {
   align-items: start;
 }
 
+.about-grid > div:first-child {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px 28px;
+  backdrop-filter: blur(12px);
+}
+
 .about-grid p { color: var(--muted); margin-bottom: 16px; }
-.about-grid p strong { color: var(--text); font-weight: 500; }
+.about-grid p:last-child { margin-bottom: 0; }
+
+.about-grid p strong, .tagline strong {
+  background: linear-gradient(110deg, var(--accent-1), var(--accent-2) 55%, var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
 
 .chips { display: flex; flex-wrap: wrap; gap: 10px; }
 
@@ -284,6 +300,10 @@ h2 {
 #contact { text-align: center; padding-bottom: 110px; }
 
 #contact .big {
+  background: linear-gradient(110deg, var(--text) 30%, var(--accent-2) 70%, var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: "Space Grotesk", sans-serif;
   font-size: clamp(28px, 5vw, 44px);
   font-weight: 700;
@@ -682,7 +702,7 @@ if (renderer) {
   const shapeOffsets = [4, 11, 9, 0];
   let sideFactor = 0;
   function layout() {
-    sideFactor = Math.min(1, Math.max(0, (innerWidth - 760) / 640));
+    sideFactor = Math.min(1, Math.max(0, (innerWidth - 560) / 560));
     uniforms.uAlpha.value = innerWidth < 760 ? 0.55 : 1;
   }
   layout();
