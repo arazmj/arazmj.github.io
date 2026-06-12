@@ -1,225 +1,550 @@
 <!doctype html>
-<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
-<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Amir Razmjou</title>
-<meta name="description" content="Amir Razmjou.">
-<meta name="keywords" content="cloud computing, virtualization, functional">
-
-
-
-<!-- Twitter Cards -->
-<meta name="twitter:title" content="Amir Razmjou">
-<meta name="twitter:description" content="Amir Razmjou.">
-<meta name="twitter:site" content="@arazmj">
-<meta name="twitter:creator" content="@arazmj">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="/images/sample-image-1.jpg">
-
-<!-- Open Graph -->
-<meta property="og:locale" content="en_US">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Amir Razmjou">
-<meta property="og:description" content="Amir Razmjou.">
-<meta property="og:url" content="/">
-<meta property="og:site_name" content="Amir Razmjou">
-
-
-
-
-
-<link rel="canonical" href="/">
-<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
-
-<!-- http://t.co/dKP3o1e -->
-<meta name="HandheldFriendly" content="True">
-<meta name="MobileOptimized" content="320">
+<title>Amir Razmjou — Senior Software Engineer</title>
+<meta name="description" content="Amir Razmjou — senior software engineer working on networked and distributed systems.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- For all browsers -->
-<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="canonical" href="https://www.amirrazmjou.com/">
+<meta property="og:title" content="Amir Razmjou — Senior Software Engineer">
+<meta property="og:description" content="Senior software engineer working on networked and distributed systems.">
+<meta property="og:url" content="https://www.amirrazmjou.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@arazmj">
 
-<meta http-equiv="cleartype" content="on">
-
-<!-- HTML5 Shiv and Media Query Support -->
-<!--[if lt IE 9]>
-	<script src="/assets/js/vendor/html5shiv.min.js"></script>
-	<script src="/assets/js/vendor/respond.min.js"></script>
-<![endif]-->
-
-<!-- Modernizr -->
-<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
-
-<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
-
-<!-- Icons -->
-<!-- 16x16 -->
+<link rel="icon" href="/favicon.png" type="image/png">
 <link rel="shortcut icon" href="/favicon.ico">
-<!-- 32x32 -->
-<link rel="shortcut icon" href="/favicon.png">
-<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
-<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
-<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
-<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
-<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
-<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #070a12;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --accent-1: #5eead4;
+  --accent-2: #818cf8;
+  --accent-3: #c084fc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { font-family: "Space Grotesk", "Inter", sans-serif; }
+
+#space {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(129, 140, 248, 0.08), transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.9));
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- nav ---------- */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0;
+}
+
+.monogram {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+}
+
+.monogram span { color: var(--accent-1); }
+
+nav .links { display: flex; gap: 26px; }
+
+nav .links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+nav .links a:hover { color: var(--text); }
+
+/* ---------- hero ---------- */
+header {
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0 60px;
+}
+
+.kicker {
+  color: var(--accent-1);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: clamp(44px, 8vw, 84px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  background: linear-gradient(120deg, var(--text) 30%, var(--accent-2) 70%, var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  margin-top: 22px;
+  max-width: 560px;
+  font-size: 19px;
+  color: var(--muted);
+}
+
+.tagline strong { color: var(--text); font-weight: 500; }
+
+.hero-links { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(94, 234, 212, 0.4);
+  box-shadow: 0 8px 30px rgba(94, 234, 212, 0.12);
+}
+
+.btn.primary {
+  background: linear-gradient(120deg, rgba(94, 234, 212, 0.14), rgba(129, 140, 248, 0.14));
+  border-color: rgba(94, 234, 212, 0.35);
+}
+
+.btn svg { width: 17px; height: 17px; fill: currentColor; }
+
+/* ---------- sections ---------- */
+section { padding: 70px 0; }
+
+h2 {
+  font-size: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-1);
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.about-grid p { color: var(--muted); margin-bottom: 16px; }
+.about-grid p strong { color: var(--text); font-weight: 500; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.chip {
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- writing cards ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  perspective: 1200px;
+}
+
+.card {
+  display: block;
+  text-decoration: none;
+  padding: 26px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  transform-style: preserve-3d;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  will-change: transform;
+}
+
+.card:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 40px rgba(129, 140, 248, 0.08);
+}
+
+.card .tag {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-1);
+  transform: translateZ(30px);
+  display: inline-block;
+}
+
+.card h3 {
+  margin: 10px 0 8px;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.35;
+  transform: translateZ(40px);
+}
+
+.card p {
+  font-size: 14.5px;
+  color: var(--muted);
+  transform: translateZ(20px);
+}
+
+/* ---------- contact ---------- */
+#contact { text-align: center; padding-bottom: 110px; }
+
+#contact .big {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+}
+
+#contact p { color: var(--muted); max-width: 460px; margin: 0 auto 32px; }
+
+footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+  padding: 30px 0 40px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 760px) {
+  .about-grid { grid-template-columns: 1fr; gap: 28px; }
+  nav .links { gap: 18px; }
+  header { min-height: 64vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn, .card { transition: none; }
+}
+</style>
 </head>
+<body>
 
-<body class="home">
+<canvas id="space" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
 
-<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+<div class="wrap">
 
-<div class="navigation-wrapper">
-	<div class="site-name">
-		<a href="/">Amir Razmjou</a>
-	</div><!-- /.site-name -->
-	<div class="top-navigation">
-		<nav role="navigation" id="site-nav" class="nav">
-		    <ul>
-		        
-				    
-				        
-				    
-				    <li><a href="/about/" >About</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/posts/" >Posts</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/presentations/" >Presentations</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/papers/" >Papers</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/portfolio/" >Portfolio</a></li>
-				
-		    </ul>
-		</nav>
-	</div><!-- /.top-navigation -->
-</div><!-- /.navigation-wrapper -->
-
-
-  <div class="image-wrap">
-  <img src=
-    
-      "/images/sample-image-1.jpg"
-    
-  alt=" feature image">
-  
-  </div><!-- /.image-wrap -->
-
-
-<div id="main" role="main"> 
-  <div class="article-author-side">
-    
-
-
-<div itemscope itemtype="http://schema.org/Person">
-
-
-	<img src="/images/bio-photo.jpg" class="bio-photo" alt="Amir Razmjou bio photo">
-
-
-  <h3 itemprop="name">Amir Razmjou</h3>
-  <p>Researcher</p>
-  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
-  
-  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
-  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
-  
-  
-  
-  
-  
-</div>
+<nav>
+  <a class="monogram" href="/">AR<span>.</span></a>
+  <div class="links">
+    <a href="#about">About</a>
+    <a href="#writing">Writing</a>
+    <a href="#contact">Contact</a>
   </div>
-  <div id="index">
-    <h3><a href="/posts/">Recent Posts</a></h3>
-        
-    <article>
-      
-        <h2><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/" title="Data-Mining PCAP files using Weka and Python DPKT library">Data-Mining PCAP files using Weka and Python DPKT library</a></h2>
-        <p>Using Weka, Python DPKT to find malicious traffic flows in FTP server control flows.</p>
-      
-    </article>
-        
-    <article>
-      
-        <h2><a href="/openstack-nova-api-direct-call/" title="OpenStack REST API Direct Call">OpenStack REST API Direct Call</a></h2>
-        <p>Some OpenStack wrapper libraries like OpenStack4j or Cloud4j does not cover all OpenStack REST API. I tried to explain a simple and general approach for Open...</p>
-      
-    </article>
-        
-    <article>
-      
-        <h2><a href="/gsoc-2015-routeflow-proposal/" title="GSoC 2015 RouteFlow Proposal">GSoC 2015 RouteFlow Proposal</a></h2>
-        <p>Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015</p>
-      
-    </article>
-        
-    <article>
-      
-        <h2><a href="/playing-with-k-nearest-neighbors-algorithm/" title="Playing With K-nearest Neighbors Algorithm">Playing With K-nearest Neighbors Algorithm</a></h2>
-        <p>This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classific...</p>
-      
-    </article>
-        
-    <article>
-      
-        <h2><a href="/what-is-computer-security/" title="What Is Computer Security?">What Is Computer Security?</a></h2>
-        <p>This semester, Dr. Heather Crawford asked us to wirte a review about the paper titled "What Is Computer Security?" written by MattBishop.</p>
-      
-    </article>
-    
-  </div><!-- /#index -->
-</div><!-- /#main -->
+</nav>
 
-<div class="footer-wrap">
-  <footer>
-    
+<header>
+  <div class="kicker">Amir Razmjou</div>
+  <h1>Senior Software<br>Engineer.</h1>
+  <p class="tagline">I build <strong>networked and distributed systems</strong> — from packet-level plumbing to cloud infrastructure — with a soft spot for simplicity and functional programming.</p>
+  <div class="hero-links">
+    <a class="btn primary" href="mailto:arazmj@gmail.com">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4.24-8 5-8-5V6.5l8 5 8-5v1.74z"/></svg>
+      Email
+    </a>
+    <a class="btn" href="https://github.com/arazmj" rel="me">
+      <svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.16 1.18a11 11 0 0 1 5.76 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+      GitHub
+    </a>
+    <a class="btn" href="https://stackoverflow.com/users/2101029" rel="me">
+      <svg viewBox="0 0 24 24"><path d="M17.36 20.2v-5.38h1.79V22H3v-7.18h1.8v5.38h12.56zM6.77 14.32l.37-1.76 8.79 1.85-.37 1.76-8.79-1.85zm1.16-4.21.74-1.64 8.14 3.78-.74 1.64-8.14-3.78zm2.26-3.99 1.13-1.4 6.91 5.75-1.13 1.4-6.91-5.75zM14.65 2l5.36 7.21-1.44 1.07-5.36-7.21L14.65 2zM6.59 18.41v-1.8h8.98v1.8H6.59z"/></svg>
+      Stack Overflow
+    </a>
+  </div>
+</header>
 
-<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+<section id="about">
+  <h2>About</h2>
+  <div class="about-grid">
+    <div>
+      <p>I'm a senior software engineer with a background that runs from <strong>network research</strong> — SDN, OpenFlow, traffic analysis — to <strong>cloud infrastructure</strong> and data-heavy backend systems.</p>
+      <p>I started out building business intelligence into collaboration products, spent grad school deep in computer networks at Florida Tech, and have been shipping production systems ever since. The throughline: making complex systems <strong>visible, fast, and simple</strong>.</p>
+    </div>
+    <div class="chips">
+      <span class="chip">Distributed Systems</span>
+      <span class="chip">Networking &amp; SDN</span>
+      <span class="chip">Cloud Infrastructure</span>
+      <span class="chip">Performance</span>
+      <span class="chip">Functional Programming</span>
+      <span class="chip">Data Visualization</span>
+    </div>
+  </div>
+</section>
 
-  </footer>
-</div><!-- /.footer-wrap -->
+<section id="writing">
+  <h2>Selected Writing</h2>
+  <div class="cards">
+    <a class="card" href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
+      <span class="tag">Security · ML</span>
+      <h3>Data-Mining PCAP Files with Weka &amp; dpkt</h3>
+      <p>Hunting malicious traffic flows in FTP control channels using Weka and Python's dpkt library.</p>
+    </a>
+    <a class="card" href="/openstack-nova-api-direct-call/">
+      <span class="tag">Cloud</span>
+      <h3>OpenStack REST API, Called Directly</h3>
+      <p>A general approach for hitting OpenStack's REST API when wrapper libraries don't cover what you need.</p>
+    </a>
+    <a class="card" href="/why-does-functional-programming-matter/">
+      <span class="tag">Programming</span>
+      <h3>Why Does Functional Programming Matter?</h3>
+      <p>On modularity, laziness, and why FP's ideas outlive the hype cycles around it.</p>
+    </a>
+    <a class="card" href="/playing-with-k-nearest-neighbors-algorithm/">
+      <span class="tag">Machine Learning</span>
+      <h3>Playing with k-Nearest Neighbors</h3>
+      <p>A deliberately simple implementation of k-NN classification, built to understand it rather than to ship it.</p>
+    </a>
+    <a class="card" href="/hello-complex-networks/">
+      <span class="tag">Networks</span>
+      <h3>Hello, Complex Networks</h3>
+      <p>First steps into complex-network analysis — graphs, motifs, and the structure hiding in real systems.</p>
+    </a>
+    <a class="card" href="/what-is-computer-security/">
+      <span class="tag">Security</span>
+      <h3>What Is Computer Security?</h3>
+      <p>A review of Matt Bishop's classic paper on what we actually mean when we say "secure".</p>
+    </a>
+  </div>
+</section>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
-<script src="/assets/js/scripts.min.js"></script>
+<section id="contact">
+  <div class="big">Let's talk.</div>
+  <p>The fastest way to reach me is email — for everything else, the usual places work too.</p>
+  <a class="btn primary" href="mailto:arazmj@gmail.com">arazmj@gmail.com</a>
+</section>
 
-<!-- Asynchronous Google Analytics snippet -->
+</div>
+
+<footer>© 2026 Amir Razmjou · amirrazmjou.com</footer>
+
 <script>
-  var _gaq = _gaq || [];
-  var pluginUrl = 
- '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
-  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
-  _gaq.push(['_setAccount', 'UA-60011536-1']);
-  _gaq.push(['_trackPageview']);
+(function () {
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+  /* ---- 3D particle constellation background ---- */
+  var canvas = document.getElementById("space");
+  var ctx = canvas.getContext("2d");
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var W, H, cx, cy;
+  var DEPTH = 900;       // z-range of the cloud
+  var FOV = 520;         // perspective strength
+  var LINK_DIST = 110;   // px distance for linking particles on screen
+  var points = [];
+  var mouseX = 0, mouseY = 0;   // parallax target, -1..1
+  var rotY = 0, rotX = 0;
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2;
+    cy = H / 2;
+  }
+
+  function makePoints() {
+    var n = Math.min(170, Math.floor((W * H) / 9000));
+    points = [];
+    var spread = Math.max(W, H) * 0.75;
+    for (var i = 0; i < n; i++) {
+      points.push({
+        x: (Math.random() - 0.5) * spread,
+        y: (Math.random() - 0.5) * spread,
+        z: (Math.random() - 0.5) * DEPTH,
+        hue: Math.random() < 0.5 ? "94, 234, 212" : "129, 140, 248"
+      });
+    }
+  }
+
+  var projected = [];
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+
+    // ease toward mouse-driven rotation; slow constant drift on top
+    rotY += ((mouseX * 0.25 - rotY) * 0.04) + 0.0006;
+    rotX += (mouseY * 0.15 - rotX) * 0.04;
+
+    var sy = Math.sin(rotY), cyr = Math.cos(rotY);
+    var sx = Math.sin(rotX), cxr = Math.cos(rotX);
+
+    projected.length = 0;
+    for (var i = 0; i < points.length; i++) {
+      var p = points[i];
+      // rotate around Y, then X
+      var x1 = p.x * cyr - p.z * sy;
+      var z1 = p.x * sy + p.z * cyr;
+      var y1 = p.y * cxr - z1 * sx;
+      var z2 = p.y * sx + z1 * cxr;
+
+      var scale = FOV / (FOV + z2 + DEPTH / 2);
+      if (scale <= 0) continue;
+      projected.push({
+        sx: cx + x1 * scale,
+        sy: cy + y1 * scale,
+        r: Math.max(0.4, 1.9 * scale),
+        a: Math.max(0.05, Math.min(0.85, scale * 0.75)),
+        hue: p.hue
+      });
+    }
+
+    // links
+    ctx.lineWidth = 1;
+    for (i = 0; i < projected.length; i++) {
+      for (var j = i + 1; j < projected.length; j++) {
+        var a = projected[i], b = projected[j];
+        var dx = a.sx - b.sx, dy = a.sy - b.sy;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < LINK_DIST * LINK_DIST) {
+          var t = 1 - Math.sqrt(d2) / LINK_DIST;
+          ctx.strokeStyle = "rgba(140, 150, 200," + (t * 0.16 * Math.min(a.a, b.a) * 2).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.moveTo(a.sx, a.sy);
+          ctx.lineTo(b.sx, b.sy);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // points
+    for (i = 0; i < projected.length; i++) {
+      var q = projected[i];
+      ctx.fillStyle = "rgba(" + q.hue + "," + q.a.toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(q.sx, q.sy, q.r, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+
+  var running = true;
+  function loop() {
+    if (running) frame();
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  makePoints();
+
+  if (reduced) {
+    frame(); // single static render
+  } else {
+    window.addEventListener("pointermove", function (e) {
+      mouseX = (e.clientX / W) * 2 - 1;
+      mouseY = (e.clientY / H) * 2 - 1;
+    });
+    document.addEventListener("visibilitychange", function () {
+      running = !document.hidden;
+    });
+    loop();
+  }
+
+  window.addEventListener("resize", function () {
+    resize();
+    makePoints();
+    if (reduced) frame();
+  });
+
+  /* ---- 3D tilt cards ---- */
+  if (!reduced && window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".card").forEach(function (card) {
+      card.addEventListener("pointermove", function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform =
+          "rotateY(" + (px * 10).toFixed(2) + "deg)" +
+          " rotateX(" + (-py * 10).toFixed(2) + "deg)" +
+          " translateZ(6px)";
+      });
+      card.addEventListener("pointerleave", function () {
+        card.style.transform = "";
+      });
+    });
+  }
+})();
 </script>
 
-
-  
 </body>
 </html>
