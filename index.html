@@ -663,13 +663,26 @@ if (renderer) {
 
   function galaxy(n) {
     const a = new Float32Array(n * 3);
+    const arms = 4;
     for (let i = 0; i < n; i++) {
-      const arm = (i % 3) * 2.0944;
-      const r = Math.pow(rnd(), 0.55) * 11;
-      const ang = arm + r * 0.5 + g() * 0.25;
-      a[i * 3] = Math.cos(ang) * r + g() * 0.5;
-      a[i * 3 + 1] = g() * Math.max(0.18, 1.5 - r * 0.13);
-      a[i * 3 + 2] = Math.sin(ang) * r + g() * 0.5;
+      if (i % 6 === 0) {
+        // dense, rounded central bulge
+        const r = Math.pow(rnd(), 1.8) * 2.3;
+        const phi = Math.acos(1 - 2 * rnd());
+        const th = rnd() * Math.PI * 2;
+        a[i * 3] = r * Math.sin(phi) * Math.cos(th);
+        a[i * 3 + 1] = r * Math.cos(phi) * 0.6;
+        a[i * 3 + 2] = r * Math.sin(phi) * Math.sin(th);
+      } else {
+        // logarithmic spiral arms on a thin disk
+        const arm = (i % arms) * (Math.PI * 2 / arms);
+        const r = Math.pow(rnd(), 0.5) * 12;
+        const ang = arm + r * 0.42 + g() * 0.18;
+        const spread = 0.32 + r * 0.05;
+        a[i * 3] = Math.cos(ang) * r + g() * spread;
+        a[i * 3 + 1] = g() * Math.max(0.12, 1.4 - r * 0.1);
+        a[i * 3 + 2] = Math.sin(ang) * r + g() * spread;
+      }
     }
     return a;
   }
@@ -729,6 +742,9 @@ if (renderer) {
   const rands = new Float32Array(N);
   for (let i = 0; i < N; i++) rands[i] = rnd();
   geo.setAttribute("aRand", new THREE.BufferAttribute(rands, 1));
+  const rands2 = new Float32Array(N);
+  for (let i = 0; i < N; i++) rands2[i] = rnd();
+  geo.setAttribute("aRand2", new THREE.BufferAttribute(rands2, 1));
 
   const uniforms = {
     uMorph: { value: 0 },
@@ -736,7 +752,9 @@ if (renderer) {
     uSize: { value: 1.8 * Math.min(devicePixelRatio || 1, 2) },
     uAlpha: { value: 1 },
     uColA: { value: new THREE.Color("#5eead4") },
-    uColB: { value: new THREE.Color("#818cf8") }
+    uColB: { value: new THREE.Color("#818cf8") },
+    uColC: { value: new THREE.Color("#c084fc") },
+    uColCore: { value: new THREE.Color("#fff3d6") }
   };
 
   const material = new THREE.ShaderMaterial({
@@ -749,16 +767,20 @@ if (renderer) {
       attribute vec3 p2;
       attribute vec3 p3;
       attribute float aRand;
+      attribute float aRand2;
       uniform float uMorph;
       uniform float uTime;
       uniform float uSize;
       varying float vRand;
       varying float vFade;
+      varying float vCore;
+      varying float vTw;
 
       float stagger(float f, float r) {
         float t = clamp((f - r * 0.35) / 0.65, 0.0, 1.0);
         return t * t * (3.0 - 2.0 * t);
       }
+      mat2 rot(float a) { float s = sin(a), c = cos(a); return mat2(c, -s, s, c); }
 
       void main() {
         vRand = aRand;
@@ -770,30 +792,51 @@ if (renderer) {
         else              { a = p2; b = p3; f = m - 2.0; }
         vec3 pos = mix(a, b, stagger(f, aRand));
 
-        pos += 0.14 * vec3(
+        // differential rotation: inner stars spin faster, only while near the galaxy
+        float galaxyAmt = 1.0 - clamp(uMorph, 0.0, 1.0);
+        float rad = length(pos.xz);
+        pos.xz = rot(uTime * (0.5 / (1.0 + rad * 0.35)) * galaxyAmt) * pos.xz;
+
+        // gentle turbulence
+        pos += 0.13 * vec3(
           sin(uTime * 0.6 + aRand * 31.0),
           cos(uTime * 0.5 + aRand * 57.0),
           sin(uTime * 0.7 + aRand * 13.0)
         );
 
+        vCore = 1.0 - smoothstep(0.0, 9.0, length(pos));   // bright toward the center
+        vTw = 0.6 + 0.4 * sin(uTime * 2.2 + aRand2 * 120.0); // per-star twinkle
+
         vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-        gl_PointSize = uSize * (0.6 + 0.9 * aRand) * (60.0 / -mv.z);
-        vFade = smoothstep(70.0, 16.0, -mv.z);
+        float twSize = mix(1.0, vTw, 0.55);
+        gl_PointSize = uSize * (0.5 + 1.1 * aRand) * twSize * (1.0 + 1.7 * vCore) * (60.0 / -mv.z);
+        vFade = smoothstep(75.0, 14.0, -mv.z);
         gl_Position = projectionMatrix * mv;
       }
     `,
     fragmentShader: `
       uniform vec3 uColA;
       uniform vec3 uColB;
+      uniform vec3 uColC;
+      uniform vec3 uColCore;
       uniform float uAlpha;
       varying float vRand;
       varying float vFade;
+      varying float vCore;
+      varying float vTw;
 
       void main() {
         float d = length(gl_PointCoord - 0.5);
-        float alpha = smoothstep(0.5, 0.06, d);
+        float halo = smoothstep(0.5, 0.18, d);
+        float core = smoothstep(0.5, 0.0, d);
+        float alpha = halo * 0.65 + pow(core, 3.0) * 0.6;
+
         vec3 col = mix(uColA, uColB, vRand);
-        gl_FragColor = vec4(col, alpha * (0.16 + 0.40 * vFade) * uAlpha);
+        col = mix(col, uColC, smoothstep(0.55, 1.0, vRand) * 0.6);
+        col = mix(col, uColCore, pow(vCore, 1.5));   // warm glowing nucleus
+
+        alpha *= (0.15 + 0.46 * vFade) * uAlpha * vTw;
+        gl_FragColor = vec4(col, alpha);
       }
     `
   });
@@ -818,8 +861,35 @@ if (renderer) {
     transparent: true, opacity: 0.45, depthWrite: false
   }));
 
+  // soft circular sprite for the nebula haze
+  const softCanvas = document.createElement("canvas");
+  softCanvas.width = softCanvas.height = 64;
+  const sctx = softCanvas.getContext("2d");
+  const grd = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, "rgba(255,255,255,1)");
+  grd.addColorStop(0.4, "rgba(255,255,255,0.32)");
+  grd.addColorStop(1, "rgba(255,255,255,0)");
+  sctx.fillStyle = grd;
+  sctx.fillRect(0, 0, 64, 64);
+  const softTex = new THREE.CanvasTexture(softCanvas);
+
+  // a few large, faint clouds that drift behind the particles for depth
+  const hazeN = 28;
+  const hp = new Float32Array(hazeN * 3);
+  for (let i = 0; i < hazeN; i++) {
+    hp[i * 3] = (rnd() * 2 - 1) * 15;
+    hp[i * 3 + 1] = (rnd() * 2 - 1) * 8;
+    hp[i * 3 + 2] = (rnd() * 2 - 1) * 9 - 3;
+  }
+  const hazeGeo = new THREE.BufferGeometry();
+  hazeGeo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
+  const haze = new THREE.Points(hazeGeo, new THREE.PointsMaterial({
+    size: 11, sizeAttenuation: true, map: softTex, color: 0x6d5bd0,
+    transparent: true, opacity: 0.05, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+
   const group = new THREE.Group();
-  group.add(points, stars);
+  group.add(points, stars, haze);
   scene.add(group);
 
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
