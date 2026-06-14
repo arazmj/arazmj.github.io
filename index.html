@@ -746,6 +746,36 @@ if (renderer) {
   for (let i = 0; i < N; i++) rands2[i] = rnd();
   geo.setAttribute("aRand2", new THREE.BufferAttribute(rands2, 1));
 
+  // monogram target: sample the letters "AR" and map filled pixels to points
+  function monogram(n) {
+    const a = new Float32Array(n * 3);
+    const W = 280, H = 130;
+    const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const cx = cv.getContext("2d");
+    cx.fillStyle = "#fff";
+    cx.font = "700 92px 'Space Grotesk', system-ui, sans-serif";
+    cx.textAlign = "center"; cx.textBaseline = "middle";
+    cx.fillText("AR", W / 2, H / 2 + 4);
+    const px = cx.getImageData(0, 0, W, H).data;
+    const hit = [];
+    for (let y = 0; y < H; y += 2)
+      for (let x = 0; x < W; x += 2)
+        if (px[(y * W + x) * 4 + 3] > 128) hit.push(x, y);
+    const m = hit.length / 2;
+    for (let i = 0; i < n; i++) {
+      if (m > 0) {
+        const k = ((rnd() * m) | 0) * 2;
+        a[i * 3] = (hit[k] - W / 2) / W * 24 + g() * 0.12;
+        a[i * 3 + 1] = -(hit[k + 1] - H / 2) / H * 11 + g() * 0.12;
+        a[i * 3 + 2] = g() * 0.5;
+      } else {
+        a[i * 3] = g() * 6; a[i * 3 + 1] = g() * 3; a[i * 3 + 2] = g() * 0.5;
+      }
+    }
+    return a;
+  }
+  geo.setAttribute("pMono", new THREE.BufferAttribute(monogram(N), 3));
+
   const uniforms = {
     uMorph: { value: 0 },
     uTime: { value: 0 },
@@ -754,7 +784,10 @@ if (renderer) {
     uColA: { value: new THREE.Color("#5eead4") },
     uColB: { value: new THREE.Color("#818cf8") },
     uColC: { value: new THREE.Color("#c084fc") },
-    uColCore: { value: new THREE.Color("#fff3d6") }
+    uColCore: { value: new THREE.Color("#fff3d6") },
+    uMouse: { value: new THREE.Vector3(999, 999, 999) },
+    uMouseForce: { value: 0 },
+    uIntro: { value: 1 }
   };
 
   const material = new THREE.ShaderMaterial({
@@ -768,9 +801,13 @@ if (renderer) {
       attribute vec3 p3;
       attribute float aRand;
       attribute float aRand2;
+      attribute vec3 pMono;
       uniform float uMorph;
       uniform float uTime;
       uniform float uSize;
+      uniform vec3 uMouse;
+      uniform float uMouseForce;
+      uniform float uIntro;
       varying float vRand;
       varying float vFade;
       varying float vCore;
@@ -803,6 +840,13 @@ if (renderer) {
           cos(uTime * 0.5 + aRand * 57.0),
           sin(uTime * 0.7 + aRand * 13.0)
         );
+
+        // intro: particles begin assembled as the "AR" monogram, then disperse
+        pos = mix(pos, pMono, uIntro);
+
+        // cursor gravity: gently part the field around the pointer
+        vec3 dm = pos - uMouse;
+        pos += normalize(dm + vec3(0.0001)) * uMouseForce * exp(-dot(dm, dm) * 0.05);
 
         vCore = 1.0 - smoothstep(0.0, 9.0, length(pos));   // bright toward the center
         vTw = 0.6 + 0.4 * sin(uTime * 2.2 + aRand2 * 120.0); // per-star twinkle
@@ -890,7 +934,82 @@ if (renderer) {
 
   const group = new THREE.Group();
   group.add(points, stars, haze);
+
+  // constellation: a faint, stable web that drifts with the scene
+  const cN = 90, cPts = [];
+  for (let i = 0; i < cN; i++) {
+    const r = 16 + rnd() * 16, th = rnd() * Math.PI * 2, ph = Math.acos(1 - 2 * rnd());
+    cPts.push(new THREE.Vector3(r * Math.sin(ph) * Math.cos(th), (rnd() * 2 - 1) * 10, r * Math.sin(ph) * Math.sin(th) - 6));
+  }
+  const linkArr = [];
+  for (let i = 0; i < cN; i++) {
+    let c = 0;
+    for (let j = i + 1; j < cN && c < 2; j++) {
+      if (cPts[i].distanceTo(cPts[j]) < 9) {
+        linkArr.push(cPts[i].x, cPts[i].y, cPts[i].z, cPts[j].x, cPts[j].y, cPts[j].z); c++;
+      }
+    }
+  }
+  const clGeo = new THREE.BufferGeometry();
+  clGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linkArr), 3));
+  const constellation = new THREE.LineSegments(clGeo, new THREE.LineBasicMaterial({
+    color: 0x5eead4, transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  const cdArr = new Float32Array(cN * 3);
+  cPts.forEach((p, i) => { cdArr[i * 3] = p.x; cdArr[i * 3 + 1] = p.y; cdArr[i * 3 + 2] = p.z; });
+  const cdGeo = new THREE.BufferGeometry();
+  cdGeo.setAttribute("position", new THREE.BufferAttribute(cdArr, 3));
+  const cdots = new THREE.Points(cdGeo, new THREE.PointsMaterial({
+    size: 0.5, sizeAttenuation: true, map: softTex, color: 0x9fb0e0,
+    transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  group.add(constellation, cdots);
   scene.add(group);
+
+  // shooting stars: a small pool of additive streaks across the foreground
+  const METEORS = 7;
+  const mPos = new Float32Array(METEORS * 6), mCol = new Float32Array(METEORS * 6);
+  const mGeo = new THREE.BufferGeometry();
+  mGeo.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
+  mGeo.setAttribute("color", new THREE.BufferAttribute(mCol, 3));
+  const meteors = new THREE.LineSegments(mGeo, new THREE.LineBasicMaterial({
+    vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  meteors.frustumCulled = false;
+  scene.add(meteors);
+  const mS = [];
+  for (let i = 0; i < METEORS; i++) mS.push({ wait: rnd() * 9, fly: -1, dur: 1, x: 0, y: 0, vx: 0, vy: 0, len: 0, z: -3 - rnd() * 6 });
+  function launchMeteor(s) {
+    s.fly = 0; s.dur = 0.55 + rnd() * 0.5;
+    const left = rnd() < 0.5;
+    s.x = (left ? -1 : 1) * (13 + rnd() * 6);
+    s.y = 5 + rnd() * 9;
+    const sp = 34 + rnd() * 22;
+    s.vx = (left ? 1 : -1) * sp * (0.6 + rnd() * 0.3);
+    s.vy = -sp * (0.45 + rnd() * 0.3);
+    s.len = 1.4 + rnd() * 1.6;
+  }
+  function updateMeteors(dt) {
+    for (let i = 0; i < METEORS; i++) {
+      const s = mS[i], o = i * 6;
+      if (s.fly < 0) {
+        s.wait -= dt;
+        if (s.wait <= 0) launchMeteor(s);
+        else { for (let k = 0; k < 6; k++) { mPos[o + k] = 0; mCol[o + k] = 0; } continue; }
+      }
+      s.fly += dt;
+      if (s.fly >= s.dur) { s.fly = -1; s.wait = 2 + rnd() * 6; for (let k = 0; k < 6; k++) { mPos[o + k] = 0; mCol[o + k] = 0; } continue; }
+      const hx = s.x + s.vx * s.fly, hy = s.y + s.vy * s.fly, nl = 1 / Math.hypot(s.vx, s.vy);
+      mPos[o] = hx; mPos[o + 1] = hy; mPos[o + 2] = s.z;
+      mPos[o + 3] = hx - s.vx * nl * s.len; mPos[o + 4] = hy - s.vy * nl * s.len; mPos[o + 5] = s.z;
+      const fade = Math.sin(Math.min(1, s.fly / s.dur) * Math.PI);
+      mCol[o] = 0.75 * fade; mCol[o + 1] = fade; mCol[o + 2] = 0.95 * fade;
+      mCol[o + 3] = 0; mCol[o + 4] = 0; mCol[o + 5] = 0;
+    }
+    mGeo.attributes.position.needsUpdate = true;
+    mGeo.attributes.color.needsUpdate = true;
+  }
+  const ndcV = new THREE.Vector3(), worldM = new THREE.Vector3();
 
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.setSize(innerWidth, innerHeight);
@@ -929,12 +1048,23 @@ if (renderer) {
   });
 
   const clock = new THREE.Clock();
+  let elapsed = 0;
   function tick() {
-    const t = clock.getElapsedTime();
+    const dt = Math.min(0.05, clock.getDelta());
+    elapsed += dt;
+    const t = elapsed;
     uniforms.uTime.value = t;
+    if (t > 0.8) uniforms.uIntro.value += (0.0 - uniforms.uIntro.value) * 0.02;
     uniforms.uMorph.value += (targetMorph - uniforms.uMorph.value) * 0.045;
     applyOffset(uniforms.uMorph.value);
     camera.position.z += (26 - camera.position.z) * 0.025; // intro fly-in
+    if (uniforms.uMouseForce.value > 0.001) {
+      ndcV.set(mx, -my, 0.5).unproject(camera).sub(camera.position).normalize();
+      worldM.copy(camera.position).addScaledVector(ndcV, -camera.position.z / ndcV.z);
+      group.worldToLocal(worldM);
+      uniforms.uMouse.value.lerp(worldM, 0.18);
+    }
+    updateMeteors(dt);
     ry += (mx * 0.35 - ry) * 0.03;
     rx += (my * 0.22 - rx) * 0.03;
     group.rotation.y = t * 0.05 + ry;
@@ -948,6 +1078,7 @@ if (renderer) {
     camera.position.z = 26;
     group.rotation.x = -0.5;
     uniforms.uTime.value = 1;
+    uniforms.uIntro.value = 0;
     applyOffset(uniforms.uMorph.value);
     renderer.render(scene, camera);
     addEventListener("scroll", () => {
@@ -956,10 +1087,13 @@ if (renderer) {
       renderer.render(scene, camera);
     }, { passive: true });
   } else {
+    const finePtr = matchMedia("(hover: hover) and (pointer: fine)").matches;
     addEventListener("pointermove", e => {
       mx = (e.clientX / innerWidth) * 2 - 1;
       my = (e.clientY / innerHeight) * 2 - 1;
-    });
+      if (finePtr) uniforms.uMouseForce.value = 2.2;
+    }, { passive: true });
+    addEventListener("blur", () => { uniforms.uMouseForce.value = 0; });
     let running = !document.hidden;
     document.addEventListener("visibilitychange", () => { running = !document.hidden; });
     renderer.setAnimationLoop(() => { if (running) tick(); });
