@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Hello Complex Networks!!! &#8211; Amir Razmjou</title>
-<meta name="description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
+<title>Snake on a Cube: 3D Snake in Rust and WebAssembly &#8211; Amir Razmjou</title>
+<meta name="description" content="snake3d-rs: Snake crawling across all six faces of a cube, compiled to WebAssembly with three-d. The whole game lives in the seams where one face's coordinates meet another's.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/hello-complex-networks/">
+<link rel="canonical" href="https://www.amirrazmjou.com/snake-on-a-cube-rust-wasm/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Complex Networks!!!">
-<meta property="og:description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
-<meta property="og:url" content="https://www.amirrazmjou.com/hello-complex-networks/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta property="og:title" content="Snake on a Cube: 3D Snake in Rust and WebAssembly">
+<meta property="og:description" content="snake3d-rs: Snake crawling across all six faces of a cube, compiled to WebAssembly with three-d. The whole game lives in the seams where one face's coordinates meet another's.">
+<meta property="og:url" content="https://www.amirrazmjou.com/snake-on-a-cube-rust-wasm/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/snake-on-a-cube-rust-wasm.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/snake-on-a-cube-rust-wasm.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -212,7 +212,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org","@type": "BlogPosting","headline": "Hello Complex Networks!!!","description": "I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.","datePublished": "2014-08-26","dateModified": "2014-08-26","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/hello-complex-networks/"},"url": "https://www.amirrazmjou.com/hello-complex-networks/","keywords": "Networks","inLanguage": "en"}
+{"@context": "https://schema.org","@type": "BlogPosting","headline": "Snake on a Cube: 3D Snake in Rust and WebAssembly","description": "snake3d-rs: Snake crawling across all six faces of a cube, compiled to WebAssembly with three-d. The whole game lives in the seams where one face's coordinates meet another's.","datePublished": "2025-11-27","dateModified": "2025-11-27","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/snake-on-a-cube-rust-wasm/"},"url": "https://www.amirrazmjou.com/snake-on-a-cube-rust-wasm/","keywords": "Rust, WebAssembly, Graphics","inLanguage": "en"}
 </script>
 </head>
 
@@ -236,68 +236,53 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>August 26, 2014</span><span class="dot"></span><span>2 min read</span></div>
-  <h1 class="post-title">Hello Complex Networks!!!</h1>
+  <div class="post-kicker"><span>November 27, 2025</span><span class="dot"></span><span>6 min read</span></div>
+  <h1 class="post-title">Snake on a Cube: 3D Snake in Rust and WebAssembly</h1>
   <div class="prose">
-      <p>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.</p>
+<p>Everyone writes Snake at some point &#8212; it&#8217;s the &#8220;hello world&#8221; of game loops. So when I came back to it, I wanted the version that quietly breaks your spatial intuition: not Snake on a flat board, but Snake crawling across the surface of a <em>cube</em>, all six faces, running in the browser. <a href="https://github.com/arazmj/snake3d-rs">snake3d-rs</a> is the result &#8212; Rust compiled to WebAssembly, rendered with <a href="https://github.com/asny/three-d">three-d</a>, and you can <a href="https://lemon-stone-0b6b42e1e.3.azurestaticapps.net">play it right now</a>.</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nodes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
-<span class="kd">var</span> <span class="nx">edges</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
+<h2>The classic part is the easy part</h2>
 
-<span class="kd">var</span> <span class="nx">lastNodeId</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// create a network</span>
-<span class="kd">var</span> <span class="nx">networkContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;mynetwork&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">histogramContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;histogram&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="o">:</span> <span class="nx">nodes</span><span class="p">,</span>
-<span class="nx">edges</span><span class="o">:</span> <span class="nx">edges</span>
-<span class="p">};</span>
-<span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">network</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">Network</span><span class="p">(</span><span class="nx">networkContainer</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+<p>The skeleton of Snake is comfortingly familiar: a snake is a deque of body segments, each tick you push a new head in the current direction and pop the tail (unless you just ate), and the game ends if the head lands on the body. On a flat grid, moving is just arithmetic &#8212; bump a coordinate, wrap with a modulo. I had that working in an hour. And then I had to decide what happens at an <em>edge</em> of the cube, and the easy game became an interesting one.</p>
 
-<span class="kd">function</span> <span class="nx">addNewNode</span><span class="p">()</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">.</span><span class="nx">toString</span><span class="p">()}]);</span>
+<h2>The whole game is the seams</h2>
 
-<span class="k">if</span> <span class="p">(</span><span class="nx">lastNodeId</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">randomNode</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="nx">lastNodeId</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">randomNode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nx">edges</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">from</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span><span class="nx">randomNode</span> <span class="p">}]);</span>
-<span class="p">}</span>
-<span class="nx">lastNodeId</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+<p>A cube has no single 2D grid. Each face has its own little local coordinate system &#8212; call it <code>(u, v)</code> &#8212; and the difficulty is entirely in what happens when the snake walks off the edge of one face onto the next. On a flat board you wrap around to the other side. On a cube you cross a <em>seam</em>: you arrive on a different face, at a position that depends on which edge you left, and often facing a different direction than you started.</p>
 
-<p>An another quick search on google bring up FlotCharts JS library for histograms to visualize the degree distribution of nodes in a graph.</p>
+<p>So the heart of the game is an enum for the six faces, an enum for direction, and a function that &#8212; whenever a step would leave the current face &#8212; figures out which face you land on, where, and which way you&#8217;re now heading:</p>
 
-<p>But it’s a bit tricky to extract Degree Distribution off edges dataset. One has to first create a HashMap to map degree number of nodes to occurance number of nodes in JavaScript</p>
+<pre><code>pub enum Face { Front, Back, Left, Right, Top, Bottom }
+pub enum Direction { Up, Down, Left, Right }
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">h</span> <span class="o">=</span> <span class="p">{};</span> 
-    <span class="nx">edges</span>
-      <span class="p">.</span><span class="nx">get</span><span class="p">()</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">to</span> 
-      <span class="p">})</span>
-      <span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">])</span> <span class="o">===</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> 
-          <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
-        <span class="k">else</span> <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
-      <span class="p">});</span>
-<span class="nx">And</span> <span class="nx">then</span> <span class="nx">again</span> <span class="nx">convert</span> <span class="nx">that</span> <span class="nx">to</span> <span class="nx">an</span> <span class="nx">array</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">used</span> <span class="k">in</span> <span class="nx">Flot</span><span class="p">.</span>
+fn calculate_next_position(&amp;self, pos: Position, dir: Direction)
+    -&gt; (Position, Direction) {
+    // step within the face first...
+    match dir {
+        Direction::Up => v += 1,  Direction::Down  => v -= 1,
+        Direction::Left => u -= 1, Direction::Right => u += 1,
+    }
+    // ...and if that walked us off an edge, hop to the adjacent face:
+    match (face, dir) {
+        (Face::Front, Direction::Up)    =&gt; { face = Face::Top;   v = 0;     }
+        (Face::Front, Direction::Right) =&gt; { face = Face::Right; u = 0;     }
+        // crossing onto Top can rotate your frame of reference entirely:
+        (Face::Top, Direction::Right)   =&gt; { face = Face::Right; u = v; v = n - 1;
+                                             new_dir = Direction::Down; }
+        // ...one careful arm per edge of the cube
+    }
+}</code></pre>
 
-<span class="kd">var</span> <span class="nx">hArray</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">h</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">hArray</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nb">Number</span><span class="p">(</span><span class="nx">o</span><span class="p">),</span> <span class="nx">h</span><span class="p">[</span><span class="nx">o</span><span class="p">]]);</span>
-    <span class="p">}</span>
+<p>That second <code>match</code> is the entire soul of the project. There are twenty-four of those arms &#8212; six faces times four directions &#8212; and every single one is a tiny act of origami: I&#8217;d hold a paper cube, walk my finger off one face, and write down exactly where it ended up and which way it was pointing. Get one arm&#8217;s coordinate swap wrong and the snake teleports or flips, which is both a maddening bug and a weirdly delightful one to watch.</p>
 
-    <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-      <span class="nx">$</span><span class="p">.</span><span class="nx">plot</span><span class="p">(</span><span class="s2">&quot;#histogram&quot;</span><span class="p">,</span>  <span class="p">[</span><span class="nx">hArray</span><span class="p">]);</span>
-    <span class="p">});</span></code></pre></div>
+<h2>A camera that keeps up</h2>
 
-<p><a href="/assets/demo/cse5656_01.html">Full Screen Version</a></p>
+<p>Playing on a cube only works if you can always see where the snake is going, so the camera smoothly rotates to follow the head as it rounds a corner onto a new face, keeping the active face turned toward you. Combined with a semi-transparent voxel board and a glowing grid, the motion sells the illusion that you&#8217;re steering something around a solid object rather than shuffling cells in three buffers.</p>
 
-<iframe src="/assets/demo/cse5656_01.html" style="border:none" width="100%" height="800"></iframe>
+<h2>Why Rust and WebAssembly</h2>
 
+<p>Two reasons. The first is reach: compiled to WebAssembly, the whole thing runs at near-native speed in any browser with nothing to install &#8212; just a link. The second is that the cube&#8217;s edge logic is exactly the kind of fiddly, easy-to-get-wrong code where Rust&#8217;s enums and exhaustive <code>match</code> earn their keep: the compiler refuses to let me forget a face-and-direction case, which is a real comfort when correctness lives in twenty-four hand-derived seams. Snake turned out to be a perfect little excuse to think in coordinate systems &#8212; and a reminder that the oldest games still have new corners to crawl around.</p>
 
-      
+<p>The code is on GitHub at <a href="https://github.com/arazmj/snake3d-rs">github.com/arazmj/snake3d-rs</a>, and the playable demo is <a href="https://lemon-stone-0b6b42e1e.3.azurestaticapps.net">here</a>.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -305,9 +290,9 @@ footer a { color: var(--muted); }
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
-    <li><a href="/gsoc-2015-routeflow-proposal/">GSoC 2015 RouteFlow Proposal</a></li>
+    <li><a href="/building-a-search-engine-in-rust/">Building a Search Engine in Rust: Crawl, Index, Rank</a></li>
+    <li><a href="/building-an-s3-object-store-in-rust/">Reimplementing S3 from Scratch: An Object Store in Rust</a></li>
+    <li><a href="/writing-an-s3-proxy-in-rust/">Writing a Small S3 Proxy in Rust</a></li>
   </ul>
 </section>
 

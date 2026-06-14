@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Hello Complex Networks!!! &#8211; Amir Razmjou</title>
-<meta name="description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
+<title>NetChaos: Declarative Network Chaos with eBPF and Kubernetes &#8211; Amir Razmjou</title>
+<meta name="description" content="NetChaos, a Kubernetes-native network fault injection framework: describe failures as CRDs, drive them with an operator reconcile loop, and deliver packet drops at kernel speed with eBPF.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/hello-complex-networks/">
+<link rel="canonical" href="https://www.amirrazmjou.com/declarative-network-chaos-with-ebpf/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Complex Networks!!!">
-<meta property="og:description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
-<meta property="og:url" content="https://www.amirrazmjou.com/hello-complex-networks/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta property="og:title" content="NetChaos: Declarative Network Chaos with eBPF and Kubernetes">
+<meta property="og:description" content="NetChaos, a Kubernetes-native network fault injection framework: describe failures as CRDs, drive them with an operator reconcile loop, and deliver packet drops at kernel speed with eBPF.">
+<meta property="og:url" content="https://www.amirrazmjou.com/declarative-network-chaos-with-ebpf/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/declarative-network-chaos-with-ebpf.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/declarative-network-chaos-with-ebpf.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -212,7 +212,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org","@type": "BlogPosting","headline": "Hello Complex Networks!!!","description": "I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.","datePublished": "2014-08-26","dateModified": "2014-08-26","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/hello-complex-networks/"},"url": "https://www.amirrazmjou.com/hello-complex-networks/","keywords": "Networks","inLanguage": "en"}
+{"@context": "https://schema.org","@type": "BlogPosting","headline": "NetChaos: Declarative Network Chaos with eBPF and Kubernetes","description": "NetChaos, a Kubernetes-native network fault injection framework: describe failures as CRDs, drive them with an operator reconcile loop, and deliver packet drops at kernel speed with eBPF.","datePublished": "2025-04-07","dateModified": "2025-04-07","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/declarative-network-chaos-with-ebpf/"},"url": "https://www.amirrazmjou.com/declarative-network-chaos-with-ebpf/","keywords": "Kubernetes, eBPF, Networking","inLanguage": "en"}
 </script>
 </head>
 
@@ -236,68 +236,55 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>August 26, 2014</span><span class="dot"></span><span>2 min read</span></div>
-  <h1 class="post-title">Hello Complex Networks!!!</h1>
+  <div class="post-kicker"><span>April 7, 2025</span><span class="dot"></span><span>6 min read</span></div>
+  <h1 class="post-title">NetChaos: Declarative Network Chaos with eBPF and Kubernetes</h1>
   <div class="prose">
-      <p>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.</p>
+<p>There&#8217;s a particular kind of confidence you only earn by breaking your own system on purpose. You can read all the retry logic and timeout configs you like, but until you&#8217;ve actually watched packets vanish and seen whether your service shrugs or topples, you don&#8217;t really know. That&#8217;s chaos engineering &#8212; and most tooling for it at the <em>network</em> layer is clumsier than it should be. <a href="https://github.com/arazmj/netchaos">NetChaos</a> is my attempt at making network chaos feel native to Kubernetes: declarative to ask for, and fast enough to be invisible.</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nodes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
-<span class="kd">var</span> <span class="nx">edges</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
+<h2>Chaos you can <code>kubectl apply</code></h2>
 
-<span class="kd">var</span> <span class="nx">lastNodeId</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// create a network</span>
-<span class="kd">var</span> <span class="nx">networkContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;mynetwork&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">histogramContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;histogram&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="o">:</span> <span class="nx">nodes</span><span class="p">,</span>
-<span class="nx">edges</span><span class="o">:</span> <span class="nx">edges</span>
-<span class="p">};</span>
-<span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">network</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">Network</span><span class="p">(</span><span class="nx">networkContainer</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+<p>The core idea is to treat a network fault like any other Kubernetes object. You don&#8217;t SSH into a node and fiddle with <code>tc</code>; you write a small YAML manifest describing the disruption you want, and the cluster makes it so:</p>
 
-<span class="kd">function</span> <span class="nx">addNewNode</span><span class="p">()</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">.</span><span class="nx">toString</span><span class="p">()}]);</span>
+<pre><code>apiVersion: nettools.io/v1alpha1
+kind: FaultInjection
+metadata:
+  name: icmp-dropper
+spec:
+  target:
+    podSelector:
+      matchLabels: { app: my-app }
+  protocol: ICMP
+  action: DROP
+  match:
+    seqMod: 5        # drop every 5th matching packet</code></pre>
 
-<span class="k">if</span> <span class="p">(</span><span class="nx">lastNodeId</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">randomNode</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="nx">lastNodeId</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">randomNode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nx">edges</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">from</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span><span class="nx">randomNode</span> <span class="p">}]);</span>
-<span class="p">}</span>
-<span class="nx">lastNodeId</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+<p><code>kubectl apply</code> introduces the fault; <code>kubectl delete</code> heals it. The disruption lives in version control next to everything else, which means chaos becomes something you can review, diff, and replay in CI rather than a one-off experiment someone ran by hand and forgot.</p>
 
-<p>An another quick search on google bring up FlotCharts JS library for histograms to visualize the degree distribution of nodes in a graph.</p>
+<h2>The control plane: an operator that chases desired state</h2>
 
-<p>But it’s a bit tricky to extract Degree Distribution off edges dataset. One has to first create a HashMap to map degree number of nodes to occurance number of nodes in JavaScript</p>
+<p>Underneath, NetChaos is a Kubernetes <em>operator</em>, built with kubebuilder. A Custom Resource Definition teaches the cluster a new noun &#8212; a fault rule &#8212; and a reconcile loop is responsible for closing the gap between what you asked for and what&#8217;s actually running:</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">h</span> <span class="o">=</span> <span class="p">{};</span> 
-    <span class="nx">edges</span>
-      <span class="p">.</span><span class="nx">get</span><span class="p">()</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">to</span> 
-      <span class="p">})</span>
-      <span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">])</span> <span class="o">===</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> 
-          <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
-        <span class="k">else</span> <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
-      <span class="p">});</span>
-<span class="nx">And</span> <span class="nx">then</span> <span class="nx">again</span> <span class="nx">convert</span> <span class="nx">that</span> <span class="nx">to</span> <span class="nx">an</span> <span class="nx">array</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">used</span> <span class="k">in</span> <span class="nx">Flot</span><span class="p">.</span>
+<pre><code>func (r *IcmpDropRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request)
+    (ctrl.Result, error) {
+    // fetch the desired rule, then make the node's data plane match it:
+    //   rule exists  -> ensure the eBPF drop program is loaded & configured
+    //   rule deleted -> detach it and let traffic flow again
+    return ctrl.Result{}, nil
+}</code></pre>
 
-<span class="kd">var</span> <span class="nx">hArray</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">h</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">hArray</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nb">Number</span><span class="p">(</span><span class="nx">o</span><span class="p">),</span> <span class="nx">h</span><span class="p">[</span><span class="nx">o</span><span class="p">]]);</span>
-    <span class="p">}</span>
+<p>This is the part of Kubernetes I find genuinely elegant. You declare a fact about the world, and a controller works tirelessly to keep it true &#8212; the same machinery that schedules pods, repurposed to schedule <em>failure</em>.</p>
 
-    <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-      <span class="nx">$</span><span class="p">.</span><span class="nx">plot</span><span class="p">(</span><span class="s2">&quot;#histogram&quot;</span><span class="p">,</span>  <span class="p">[</span><span class="nx">hArray</span><span class="p">]);</span>
-    <span class="p">});</span></code></pre></div>
+<h2>The data plane: failure at kernel speed with eBPF</h2>
 
-<p><a href="/assets/demo/cse5656_01.html">Full Screen Version</a></p>
+<p>A chaos tool can&#8217;t meaningfully distort traffic if it&#8217;s slow &#8212; the measurement would drown in the instrument&#8217;s own overhead. So the actual packet-dropping happens in the kernel, with <strong>eBPF</strong> attached at the earliest possible hook (XDP, or <code>tc</code> for egress). A tiny verified program inspects each packet and decides, in nanoseconds, whether it lives or dies. That foundation came out of <a href="https://github.com/arazmj?tab=repositories&amp;q=xdp">earlier XDP experiments of mine</a> &#8212; dropping ICMP at the driver level before the kernel network stack ever sees it.</p>
 
-<iframe src="/assets/demo/cse5656_01.html" style="border:none" width="100%" height="800"></iframe>
+<p>My favorite detail is the <code>seqMod</code> knob: instead of dropping a random percentage, NetChaos can drop <em>every Nth</em> matching packet. Random loss is realistic but maddening to debug; deterministic loss is reproducible. &#8220;Drop every fifth ICMP&#8221; gives you a failure you can trigger on demand and assert against in a test &#8212; chaos with a repeatable seed.</p>
 
+<h2>Where it is, and why I like the shape</h2>
 
-      
+<p>NetChaos is an evolving framework: the operator scaffold and the fault CRD are in place, and the work in flight is wiring the reconcile loop to the eBPF data plane on each node. But the architecture is the point, and it&#8217;s a clean seam &#8212; a declarative <em>control plane</em> in Kubernetes that decides <em>what</em> failure should exist, and a kernel-level <em>data plane</em> in eBPF that delivers it without slowing the host. Most of resilience engineering is really about putting failure where you can see it and govern it. Making that failure a first-class, version-controlled Kubernetes resource felt like the right place to put it.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/netchaos">github.com/arazmj/netchaos</a>.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -305,9 +292,9 @@ footer a { color: var(--muted); }
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
-    <li><a href="/gsoc-2015-routeflow-proposal/">GSoC 2015 RouteFlow Proposal</a></li>
+    <li><a href="/a-linux-kernel-tunnel-bug/">How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel</a></li>
+    <li><a href="/building-sentry-a-secure-job-runner/">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+    <li><a href="/writing-a-bgp-daemon-in-rust/">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></li>
   </ul>
 </section>
 

@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Hello Complex Networks!!! &#8211; Amir Razmjou</title>
-<meta name="description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
+<title>Building a Search Engine in Rust: Crawl, Index, Rank &#8211; Amir Razmjou</title>
+<meta name="description" content="Building RSeek, a web crawler and full-text search engine in Rust: a Semaphore-bounded Tokio crawler, an inverted index, and BM25 ranking that beats naive keyword counting.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/hello-complex-networks/">
+<link rel="canonical" href="https://www.amirrazmjou.com/building-a-search-engine-in-rust/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Complex Networks!!!">
-<meta property="og:description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
-<meta property="og:url" content="https://www.amirrazmjou.com/hello-complex-networks/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta property="og:title" content="Building a Search Engine in Rust: Crawl, Index, Rank">
+<meta property="og:description" content="Building RSeek, a web crawler and full-text search engine in Rust: a Semaphore-bounded Tokio crawler, an inverted index, and BM25 ranking that beats naive keyword counting.">
+<meta property="og:url" content="https://www.amirrazmjou.com/building-a-search-engine-in-rust/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/building-a-search-engine-in-rust.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/building-a-search-engine-in-rust.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -212,7 +212,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org","@type": "BlogPosting","headline": "Hello Complex Networks!!!","description": "I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.","datePublished": "2014-08-26","dateModified": "2014-08-26","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/hello-complex-networks/"},"url": "https://www.amirrazmjou.com/hello-complex-networks/","keywords": "Networks","inLanguage": "en"}
+{"@context": "https://schema.org","@type": "BlogPosting","headline": "Building a Search Engine in Rust: Crawl, Index, Rank","description": "Building RSeek, a web crawler and full-text search engine in Rust: a Semaphore-bounded Tokio crawler, an inverted index, and BM25 ranking that beats naive keyword counting.","datePublished": "2026-05-22","dateModified": "2026-05-22","author": {"@type": "Person","name": "Amir Razmjou","url": "https://www.amirrazmjou.com/"},"publisher": {"@type": "Person","name": "Amir Razmjou"},"mainEntityOfPage": {"@type": "WebPage","@id": "https://www.amirrazmjou.com/building-a-search-engine-in-rust/"},"url": "https://www.amirrazmjou.com/building-a-search-engine-in-rust/","keywords": "Rust, Search","inLanguage": "en"}
 </script>
 </head>
 
@@ -236,68 +236,58 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>August 26, 2014</span><span class="dot"></span><span>2 min read</span></div>
-  <h1 class="post-title">Hello Complex Networks!!!</h1>
+  <div class="post-kicker"><span>May 22, 2026</span><span class="dot"></span><span>6 min read</span></div>
+  <h1 class="post-title">Building a Search Engine in Rust: Crawl, Index, Rank</h1>
   <div class="prose">
-      <p>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.</p>
+<p>A search engine is two deceptively small verbs stacked on top of each other: <em>go find every page</em>, and then <em>find the one I actually want</em>. Each sounds trivial until you build it, and then each turns into its own little world. I wanted to feel both, so I wrote <a href="https://github.com/arazmj/rseek">RSeek</a> &#8212; a web crawler and full-text search engine in Rust, small enough to read in an afternoon and complete enough to actually rank results.</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nodes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
-<span class="kd">var</span> <span class="nx">edges</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
+<h2>The crawler: a polite flood</h2>
 
-<span class="kd">var</span> <span class="nx">lastNodeId</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// create a network</span>
-<span class="kd">var</span> <span class="nx">networkContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;mynetwork&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">histogramContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;histogram&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="o">:</span> <span class="nx">nodes</span><span class="p">,</span>
-<span class="nx">edges</span><span class="o">:</span> <span class="nx">edges</span>
-<span class="p">};</span>
-<span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">network</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">Network</span><span class="p">(</span><span class="nx">networkContainer</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+<p>Crawling is breadth-first search over the web graph: start at a seed URL, fetch it, scrape its links, fetch those, and keep going. The catch is that &#8220;keep going&#8221; can mean thousands of pages at once, and you want to be fast without being a menace. Rust&#8217;s async story makes the balance pleasant. I fetch with a <a href="https://hyper.rs/">hyper</a> client over Tokio, and put a <code>Semaphore</code> in front of it so only N requests are ever in flight:</p>
 
-<span class="kd">function</span> <span class="nx">addNewNode</span><span class="p">()</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">.</span><span class="nx">toString</span><span class="p">()}]);</span>
+<pre><code>let semaphore = Arc::new(Semaphore::new(concurrency)); // politeness + a resource cap
+let visited   = Arc::new(Mutex::new(HashSet::new()));   // never fetch the same URL twice
 
-<span class="k">if</span> <span class="p">(</span><span class="nx">lastNodeId</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">randomNode</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="nx">lastNodeId</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">randomNode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nx">edges</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">from</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span><span class="nx">randomNode</span> <span class="p">}]);</span>
-<span class="p">}</span>
-<span class="nx">lastNodeId</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+let permit = semaphore.clone().acquire_owned().await?;
+tokio::spawn(async move {
+    let page = crawl_url(url, client).await;   // fetch + parse off-thread
+    drop(permit);                              // release the slot for the next URL
+    // ... extract links, enqueue the unseen ones ...
+});</code></pre>
 
-<p>An another quick search on google bring up FlotCharts JS library for histograms to visualize the degree distribution of nodes in a graph.</p>
+<p>Two small pieces of shared state do the heavy lifting: the semaphore bounds concurrency, and a <code>HashSet</code> of visited URLs behind a <code>Mutex</code> keeps the crawl from chasing its own tail. Link extraction leans on the <code>scraper</code> crate &#8212; a single CSS selector pulls every anchor, and a base-URL join turns relative <code>href</code>s into absolute ones:</p>
 
-<p>But it’s a bit tricky to extract Degree Distribution off edges dataset. One has to first create a HashMap to map degree number of nodes to occurance number of nodes in JavaScript</p>
+<pre><code>let selector = Selector::parse("a[href]").unwrap();
+document.select(&amp;selector)
+    .filter_map(|el| el.value().attr("href"))
+    .filter(|href| href.starts_with("http"))
+    .map(String::from)
+    .collect::&lt;Vec&lt;_&gt;&gt;()</code></pre>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">h</span> <span class="o">=</span> <span class="p">{};</span> 
-    <span class="nx">edges</span>
-      <span class="p">.</span><span class="nx">get</span><span class="p">()</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">to</span> 
-      <span class="p">})</span>
-      <span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">])</span> <span class="o">===</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> 
-          <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
-        <span class="k">else</span> <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
-      <span class="p">});</span>
-<span class="nx">And</span> <span class="nx">then</span> <span class="nx">again</span> <span class="nx">convert</span> <span class="nx">that</span> <span class="nx">to</span> <span class="nx">an</span> <span class="nx">array</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">used</span> <span class="k">in</span> <span class="nx">Flot</span><span class="p">.</span>
+<h2>The index: turning pages into something searchable</h2>
 
-<span class="kd">var</span> <span class="nx">hArray</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">h</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">hArray</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nb">Number</span><span class="p">(</span><span class="nx">o</span><span class="p">),</span> <span class="nx">h</span><span class="p">[</span><span class="nx">o</span><span class="p">]]);</span>
-    <span class="p">}</span>
+<p>A crawled page on its own is useless to a searcher; it has to become an <em>inverted index</em> &#8212; a map from each word to the documents that contain it. I used the <code>probly_search</code> crate, adding every page as a document with two fields, its title and its body, run through a simple whitespace tokenizer:</p>
 
-    <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-      <span class="nx">$</span><span class="p">.</span><span class="nx">plot</span><span class="p">(</span><span class="s2">&quot;#histogram&quot;</span><span class="p">,</span>  <span class="p">[</span><span class="nx">hArray</span><span class="p">]);</span>
-    <span class="p">});</span></code></pre></div>
+<pre><code>let index = Arc::new(Mutex::new(Index::&lt;usize&gt;::new(2))); // 2 fields: title, content
+index.add_document(
+    &amp;[extract_title, extract_content], // how to pull each field
+    tokenizer,
+    doc_id,
+    &amp;page,
+);</code></pre>
 
-<p><a href="/assets/demo/cse5656_01.html">Full Screen Version</a></p>
+<h2>Ranking: why BM25 beats counting</h2>
 
-<iframe src="/assets/demo/cse5656_01.html" style="border:none" width="100%" height="800"></iframe>
+<p>The part that makes it a <em>search</em> engine rather than a grep is ranking. The naive instinct is to count keyword matches, but that&#8217;s wrong in two ways: a page that says &#8220;rust&#8221; fifty times isn&#8217;t fifty times more relevant, and a match on a rare word should count for far more than a match on &#8220;the.&#8221; <strong>BM25</strong> &#8212; the algorithm that quietly powers most real text search &#8212; bakes in exactly those intuitions. It rewards term frequency but with <em>diminishing returns</em>, scales each term by how rare it is across the corpus (IDF), and normalizes for document length so a long page can&#8217;t win just by being long. RSeek leans on a ready BM25 scorer, and the moment results came back ordered by genuine relevance instead of raw counts, the toy turned into a tool:</p>
 
+<pre><code>let results = index.query(&amp;query, &amp;mut bm25::new(), tokenizer, &amp;[1., 1.]);
+for r in results { println!("{} (score {:.3})", r.key, r.score); }</code></pre>
 
-      
+<h2>What it taught me</h2>
+
+<p>RSeek is small on purpose, and it skips the hard problems a production engine obsesses over &#8212; persistence, distributed indexing, crawl politeness rules, deduplication at scale. But building the two halves end to end made the shape of the problem click. Gathering is a concurrency problem, and Rust&#8217;s <code>Semaphore</code>-plus-<code>spawn</code> model made it feel almost relaxing. Ranking is an <em>information</em> problem, and BM25 is one of those rare formulas that&#8217;s simple enough to hold in your head and yet good enough to have outlasted decades of fancier ideas. Put the two together and you have, in a few hundred lines, the same skeleton that sits underneath the search box you used today.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/rseek">github.com/arazmj/rseek</a>.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -305,9 +295,9 @@ footer a { color: var(--muted); }
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
-    <li><a href="/gsoc-2015-routeflow-proposal/">GSoC 2015 RouteFlow Proposal</a></li>
+    <li><a href="/building-an-s3-object-store-in-rust/">Reimplementing S3 from Scratch: An Object Store in Rust</a></li>
+    <li><a href="/writing-a-bgp-daemon-in-rust/">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></li>
+    <li><a href="/building-a-key-value-store-in-go/">Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</a></li>
   </ul>
 </section>
 

@@ -57,6 +57,30 @@ article { padding: 48px 0 20px; }
 footer { position: relative; z-index: 2; text-align: center; color: var(--muted); font-size: 13.5px; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 64px; }
 footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .aurora { animation: none; } #spotlight, #progress { display: none; } }
+
+/* command palette */
+#cmdk-overlay { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(4,6,12,0.6); backdrop-filter: blur(4px); }
+#cmdk-overlay.open { display: block; }
+#cmdk { position: absolute; top: 14vh; left: 50%; transform: translateX(-50%); width: min(560px, 92vw);
+  background: rgba(16,20,32,0.96); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden; font-family: "Inter", system-ui, sans-serif; }
+#cmdk input { width: 100%; border: 0; outline: 0; background: transparent; color: #e6e9f0;
+  font-size: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+#cmdk-list { list-style: none; margin: 0; padding: 6px; max-height: 46vh; overflow-y: auto; }
+#cmdk-list li { padding: 11px 14px; border-radius: 10px; color: #c5ccda; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+#cmdk-list li .sub { color: #6b7394; font-size: 12px; align-self: center; white-space: nowrap; }
+#cmdk-list li.sel, #cmdk-list li:hover { background: rgba(129,140,248,0.16); color: #fff; }
+#cmdk-empty { padding: 18px 20px; color: #6b7394; font-size: 14px; }
+#cmdk-hint { padding: 9px 16px; border-top: 1px solid rgba(255,255,255,0.07); color: #6b7394; font-size: 12px; display: flex; gap: 14px; }
+@media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
+
+.tag-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 8px; }
+.tag-filter .chip { font-family: "Inter", system-ui, sans-serif; font-size: 13px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px;
+  cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s; }
+.tag-filter .chip:hover { color: var(--text); border-color: rgba(94,234,212,0.4); }
+.tag-filter .chip.active { color: #07140f; background: var(--accent-1); border-color: var(--accent-1); font-weight: 500; }
+.year.hidden, .post-card.hidden { display: none; }
 </style>
 </head>
 
@@ -82,90 +106,123 @@ footer a { color: var(--muted); }
 <article>
   <div class="post-kicker">Writing</div>
   <h1 class="post-title">All Posts</h1>
-  <p class="lead">Notes on systems, networks, and the occasional rabbit hole.</p>
+  <p class="lead">Notes on systems, networks, and the occasional rabbit hole. <span style="color:var(--muted);font-size:14px;white-space:nowrap">Press <kbd style="border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-family:inherit;font-size:12px">⌘K</kbd> to search.</span></p>
+  <div class="tag-filter">
+    <button class="chip active" data-tag="*">All</button>
+    <button class="chip" data-tag="Cloud">Cloud</button>
+    <button class="chip" data-tag="Data">Data</button>
+    <button class="chip" data-tag="Distributed Systems">Distributed Systems</button>
+    <button class="chip" data-tag="Go">Go</button>
+    <button class="chip" data-tag="Graphics">Graphics</button>
+    <button class="chip" data-tag="Kubernetes">Kubernetes</button>
+    <button class="chip" data-tag="Linux">Linux</button>
+    <button class="chip" data-tag="Machine Learning">Machine Learning</button>
+    <button class="chip" data-tag="Networking">Networking</button>
+    <button class="chip" data-tag="Networks">Networks</button>
+    <button class="chip" data-tag="Programming">Programming</button>
+    <button class="chip" data-tag="Rust">Rust</button>
+    <button class="chip" data-tag="Search">Search</button>
+    <button class="chip" data-tag="Security">Security</button>
+    <button class="chip" data-tag="Storage">Storage</button>
+    <button class="chip" data-tag="Systems">Systems</button>
+    <button class="chip" data-tag="WebAssembly">WebAssembly</button>
+    <button class="chip" data-tag="eBPF">eBPF</button>
+  </div>
 
   <div class="year">2026</div>
   <div class="post-list">
-    <a class="post-card" href="/building-a-key-value-store-in-go/">
+    <a class="post-card" data-tags="Rust Search" href="/building-a-search-engine-in-rust/">
+      <h3>Building a Search Engine in Rust: Crawl, Index, Rank</h3>
+      <p>A Semaphore-bounded Tokio web crawler, an inverted index, and BM25 ranking that beats naive keyword counting — crawl, index, rank in a few hundred lines.</p>
+    </a>
+    <a class="post-card" data-tags="Go Distributed Systems" href="/building-a-key-value-store-in-go/">
       <h3>Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</h3>
       <p>An in-memory key-value store in Go: one small cache interface behind LRU/LFU/weak implementations, four wire protocols at once, and Raft replication where the cache itself is the state machine.</p>
     </a>
-    <a class="post-card" href="/writing-a-bgp-daemon-in-rust/">
+    <a class="post-card" data-tags="Rust Networking" href="/writing-a-bgp-daemon-in-rust/">
       <h3>PathForge: Writing a BGP-4 Daemon from Scratch in Rust</h3>
       <p>Building a from-scratch BGP-4 daemon in Rust against RFC 4271: wire framing you can fuzz, the session state machine, one Tokio task per peer, and the best-path decision process as a sort comparator.</p>
     </a>
-    <a class="post-card" href="/writing-an-s3-proxy-in-rust/">
+    <a class="post-card" data-tags="Rust Cloud" href="/writing-an-s3-proxy-in-rust/">
       <h3>Writing a Small S3 Proxy in Rust</h3>
       <p>A thin, S3-compatible gateway in Rust: routing requests to the right backend by bucket name, API-key auth with per-user roles and allow-lists, and a sliding-window rate limiter.</p>
     </a>
-    <a class="post-card" href="/building-sentry-a-secure-job-runner/">
+    <a class="post-card" data-tags="Go Systems" href="/building-sentry-a-secure-job-runner/">
       <h3>Building Sentry: A Secure Job Runner with cgroups and mTLS</h3>
       <p>Running Linux processes under hard CPU, memory, and I/O limits with cgroups v2, streaming their logs over gRPC, and authenticating everyone with mutual TLS.</p>
     </a>
   </div>
   <div class="year">2025</div>
   <div class="post-list">
-    <a class="post-card" href="/building-an-s3-object-store-in-rust/">
+    <a class="post-card" data-tags="Rust WebAssembly Graphics" href="/snake-on-a-cube-rust-wasm/">
+      <h3>Snake on a Cube: 3D Snake in Rust and WebAssembly</h3>
+      <p>3D Snake crawling across all six faces of a cube, compiled to WebAssembly with three-d. The whole game lives in the seams where one face's coordinates meet another's.</p>
+    </a>
+    <a class="post-card" data-tags="Rust Storage" href="/building-an-s3-object-store-in-rust/">
       <h3>Reimplementing S3 from Scratch: An Object Store in Rust</h3>
       <p>Building R3, an S3-compatible object store in Rust: filesystem-backed objects, multipart upload assembly, and versioning with delete markers — where the real difficulty is the metadata, not the bytes.</p>
+    </a>
+    <a class="post-card" data-tags="Kubernetes eBPF Networking" href="/declarative-network-chaos-with-ebpf/">
+      <h3>NetChaos: Declarative Network Chaos with eBPF and Kubernetes</h3>
+      <p>A Kubernetes-native network fault injection framework: describe failures as CRDs, drive them with an operator reconcile loop, and deliver packet drops at kernel speed with eBPF.</p>
     </a>
   </div>
   <div class="year">2022</div>
   <div class="post-list">
-    <a class="post-card" href="/a-linux-kernel-tunnel-bug/">
+    <a class="post-card" data-tags="Linux Networking" href="/a-linux-kernel-tunnel-bug/">
       <h3>How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel</h3>
       <p>A one-line Linux kernel fix: routing one app's traffic by UID into a FOU/SIT tunnel, where encapsulated IPv6 to a local peer silently vanished — an RTN_LOCAL route the transmit path refused to allow.</p>
     </a>
   </div>
   <div class="year">2015</div>
   <div class="post-list">
-    <a class="post-card" href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
+    <a class="post-card" data-tags="Security Networking" href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
       <h3>Data-Mining PCAP files using Weka and Python DPKT library</h3>
       <p>Using Weka, Python DPKT to find malicious traffic flows in FTP server control flows.</p>
     </a>
-    <a class="post-card" href="/openstack-nova-api-direct-call/">
+    <a class="post-card" data-tags="Cloud" href="/openstack-nova-api-direct-call/">
       <h3>OpenStack REST API Direct Call</h3>
       <p>Some OpenStack wrapper libraries like OpenStack4j or Cloud4j does not cover all OpenStack REST API. I tried to explain a simple and general approach for Open...</p>
     </a>
-    <a class="post-card" href="/gsoc-2015-routeflow-proposal/">
+    <a class="post-card" data-tags="Networking" href="/gsoc-2015-routeflow-proposal/">
       <h3>GSoC 2015 RouteFlow Proposal</h3>
       <p>Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015</p>
     </a>
-    <a class="post-card" href="/playing-with-k-nearest-neighbors-algorithm/">
+    <a class="post-card" data-tags="Machine Learning" href="/playing-with-k-nearest-neighbors-algorithm/">
       <h3>Playing With K-nearest Neighbors Algorithm</h3>
       <p>This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classific...</p>
     </a>
-    <a class="post-card" href="/what-is-computer-security/">
+    <a class="post-card" data-tags="Security" href="/what-is-computer-security/">
       <h3>What Is Computer Security?</h3>
       <p>This semester, Dr. Heather Crawford asked us to wirte a review about the paper titled "What Is Computer Security?" written by MattBishop.</p>
     </a>
-    <a class="post-card" href="/why-does-functional-programming-matter/">
+    <a class="post-card" data-tags="Programming" href="/why-does-functional-programming-matter/">
       <h3>Why does functional programming matter?</h3>
       <p>Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex inte...</p>
     </a>
   </div>
   <div class="year">2014</div>
   <div class="post-list">
-    <a class="post-card" href="/collecting-data-using-windows-azure-part-2/">
+    <a class="post-card" data-tags="Cloud Data" href="/collecting-data-using-windows-azure-part-2/">
       <h3>Collecting Data Using Windows Azure Part 2</h3>
       <p>How to obtain beautifull network graphs by collecting twitter data</p>
     </a>
-    <a class="post-card" href="/spanning-tree/">
+    <a class="post-card" data-tags="Networking" href="/spanning-tree/">
       <h3>Spanning Tree</h3>
       <p>Just about everything you'll need to style in the theme: headings, paragraphs, blockquotes, tables, code blocks, and more.</p>
     </a>
-    <a class="post-card" href="/hello-complex-networks/">
+    <a class="post-card" data-tags="Networks" href="/hello-complex-networks/">
       <h3>Hello Complex Networks!!!</h3>
       <p>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I ...</p>
     </a>
-    <a class="post-card" href="/collecting-twitter-data-linq2twitter/">
+    <a class="post-card" data-tags="Cloud Data" href="/collecting-twitter-data-linq2twitter/">
       <h3>Collecting Data using Windows Azure Part 1</h3>
       <p>I decided to develop an Azure WebJob to collect my twitter data into MongoDB, using LinqToTwitter library along with MongoDB made this job pretty easy.</p>
     </a>
   </div>
   <div class="year">2012</div>
   <div class="post-list">
-    <a class="post-card" href="/qos-voice-freebsd/">
+    <a class="post-card" data-tags="Networking" href="/qos-voice-freebsd/">
       <h3>QoS optimization for real-time services in FreeBSD</h3>
       <p>VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different t...</p>
     </a>
@@ -188,5 +245,98 @@ footer a { color: var(--muted); }
 })();
 </script>
 
+
+<script>
+/* Cmd-K / Ctrl-K command palette */
+(function () {
+  var DATA = [{"t": "Home", "u": "/", "k": "home"}, {"t": "All Posts", "u": "/posts/", "k": "posts writing"}, {"t": "About", "u": "/about/", "k": "about bio"}, {"t": "Portfolio", "u": "/portfolio/", "k": "portfolio work projects"}, {"t": "Papers", "u": "/papers/", "k": "papers publications"}, {"t": "Talks", "u": "/presentations/", "k": "talks presentations"}, {"t": "Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go", "u": "/building-a-key-value-store-in-go/", "k": "go distributed systems"}, {"t": "Building Sentry: A Secure Job Runner with cgroups and mTLS", "u": "/building-sentry-a-secure-job-runner/", "k": "go systems"}, {"t": "Building a Search Engine in Rust: Crawl, Index, Rank", "u": "/building-a-search-engine-in-rust/", "k": "rust search"}, {"t": "Writing a Small S3 Proxy in Rust", "u": "/writing-an-s3-proxy-in-rust/", "k": "rust cloud"}, {"t": "PathForge: Writing a BGP-4 Daemon from Scratch in Rust", "u": "/writing-a-bgp-daemon-in-rust/", "k": "rust networking"}, {"t": "Snake on a Cube: 3D Snake in Rust and WebAssembly", "u": "/snake-on-a-cube-rust-wasm/", "k": "rust webassembly graphics"}, {"t": "Reimplementing S3 from Scratch: An Object Store in Rust", "u": "/building-an-s3-object-store-in-rust/", "k": "rust storage"}, {"t": "NetChaos: Declarative Network Chaos with eBPF and Kubernetes", "u": "/declarative-network-chaos-with-ebpf/", "k": "kubernetes ebpf networking"}, {"t": "How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel", "u": "/a-linux-kernel-tunnel-bug/", "k": "linux networking"}, {"t": "OpenStack REST API Direct Call", "u": "/openstack-nova-api-direct-call/", "k": "cloud"}, {"t": "Data-Mining PCAP files using Weka and Python DPKT library", "u": "/data-mining-pcap-files-using-weka-and-python-dpkt-library/", "k": "security networking"}, {"t": "GSoC 2015 RouteFlow Proposal", "u": "/gsoc-2015-routeflow-proposal/", "k": "networking"}, {"t": "Playing With K-nearest Neighbors Algorithm", "u": "/playing-with-k-nearest-neighbors-algorithm/", "k": "machine learning"}, {"t": "Why does functional programming matter?", "u": "/why-does-functional-programming-matter/", "k": "programming"}, {"t": "What Is Computer Security?", "u": "/what-is-computer-security/", "k": "security"}, {"t": "Collecting Data Using Windows Azure Part 2", "u": "/collecting-data-using-windows-azure-part-2/", "k": "cloud data"}, {"t": "Spanning Tree", "u": "/spanning-tree/", "k": "networking"}, {"t": "Hello Complex Networks!!!", "u": "/hello-complex-networks/", "k": "networks"}, {"t": "Collecting Data using Windows Azure Part 1", "u": "/collecting-twitter-data-linq2twitter/", "k": "cloud data"}, {"t": "QoS optimization for real-time services in FreeBSD", "u": "/qos-voice-freebsd/", "k": "networking"}];
+  var overlay, input, list, empty, items = [], sel = 0;
+  function build() {
+    overlay = document.createElement("div"); overlay.id = "cmdk-overlay";
+    overlay.innerHTML =
+      '<div id="cmdk" role="dialog" aria-label="Search">' +
+      '<input type="text" placeholder="Search posts and pages\u2026" aria-label="Search posts and pages" autocomplete="off">' +
+      '<ul id="cmdk-list"></ul><div id="cmdk-empty" style="display:none">No matches</div>' +
+      '<div id="cmdk-hint"><span>\u2191\u2193 navigate</span><span>\u21B5 open</span><span>esc close</span></div></div>';
+    document.body.appendChild(overlay);
+    input = overlay.querySelector("input");
+    list = overlay.querySelector("#cmdk-list");
+    empty = overlay.querySelector("#cmdk-empty");
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+    input.addEventListener("input", function () { render(input.value); });
+    input.addEventListener("keydown", onKey);
+  }
+  function score(q, it) {
+    q = q.toLowerCase(); var t = it.t.toLowerCase();
+    if (!q) return 1;
+    if (t.indexOf(q) !== -1) return 3;
+    if ((it.k || "").indexOf(q) !== -1) return 2;
+    var qi = 0; for (var i = 0; i < t.length && qi < q.length; i++) if (t[i] === q[qi]) qi++;
+    return qi === q.length ? 1 : 0;
+  }
+  function render(q) {
+    var scored = DATA.map(function (it) { return { it: it, s: score(q, it) }; })
+      .filter(function (x) { return x.s > 0; })
+      .sort(function (a, b) { return b.s - a.s; });
+    items = scored.map(function (x) { return x.it; });
+    sel = 0;
+    list.innerHTML = "";
+    empty.style.display = items.length ? "none" : "block";
+    items.forEach(function (it, i) {
+      var li = document.createElement("li");
+      li.className = i === 0 ? "sel" : "";
+      li.innerHTML = '<span>' + it.t + '</span><span class="sub">' + (it.u === "/" || it.u === "/posts/" || it.k.indexOf("about") > -1 || it.k.indexOf("portfolio") > -1 || it.k.indexOf("papers") > -1 || it.k.indexOf("talks") > -1 ? "page" : "post") + '</span>';
+      li.addEventListener("click", function () { go(it); });
+      li.addEventListener("mousemove", function () { setSel(i); });
+      list.appendChild(li);
+    });
+  }
+  function setSel(i) {
+    var lis = list.children; if (!lis.length) return;
+    lis[sel] && lis[sel].classList.remove("sel");
+    sel = (i + lis.length) % lis.length;
+    lis[sel].classList.add("sel"); lis[sel].scrollIntoView({ block: "nearest" });
+  }
+  function go(it) { location.href = it.u; }
+  function onKey(e) {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSel(sel + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel(sel - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (items[sel]) go(items[sel]); }
+    else if (e.key === "Escape") { close(); }
+  }
+  function open() { if (!overlay) build(); overlay.classList.add("open"); input.value = ""; render(""); input.focus(); }
+  function close() { if (overlay) overlay.classList.remove("open"); }
+  addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); open(); }
+  });
+})();
+</script>
+
+<script>
+/* tag filtering for the posts list */
+(function () {
+  var chips = document.querySelectorAll(".tag-filter .chip");
+  var cards = document.querySelectorAll(".post-card");
+  if (!chips.length) return;
+  function apply(tag) {
+    cards.forEach(function (c) {
+      var tags = (c.getAttribute("data-tags") || "").split(" ");
+      c.classList.toggle("hidden", tag !== "*" && tags.indexOf(tag) === -1);
+    });
+    document.querySelectorAll(".post-list").forEach(function (list) {
+      var visible = list.querySelectorAll(".post-card:not(.hidden)").length;
+      var year = list.previousElementSibling;
+      if (year && year.classList.contains("year")) year.classList.toggle("hidden", visible === 0);
+    });
+  }
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      chips.forEach(function (c) { c.classList.remove("active"); });
+      chip.classList.add("active");
+      apply(chip.getAttribute("data-tag"));
+    });
+  });
+})();
+</script>
 </body>
 </html>
