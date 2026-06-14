@@ -174,6 +174,22 @@ footer a { color: var(--muted); }
   .aurora { animation: none; }
   #spotlight, #progress { display: none; }
 }
+
+.code-wrap { position: relative; }
+.code-wrap .copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  font: 500 12px "Inter", system-ui, sans-serif; color: var(--muted);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  opacity: 0; transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.code-wrap:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.code-wrap .copy-btn:hover { color: var(--text); border-color: rgba(94, 234, 212, 0.4); }
+.code-wrap .copy-btn.done { color: var(--accent-1); border-color: rgba(94, 234, 212, 0.5); }
+.prose pre code .t-c { color: #6b7394; font-style: italic; }
+.prose pre code .t-s { color: #9be8c9; }
+.prose pre code .t-n { color: #f5b07a; }
+.prose pre code .t-k { color: #b6a6ff; }
 </style>
 </head>
 
@@ -295,5 +311,52 @@ ioLimit := fmt.Sprintf("%d:0 wbps=%s rbps=%s", major, writeBps, readBps)
 })();
 </script>
 
+
+<script>
+/* lightweight syntax highlighting + copy buttons for code blocks */
+(function () {
+  var KW = ["fn","let","const","mut","pub","use","impl","struct","enum","trait","match","move",
+    "async","await","return","if","else","for","while","loop","in","as","where","func","package",
+    "import","type","var","go","defer","chan","interface","map","range","select","switch","case",
+    "default","break","continue","new","class","function","void","true","false","null","nil",
+    "None","Some","Ok","Err","self","super","static","unsafe","extern","crate","mod","ref","dyn",
+    "throw","try","catch","finally","typeof","instanceof","of"];
+  var TOKEN = new RegExp(
+    "(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*)" +
+    "|(\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|`(?:\\\\.|[^`\\\\])*`)" +
+    "|(\\b0[xX][0-9a-fA-F]+\\b|\\b\\d[\\d_]*(?:\\.\\d+)?\\b)" +
+    "|(\\b(?:" + KW.join("|") + ")\\b)", "g");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(raw) {
+    var out = "", last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(raw))) {
+      out += esc(raw.slice(last, m.index));
+      var cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "n" : "k";
+      out += '<span class="t-' + cls + '">' + esc(m[0]) + "</span>";
+      last = m.index + m[0].length;
+    }
+    return out + esc(raw.slice(last));
+  }
+  document.querySelectorAll(".prose pre").forEach(function (pre) {
+    var code = pre.querySelector("code") || pre;
+    var raw = code.textContent;
+    code.innerHTML = hl(raw);
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement("button");
+    btn.className = "copy-btn"; btn.type = "button"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(raw) : Promise.reject()).then(function () {
+        btn.textContent = "Copied!"; btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      }).catch(function () {});
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
 </body>
 </html>
