@@ -1,159 +1,205 @@
 <!doctype html>
-<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
-<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Spanning Tree &#8211; Amir Razmjou</title>
 <meta name="description" content="Just about everything you'll need to style in the theme: headings, paragraphs, blockquotes, tables, code blocks, and more.">
-<meta name="keywords" content="intro, beginner, jekyll, tutorial">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-
-<!-- Twitter Cards -->
-<meta name="twitter:title" content="Spanning Tree">
-<meta name="twitter:description" content="Just about everything you'll need to style in the theme: headings, paragraphs, blockquotes, tables, code blocks, and more.">
-<meta name="twitter:site" content="@arazmj">
-<meta name="twitter:creator" content="@arazmj">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="/images/sample-image-5.jpg">
-
-<!-- Open Graph -->
-<meta property="og:locale" content="en_US">
+<link rel="canonical" href="https://www.amirrazmjou.com/spanning-tree/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spanning Tree">
 <meta property="og:description" content="Just about everything you'll need to style in the theme: headings, paragraphs, blockquotes, tables, code blocks, and more.">
-<meta property="og:url" content="/spanning-tree/">
-<meta property="og:site_name" content="Amir Razmjou">
+<meta property="og:url" content="https://www.amirrazmjou.com/spanning-tree/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@arazmj">
 
-
-
-
-
-<link rel="canonical" href="/spanning-tree/">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="shortcut icon" href="/favicon.ico">
 <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
 
-<!-- http://t.co/dKP3o1e -->
-<meta name="HandheldFriendly" content="True">
-<meta name="MobileOptimized" content="320">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- For all browsers -->
-<link rel="stylesheet" href="/assets/css/main.css">
+<style>
+:root {
+  --bg: #070a12;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --prose: #c5ccda;
+  --accent-1: #5eead4;
+  --accent-2: #818cf8;
+  --accent-3: #c084fc;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 17px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: "Space Grotesk", "Inter", sans-serif; }
 
-<meta http-equiv="cleartype" content="on">
+.bg-grad, .vignette, .aurora { position: fixed; inset: 0; pointer-events: none; }
+.bg-grad {
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(129, 140, 248, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(94, 234, 212, 0.06), transparent 60%);
+}
+.aurora {
+  z-index: 0; filter: blur(45px);
+  background:
+    radial-gradient(closest-side 42% 42% at 16% 24%, rgba(94, 234, 212, 0.10), transparent),
+    radial-gradient(closest-side 42% 42% at 84% 30%, rgba(192, 132, 252, 0.10), transparent);
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift { from { transform: translate3d(-12px, -10px, 0); } to { transform: translate3d(16px, 12px, 0); } }
+.vignette { z-index: 1; background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.92)); }
+#spotlight {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(380px circle at var(--sx, 50%) var(--sy, -30%), rgba(129, 140, 248, 0.08), transparent 65%);
+}
+#progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 8;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2) 50%, var(--accent-3));
+  box-shadow: 0 0 18px rgba(129, 140, 248, 0.7);
+}
 
-<!-- HTML5 Shiv and Media Query Support -->
-<!--[if lt IE 9]>
-	<script src="/assets/js/vendor/html5shiv.min.js"></script>
-	<script src="/assets/js/vendor/respond.min.js"></script>
-<![endif]-->
+.wrap { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-<!-- Modernizr -->
-<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0; border-bottom: 1px solid transparent; transition: 0.3s;
+}
+nav.scrolled {
+  background: rgba(7, 10, 18, 0.6); backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--border); padding: 14px 16px; margin: 0 -16px;
+}
+.monogram {
+  font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 20px;
+  text-decoration: none; color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; background: var(--surface);
+}
+.monogram span { color: var(--accent-1); }
+nav .links { display: flex; gap: 22px; }
+nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; transition: color 0.2s; }
+nav .links a:hover { color: var(--text); }
 
-<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+article { padding: 48px 0 20px; }
+.post-kicker {
+  color: var(--accent-1); font-family: "Space Grotesk", sans-serif; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.post-kicker .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.post-title {
+  font-size: clamp(32px, 5.5vw, 52px); line-height: 1.08; letter-spacing: -1px; font-weight: 700;
+  background: linear-gradient(120deg, var(--text) 35%, var(--accent-2) 75%, var(--accent-3));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
 
-<!-- Icons -->
-<!-- 16x16 -->
-<link rel="shortcut icon" href="/favicon.ico">
-<!-- 32x32 -->
-<link rel="shortcut icon" href="/favicon.png">
-<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
-<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
-<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
-<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
-<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
-<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+.prose { margin-top: 36px; color: var(--prose); font-size: 17.5px; }
+.prose > p { margin: 0 0 22px; }
+.prose h2 {
+  font-size: 25px; color: var(--text); margin: 46px 0 14px; line-height: 1.25;
+  padding-left: 14px; border-left: 3px solid var(--accent-2);
+}
+.prose h3 { font-size: 20px; color: var(--text); margin: 32px 0 12px; }
+.prose a { color: var(--accent-1); text-decoration: none; border-bottom: 1px solid rgba(94, 234, 212, 0.25); transition: border-color 0.2s; }
+.prose a:hover { border-bottom-color: var(--accent-1); }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose em { color: #d8def0; }
+.prose ul, .prose ol { margin: 0 0 22px; padding-left: 24px; }
+.prose li { margin: 6px 0; }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); margin: 8px 0; }
+.prose blockquote {
+  margin: 0 0 22px; padding: 8px 18px; border-left: 3px solid var(--accent-1);
+  color: var(--muted); background: var(--surface); border-radius: 0 10px 10px 0;
+}
+.prose hr { border: 0; height: 1px; background: var(--border); margin: 36px 0; }
+.prose :not(pre) > code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em;
+  background: rgba(129, 140, 248, 0.12); color: #cdd3ff; padding: 2px 7px;
+  border-radius: 6px; border: 1px solid rgba(129, 140, 248, 0.18);
+}
+.prose pre {
+  background: #0b1020; border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; overflow-x: auto; margin: 0 0 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.prose pre code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px; line-height: 1.6; color: #e6e9f0; background: none; border: 0; padding: 0;
+}
 
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+  text-decoration: none; font-size: 14px; margin-top: 40px; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent-1); }
+
+.related { margin: 64px 0 0; }
+.related h4 {
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-1); font-weight: 500; margin-bottom: 18px;
+}
+.related-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px; list-style: none;
+}
+.related-grid a {
+  display: block; text-decoration: none; color: var(--text); padding: 18px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+  backdrop-filter: blur(8px); transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  font-size: 15.5px; line-height: 1.4;
+}
+.related-grid a:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); transform: translateY(-3px);
+}
+
+footer {
+  position: relative; z-index: 2; text-align: center; color: var(--muted);
+  font-size: 13.5px; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 64px;
+}
+footer a { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aurora { animation: none; }
+  #spotlight, #progress { display: none; }
+}
+</style>
 </head>
 
-<body class="post">
+<body>
+<div class="bg-grad" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div id="spotlight" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
 
-<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+<div class="wrap">
 
-<div class="navigation-wrapper">
-	<div class="site-name">
-		<a href="/">Amir Razmjou</a>
-	</div><!-- /.site-name -->
-	<div class="top-navigation">
-		<nav role="navigation" id="site-nav" class="nav">
-		    <ul>
-		        
-				    
-				        
-				    
-				    <li><a href="/about/" >About</a></li>
-				
-				    
-				        
-				    
-				
-				    
-				        
-				    
-				    <li><a href="/presentations/" >Presentations</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/papers/" >Papers</a></li>
-				
-				    
-				        
-				    
-				    <li><a href="/portfolio/" >Portfolio</a></li>
-				
-		    </ul>
-		</nav>
-	</div><!-- /.top-navigation -->
-</div><!-- /.navigation-wrapper -->
-
-
-  <div class="image-wrap">
-  <img src=
-    
-      "/images/sample-image-5.jpg"
-    
-  alt="Spanning Tree feature image">
-  
-  </div><!-- /.image-wrap -->
-
-
-<div id="main" role="main">
-  <div class="article-author-side">
-    
-
-
-<div itemscope itemtype="http://schema.org/Person">
-
-
-
-
-  <h3 itemprop="name">Amir Razmjou</h3>
-  <p>Software Engineer</p>
-  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
-  
-  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
-  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
-  
-  
-  
-  
-  
-</div>
+<nav>
+  <a class="monogram" href="/">AR<span>.</span></a>
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/#writing">Writing</a>
+    <a href="/posts/">All Posts</a>
+    <a href="/#contact">Contact</a>
   </div>
-  <article class="post">
-    <div class="headline-wrap">
-      
-        <h1><a href="/spanning-tree/" rel="bookmark" title="Spanning Tree">Spanning Tree</a></h1>
-      
-    </div><!--/ .headline-wrap -->
-    <div class="article-wrap">
+</nav>
+
+<article>
+  <div class="post-kicker"><span>September 22, 2014</span><span class="dot"></span><span>4 min read</span></div>
+  <h1 class="post-title">Spanning Tree</h1>
+  <div class="prose">
       <p>You want to beleive how great this woman was implement Spanning Tree algorithm.
 Often referred to as the Mother of the Internet, Perlman is a software designer and network engineer who is most famous for her invention of the spanning-tree protocol. Perlman, who developed spanning-tree while working for Digital Equipment Corp, holds a Bachelor’s and Master’s in Mathematics and a Ph.D in Computer Science from MIT. So, you know, girl’s got mad skills. Spanning-tree is a network protocol that ensures a loop-free topology for any bridged Ethernet local area network -which is fundamental to the operation of network bridges. Perlman is also a heavy hitter in other areas – most notably network design and standardization such as link-state protocols – including TRILL which she invented to correct the failings of spanning-tree. Perlman has also been called a pioneer in teaching young children computer programming for developing TORTIS, a version of the educational robotics language, LOGO. Currently employed by Intel, Perlman holds more than 50 patents from Sun alone, and is the author of a textbook on networking, and a co-author of a textbook of network security. </p>
 
@@ -216,84 +262,46 @@ b.	If two bridges have the same cost to root, they use their port ID as a tiebre
 <p>Bridges can interconnect by shared medium namely networks. Hence more than 2 bridges can participate in Layer-2 by being interconnected through the same network. Therefore network structure forms a bipartite graph of two classes of nodes, bridges and networks where minimum degree for bridges and networks are two and one. </p>
 
 
-      <hr />
-      <footer role="contentinfo">
-        <p class="byline"><strong>Spanning Tree</strong> was published on <time datetime="2014-09-22T00:00:00-04:00">September 22, 2014</time> and last modified on <time datetime="2013-05-31">May 31, 2013</time>.</p>
-      </footer>
-    </div><!-- /.article-wrap -->
-  
-    <section id="disqus_thread"></section><!-- /#disqus_thread -->
-  
-  </article>
-</div><!-- /#main -->
+      
+  </div>
+  <a class="back-link" href="/posts/">&#8592; All posts</a>
+</article>
 
-<div class="footer-wrap">
-  <div class="related-articles">
-  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
-    <ul>
-    
-      <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/" title="Data-Mining PCAP files using Weka and Python DPKT library">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    
-      <li><a href="/openstack-nova-api-direct-call/" title="OpenStack REST API Direct Call">OpenStack REST API Direct Call</a></li>
-    
-      <li><a href="/gsoc-2015-routeflow-proposal/" title="GSoC 2015 RouteFlow Proposal">GSoC 2015 RouteFlow Proposal</a></li>
-    
-    </ul>
-    <hr />
-  </div><!-- /.related-articles -->
-  <footer>
-    
+<section class="related">
+  <h4>You might also enjoy</h4>
+  <ul class="related-grid">
+    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
+    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
+    <li><a href="/gsoc-2015-routeflow-proposal/">GSoC 2015 RouteFlow Proposal</a></li>
+  </ul>
+</section>
 
-<span>&copy; 2015 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+</div>
 
-  </footer>
-</div><!-- /.footer-wrap -->
+<footer>&copy; 2026 Amir Razmjou &middot; <a href="/">amirrazmjou.com</a></footer>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
-<script src="/assets/js/scripts.min.js"></script>
-
-<!-- Asynchronous Google Analytics snippet -->
 <script>
-  var _gaq = _gaq || [];
-  var pluginUrl = 
- '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
-  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
-  _gaq.push(['_setAccount', 'UA-60011536-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+(function () {
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var prog = document.getElementById("progress");
+  var nav = document.querySelector("nav");
+  var doc = document.documentElement;
+  function onScroll() {
+    var max = doc.scrollHeight - doc.clientHeight;
+    var t = window.pageYOffset || 0;
+    if (prog) prog.style.width = max > 0 ? (t / max * 100).toFixed(2) + "%" : "0";
+    if (nav) nav.classList.toggle("scrolled", t > 24);
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  if (reduce || !fine) return;
+  addEventListener("pointermove", function (e) {
+    document.body.style.setProperty("--sx", e.clientX + "px");
+    document.body.style.setProperty("--sy", e.clientY + "px");
+  }, { passive: true });
+})();
 </script>
-
-
-  
-<script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname = 'amirrazmjousfitblog'; // required: replace example with your forum shortname
-
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-        var s = document.createElement('script'); s.async = true;
-        s.type = 'text/javascript';
-        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
-        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-	        
 
 </body>
 </html>
