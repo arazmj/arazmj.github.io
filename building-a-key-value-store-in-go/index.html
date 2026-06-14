@@ -1,0 +1,273 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go &#8211; Amir Razmjou</title>
+<meta name="description" content="Notes on building Gerdu, an in-memory key-value store in Go: one small cache interface behind LRU/LFU/weak implementations, four wire protocols at once, and Raft replication where the cache itself is the state machine.">
+<meta name="keywords" content="Go, key-value store, cache, LRU, Raft, distributed systems, Redis, memcached, gRPC">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go">
+<meta name="twitter:description" content="Notes on building Gerdu, an in-memory key-value store in Go: one small cache interface behind LRU/LFU/weak implementations, four wire protocols at once, and Raft replication where the cache itself is the state machine.">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-5.jpg">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go">
+<meta property="og:description" content="Notes on building Gerdu, an in-memory key-value store in Go: one small cache interface behind LRU/LFU/weak implementations, four wire protocols at once, and Raft replication where the cache itself is the state machine.">
+<meta property="og:url" content="/building-a-key-value-store-in-go/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+<link rel="canonical" href="/building-a-key-value-store-in-go/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				
+				    
+				        
+				    
+				    <li><a href="/presentations/" >Presentations</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/papers/" >Papers</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-5.jpg"
+    
+  alt="Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Software Engineer</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  
+  
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/building-a-key-value-store-in-go/" rel="bookmark" title="Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go">Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <p>It&#8217;s easy to use Redis every day and never think about what&#8217;s underneath it &#8212; the eviction policy, the wire protocol, the way a cluster keeps its nodes in agreement. The best cure I know for that kind of fuzziness is to build a small version yourself. So I wrote <a href="https://github.com/arazmj/gerdu">Gerdu</a>, an in-memory key-value store in Go that speaks several protocols at once and can run as a single node or a Raft-backed cluster. It&#8217;s a few thousand lines, and almost all of it hangs off one very small idea.</p>
+
+<h2>One interface, several caches</h2>
+
+<p>That idea is an interface with three methods. A cache, as far as the rest of Gerdu is concerned, is anything that can do this:</p>
+
+<pre><code>type UnImplementedCache interface {
+    Put(key string, value string) (created bool)
+    Get(key string) (value string, ok bool)
+    Delete(key string) (ok bool)
+}
+</code></pre>
+
+<p>Nothing else in the system knows what kind of cache it&#8217;s holding. That let me write three different ones &#8212; an LRU, an LFU, and a weak-reference cache that lets the garbage collector reclaim entries under memory pressure &#8212; and swap between them with a command-line flag. Every interesting design decision in the project comes back to keeping that seam clean.</p>
+
+<h2>The LRU underneath</h2>
+
+<p>The default cache is the textbook LRU: a hash map for O(1) lookups, paired with a doubly-linked list that tracks recency. A <code>Get</code> finds the node in the map and moves it to the front of the list; the least-recently-used entries sink to the tail, which is exactly where eviction takes from. The one twist I like is that capacity is measured in <em>bytes</em> rather than entries &#8212; a <code>64MB</code> cap means real memory &#8212; so eviction keeps popping the tail until the store fits again:</p>
+
+<pre><code>// on write, after inserting/updating:
+for c.size > c.capacity {
+    tail := c.linklist.PopTail()
+    metrics.Deletes.Inc()
+    c.size -= entrySize(tail.Key, tail.Value)
+    delete(c.node, tail.Key)
+}
+</code></pre>
+
+<p>A background goroutine wakes up on a ticker and sweeps out anything that&#8217;s expired, so dead entries don&#8217;t linger just because nobody asked for them. None of this is novel &#8212; it&#8217;s the canonical LRU &#8212; but writing it out is what makes &#8220;O(1) with a hash map and a linked list&#8221; stop being a phrase you repeat in interviews and start being something you&#8217;ve actually felt.</p>
+
+<h2>Four front doors to the same room</h2>
+
+<p>Here&#8217;s where the interface starts paying off. Gerdu serves HTTP, Redis, memcached, and gRPC &#8212; all at the same time, each on its own port. The reason I bothered is simple: whatever client you already have should just work. Point <code>redis-cli</code> at it, point a memcached library at it, <code>curl</code> it, or call it over gRPC.</p>
+
+<p>Each protocol is its own little package, and each one is essentially a translator. It parses its own wire format &#8212; RESP for Redis, the line-based text protocol for memcached, protobuf for gRPC &#8212; and then bottoms out in the same three calls. A Redis <code>SET</code>, a memcached <code>set</code>, an HTTP <code>PUT</code>, and a gRPC <code>Put</code> all end up at <code>cache.Put(key, value)</code>. The cache has no idea which doorway a request came through, and it doesn&#8217;t need to.</p>
+
+<h2>Distribution by composition</h2>
+
+<p>The part I&#8217;m proudest of is how clustering slots in. Gerdu uses <a href="https://github.com/hashicorp/raft">HashiCorp&#8217;s Raft</a> for replication, and the trick is that <em>the cache is the replicated state machine</em>. Rather than bolt consensus onto the side, I wrote a <code>RaftProxy</code> that implements the very same <code>UnImplementedCache</code> interface &#8212; but instead of touching memory directly, a write turns into a little command and gets proposed to the Raft log:</p>
+
+<pre><code>func (c *RaftProxy) applyCommand(cmd *command) (raft.ApplyFuture, error) {
+    if c.raft.State() != raft.Leader {
+        return nil, fmt.Errorf("not a leader but a %v", c.raft.State())
+    }
+    b, _ := json.Marshal(cmd)        // {op, key, value, ...}
+    return c.raft.Apply(b, raftTimeout), nil
+}
+</code></pre>
+
+<p>The mutation doesn&#8217;t happen here. It happens later, when that log entry is committed and Raft hands it back to the state machine&#8217;s <code>Apply</code> on <em>every</em> node, which decodes the command and finally calls into the underlying cache. Snapshots are just the map marshalled to JSON; restore reads it back. Because the cache satisfies Raft&#8217;s FSM contract, the store&#8217;s state and the replicated state are the same thing.</p>
+
+<p>And here&#8217;s the payoff for keeping that seam clean: the protocol servers don&#8217;t change at all. On a single node they talk to an LRU cache. In a cluster they talk to a <code>RaftProxy</code> that wraps an LRU cache. Same interface, two behaviors. Writes are routed to the leader, followers reject them with a polite &#8220;not a leader,&#8221; and the usual Raft arithmetic applies &#8212; three nodes survive one failure, five survive two. The log lives in memory by default, or in BoltDB on disk if you point it at storage.</p>
+
+<h2>Knowing what it&#8217;s doing</h2>
+
+<p>Because a cache is exactly the kind of thing whose behavior you want to watch, Gerdu increments Prometheus counters &#8212; hits, misses, adds, deletes &#8212; right inside the cache operations and exposes them at <code>/metrics</code>. TLS is optional for the HTTP, gRPC, and Redis listeners, and on <code>Ctrl+C</code> a node tries to leave its Raft cluster cleanly rather than just vanishing and making its peers wait out a timeout.</p>
+
+<h2>What I took away</h2>
+
+<p>The lesson Gerdu drove home is how much leverage a single, small interface can give you. Three methods were enough to let the same abstraction be a local LRU, a Raft state machine, and the shared backend for four different wire protocols &#8212; without any of those pieces needing to know about the others. Most of the &#8220;distributed&#8221; difficulty I&#8217;d braced for turned out to be a question of <em>where</em> to put that seam, not how much machinery to pile on top of it.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/gerdu">github.com/arazmj/gerdu</a> if you&#8217;d like to look around.</p>
+
+      <hr />
+      <footer role="contentinfo">
+        <p class="byline"><strong>Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</strong> was published on <time datetime="2026-06-12T10:00:00-04:00">June 12, 2026</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/writing-a-bgp-daemon-in-rust/" title="PathForge: Writing a BGP-4 Daemon from Scratch in Rust">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></li>
+    
+      <li><a href="/writing-an-s3-proxy-in-rust/" title="Writing a Small S3 Proxy in Rust">Writing a Small S3 Proxy in Rust</a></li>
+    
+      <li><a href="/building-sentry-a-secure-job-runner/" title="Building Sentry: A Secure Job Runner with cgroups and mTLS">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2026 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+	        
+
+</body>
+</html>
