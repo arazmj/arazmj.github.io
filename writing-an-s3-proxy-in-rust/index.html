@@ -1,0 +1,269 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Writing a Small S3 Proxy in Rust &#8211; Amir Razmjou</title>
+<meta name="description" content="Notes on building a thin, S3-compatible proxy in Rust with axum and the AWS SDK: routing requests to the right backend by bucket name, API-key auth with per-user roles and allow-lists, and a sliding-window rate limiter.">
+<meta name="keywords" content="Rust, S3, axum, AWS SDK, proxy, rate limiting, authentication">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="Writing a Small S3 Proxy in Rust">
+<meta name="twitter:description" content="Notes on building a thin, S3-compatible proxy in Rust with axum and the AWS SDK: routing requests to the right backend by bucket name, API-key auth with per-user roles and allow-lists, and a sliding-window rate limiter.">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-3.jpg">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Writing a Small S3 Proxy in Rust">
+<meta property="og:description" content="Notes on building a thin, S3-compatible proxy in Rust with axum and the AWS SDK: routing requests to the right backend by bucket name, API-key auth with per-user roles and allow-lists, and a sliding-window rate limiter.">
+<meta property="og:url" content="/writing-an-s3-proxy-in-rust/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+<link rel="canonical" href="/writing-an-s3-proxy-in-rust/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				
+				    
+				        
+				    
+				    <li><a href="/presentations/" >Presentations</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/papers/" >Papers</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-3.jpg"
+    
+  alt="Writing a Small S3 Proxy in Rust feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Software Engineer</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  
+  
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/writing-an-s3-proxy-in-rust/" rel="bookmark" title="Writing a Small S3 Proxy in Rust">Writing a Small S3 Proxy in Rust</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <p>I kept running into the same small annoyance: I had a handful of S3-compatible buckets spread across different accounts and services &#8212; some on AWS, some on a MinIO box &#8212; and every client that wanted to read or write needed its own set of credentials, its own region, its own endpoint. What I really wanted was a single front door: one URL, one simple key, and a server in the middle that figured out where each request should actually go and whether the caller was allowed to make it. That became <a href="https://github.com/arazmj/s3-proxy">s3-proxy</a>, a thin S3-compatible gateway I wrote in Rust.</p>
+
+<p>The important word is <em>thin</em>. It&#8217;s not a cache and it&#8217;s not an aggregator &#8212; every bucket name maps to exactly one backend account. The proxy&#8217;s whole job is to authenticate you, decide whether you&#8217;re allowed to touch the bucket you asked for, and forward the request to the right place. Everything interesting is in those three steps.</p>
+
+<h2>Routing by bucket name</h2>
+
+<p>The configuration is built around two maps: <em>accounts</em> (each with an endpoint, region, credentials, and the list of buckets it owns) and <em>users</em> (each with an API key, a role, and a list of allowed buckets). Picking a backend for a request is then just a search for the account that claims the bucket in the URL:</p>
+
+<pre><code>pub fn find_account_for_bucket(&self, bucket: &str) -> Option<(&String, &AccountConfig)> {
+    self.accounts.iter().find(|(_, account)| {
+        account.buckets.contains(&bucket.to_string())
+    })
+}
+</code></pre>
+
+<p>At startup I build one <code>aws-sdk-s3</code> client per account &#8212; each pinned to that account&#8217;s endpoint and credentials &#8212; and stash them in a <code>HashMap</code> keyed by account id. A request comes in for <code>/photos/cat.jpg</code>, the proxy looks up which account owns <code>photos</code>, grabs that account&#8217;s pre-built client from the map, and the official AWS SDK does all the actual S3 talking. I was happy to let the SDK own SigV4 signing, retries, and pagination rather than reinventing any of it.</p>
+
+<h2>Auth that isn&#8217;t SigV4</h2>
+
+<p>Real S3 authenticates every request with SigV4, which is powerful and also a lot of ceremony. For a private gateway I wanted something blunter, so clients send a single <code>x-api-key</code> header and nothing else. All of the policy lives in one axum middleware that runs before any handler:</p>
+
+<pre><code>// look up the user by their API key, reject if unknown
+let (username, user) = match config.find_user_by_api_key(api_key) {
+    Some(u) => u,
+    None => return AppError::Unauthorized("Invalid API key".into()).into_response(),
+};
+</code></pre>
+
+<p>From there the rules are deliberately small. Each user has a role &#8212; <code>admin</code> and <code>user</code> can write, <code>readonly</code> can only GET &#8212; and an allow-list of buckets, where <code>["*"]</code> means &#8220;anything the proxy knows about.&#8221; The handlers call <code>check_bucket_access</code> and, on uploads, <code>check_write_permission</code>, so an unauthorized request gets turned away before a single byte reaches a backend. One detail I&#8217;m glad I added early: the <code>x-api-key</code> header is redacted in the request logs, so the access logs never quietly become a list of valid credentials.</p>
+
+<h2>A sliding-window rate limiter in a few lines</h2>
+
+<p>To keep one noisy client from hammering the backends, each user gets a simple per-minute budget. The limiter keeps a timestamp for every recent request, drops the ones that have aged out of the window, and checks what&#8217;s left:</p>
+
+<pre><code>let window = Duration::from_secs(60);
+let max_requests = 100;
+
+let requests = self.requests.entry(username.to_string()).or_default();
+requests.retain(|&t| now.duration_since(t) < window); // forget old hits
+if requests.len() >= max_requests {
+    return true; // limited
+}
+requests.push(now);
+</code></pre>
+
+<p>It&#8217;s a true sliding window rather than a fixed bucket that resets on the minute, so you can&#8217;t sneak a double-burst across a reset boundary. I&#8217;ll be honest about the trade-off, though: the state is an in-process <code>HashMap</code> behind a lock. That&#8217;s perfect for a single instance and useless the moment you run two of them &#8212; at that point the counter belongs in something shared like Redis. For what this proxy is, one node was the right call.</p>
+
+<h2>Saying no to bad paths</h2>
+
+<p>Because the proxy turns URL path segments into bucket and key names, the validator is fussy about shape on purpose. A request has to be either <code>/{bucket}</code> or <code>/{bucket}/{key}</code> &#8212; anything with extra segments, <code>..</code>, doubled slashes, or a trailing slash gets a <code>400</code> before it&#8217;s allowed to mean anything to a backend. PUTs additionally get their <code>Content-Length</code> checked against a configurable maximum so an oversize upload is rejected up front rather than after it&#8217;s streamed in. On the way back out, every response picks up the usual hardening headers &#8212; <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: DENY</code>, HSTS &#8212; injected in that same middleware.</p>
+
+<h2>The handlers are mostly plumbing</h2>
+
+<p>Once auth and routing are out of the way, the request handlers are refreshingly boring, which is exactly what you want from a proxy. <code>GET /{bucket}/{key}</code> streams the object back from the backend; <code>PUT</code> wraps the request body in a <code>ByteStream</code> and hands it to the SDK verbatim, preserving the content type; <code>GET /{bucket}</code> pages through <code>list_objects_v2</code> with continuation tokens and renders a small <code>ListBucketResult</code> XML document so ordinary S3 tooling sees what it expects. Errors come back as JSON with a matching status code, except for listings, which stay XML to keep clients happy.</p>
+
+<p>If I were to keep pushing on it, the obvious next step is end-to-end streaming on the read path &#8212; the current GET handler collects the object into memory before sending it, which is fine for small files and wrong for large ones. The rate limiter would move to a shared store, and I&#8217;d probably add real metrics. But the core turned out to be a satisfying example of how far you get in Rust by leaning on good libraries: axum for the HTTP surface, the AWS SDK for the hard S3 parts, and a couple hundred lines of my own code to glue routing, identity, and policy together.</p>
+
+<p>The source is on GitHub at <a href="https://github.com/arazmj/s3-proxy">github.com/arazmj/s3-proxy</a> if you want to read the rest.</p>
+
+      <hr />
+      <footer role="contentinfo">
+        <p class="byline"><strong>Writing a Small S3 Proxy in Rust</strong> was published on <time datetime="2026-05-17T10:00:00-04:00">May 17, 2026</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/building-sentry-a-secure-job-runner/" title="Building Sentry: A Secure Job Runner with cgroups and mTLS">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+    
+      <li><a href="/why-does-functional-programming-matter/" title="Why Does Functional Programming Matter?">Why Does Functional Programming Matter?</a></li>
+    
+      <li><a href="/what-is-computer-security/" title="What Is Computer Security?">What Is Computer Security?</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2026 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+	        
+
+</body>
+</html>
