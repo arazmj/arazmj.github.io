@@ -1,0 +1,290 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>PathForge: Writing a BGP-4 Daemon from Scratch in Rust &#8211; Amir Razmjou</title>
+<meta name="description" content="Notes on building PathForge, a from-scratch BGP-4 daemon in Rust: wire framing you can fuzz, the session state machine, one Tokio task per peer, and the best-path decision process expressed as a sort comparator.">
+<meta name="keywords" content="BGP, Rust, RFC 4271, routing, networking, Tokio, state machine, fuzzing">
+
+
+
+<!-- Twitter Cards -->
+<meta name="twitter:title" content="PathForge: Writing a BGP-4 Daemon from Scratch in Rust">
+<meta name="twitter:description" content="Notes on building PathForge, a from-scratch BGP-4 daemon in Rust: wire framing you can fuzz, the session state machine, one Tokio task per peer, and the best-path decision process expressed as a sort comparator.">
+<meta name="twitter:site" content="@arazmj">
+<meta name="twitter:creator" content="@arazmj">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/images/sample-image-4.jpg">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PathForge: Writing a BGP-4 Daemon from Scratch in Rust">
+<meta property="og:description" content="Notes on building PathForge, a from-scratch BGP-4 daemon in Rust: wire framing you can fuzz, the session state machine, one Tokio task per peer, and the best-path decision process expressed as a sort comparator.">
+<meta property="og:url" content="/writing-a-bgp-daemon-in-rust/">
+<meta property="og:site_name" content="Amir Razmjou">
+
+
+
+
+<link rel="canonical" href="/writing-a-bgp-daemon-in-rust/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="/assets/js/vendor/html5shiv.min.js"></script>
+	<script src="/assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700%7CPT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="post">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="/">Amir Razmjou</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				    
+				        
+				    
+				    <li><a href="/about/" >About</a></li>
+				
+				    
+				        
+				    
+				
+				    
+				        
+				    
+				    <li><a href="/presentations/" >Presentations</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/papers/" >Papers</a></li>
+				
+				    
+				        
+				    
+				    <li><a href="/portfolio/" >Portfolio</a></li>
+				
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "/images/sample-image-4.jpg"
+    
+  alt="PathForge: Writing a BGP-4 Daemon from Scratch in Rust feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+
+
+
+  <h3 itemprop="name">Amir Razmjou</h3>
+  <p>Software Engineer</p>
+  <a href="mailto:arazmjou2014@my.fit.edu" class="author-social" target="_blank"><i class="fa fa-fw fa-envelope-square"></i>Email</a>
+  
+  <a href="http://github.com/arazmj" class="author-social" target="_blank"><i class="fa fa-fw fa-github"></i> Github</a>
+  <a href="http://stackoverflow.com/users/2101029" class="author-social" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i> Stackoverflow</a>
+  
+  
+  
+  
+  
+</div>
+  </div>
+  <article class="post">
+    <div class="headline-wrap">
+      
+        <h1><a href="/writing-a-bgp-daemon-in-rust/" rel="bookmark" title="PathForge: Writing a BGP-4 Daemon from Scratch in Rust">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></h1>
+      
+    </div><!--/ .headline-wrap -->
+    <div class="article-wrap">
+      <p>BGP is the protocol that holds the internet together &#8212; the thing that decides, autonomous system by autonomous system, how a packet leaving my laptop ever finds its way to a server on the other side of the planet. I&#8217;ve read about it for years, but reading about a protocol and <em>implementing</em> one are very different kinds of understanding. So I sat down with <a href="https://datatracker.ietf.org/doc/html/rfc4271">RFC 4271</a> and wrote a BGP-4 speaker from scratch in Rust. It&#8217;s called <a href="https://github.com/arazmj/pathforge">PathForge</a>, and this is what I learned building it.</p>
+
+<p>It ended up being about 5,400 lines of Rust with 109 unit tests and a handful of fuzz harnesses. But the line count isn&#8217;t the point &#8212; the point is that almost every paragraph of the RFC turned into a type, a state, or a test, and the parts I would have skimmed while reading became decisions I had to actually make.</p>
+
+<h2>It starts with bytes on the wire</h2>
+
+<p>Every BGP message begins with the same 19-byte header: a 16-byte marker that&#8217;s all ones, a 2-byte length, and a 1-byte type. The marker is a holdover from older authentication schemes, but it&#8217;s still mandatory, so the very first thing the parser does is insist on it:</p>
+
+<pre><code>pub const MARKER: [u8; 16] = [0xFF; 16];
+pub const HEADER_LEN: usize = 19;
+pub const MAX_MESSAGE_LEN: usize = 4096;
+
+let mut marker = [0u8; 16];
+buf.copy_to_slice(&mut marker);
+if marker != MARKER { return Err(HeaderError::InvalidMarker); }
+let length = buf.get_u16();
+if (length as usize) < HEADER_LEN || (length as usize) > MAX_MESSAGE_LEN {
+    return Err(HeaderError::InvalidLength(length));
+}
+</code></pre>
+
+<p>Here&#8217;s the thing that shaped the whole codebase: every one of those bytes arrives from a peer I don&#8217;t control. A malformed OPEN or a deliberately broken path attribute should never crash the daemon &#8212; it should produce a NOTIFICATION and a clean teardown. That&#8217;s exactly the kind of property that&#8217;s hard to prove by hand, so the message parsers were the first thing I pointed <code>cargo-fuzz</code> at. Four fuzz targets &#8212; the framing, OPEN, UPDATE, and the path-attribute parser &#8212; chew on random bytes looking for a panic. Rust already rules out whole categories of buffer bugs, but fuzzing the parser is what lets me actually trust it with hostile input.</p>
+
+<h2>A session is a state machine</h2>
+
+<p>A BGP session is defined in the RFC as a finite state machine, and the closest thing to a faithful translation is to write it as one. There are six states &#8212; Idle, Connect, Active, OpenSent, OpenConfirm, and Established &#8212; and a fixed set of events that move you between them. Modeling both as plain Rust enums meant the transition logic became an exhaustive <code>match</code>, and the compiler started catching cases I&#8217;d forgotten:</p>
+
+<pre><code>pub enum BgpState {
+    Idle, Connect, Active, OpenSent, OpenConfirm, Established,
+}
+
+pub enum BgpEvent {
+    ManualStart, TcpConnectionConfirmed, TcpConnectionFail,
+    BgpOpen, KeepAliveMsg, UpdateMsg, NotifMsg, HoldTimerExpired, /* ... */
+}
+</code></pre>
+
+<p>The happy path reads the way the spec describes it: from Idle you connect, send your OPEN with its capabilities, wait for the peer&#8217;s OPEN in OpenSent, trade KEEPALIVEs through OpenConfirm, and land in Established &#8212; the only state where UPDATE messages actually mean anything. Hold-timer expiry can yank you out of any of it, which is its own small lesson in why timers belong in the state machine and not bolted on beside it.</p>
+
+<h2>One task per peer</h2>
+
+<p>On the concurrency side, the shape is about as simple as Tokio lets it be: the listener accepts a TCP connection and spawns one async task per peer, and that task owns the session loop for its neighbor &#8212; driving the FSM, exchanging KEEPALIVEs, and resetting the hold timer every time it hears from the other side. A routing daemon is mostly a crowd of long-lived, mostly-idle sessions, each babysitting a couple of timers, and that&#8217;s precisely the workload async runtimes are good at. I never had to think about a thread pool.</p>
+
+<h2>The decision process, as a sort</h2>
+
+<p>My favorite part is the BGP decision process. When several neighbors all advertise a route to the same prefix, BGP doesn&#8217;t get to be vague about which one wins &#8212; RFC 4271 spells out an exact tie-breaking ladder: highest LOCAL_PREF, then shortest AS_PATH, then lowest ORIGIN, then lowest MED, and so on. The lovely thing is that in Rust this whole ladder is just a sort comparator, with each rule chained onto the previous one by <code>Ordering::then</code>:</p>
+
+<pre><code>candidates.sort_by(|a, b| {
+    let a_lp = a.attrs.local_pref.unwrap_or(100);
+    let b_lp = b.attrs.local_pref.unwrap_or(100);
+    // 1. Highest LOCAL_PREF wins (note: b vs a, because higher is better)
+    b_lp.cmp(&a_lp)
+        // 2. Shortest AS_PATH
+        .then(a.attrs.as_path_len().cmp(&b.attrs.as_path_len()))
+        // 3. Lowest ORIGIN (IGP < EGP < Incomplete)
+        .then_with(|| origin(a).cmp(&origin(b)))
+        // 4. Lowest MED
+        .then(med(a).cmp(&med(b)))
+        // 5. Oldest route as the final tiebreaker
+        .then(a.received_at.cmp(&b.received_at))
+});
+let best = candidates[0].clone();
+</code></pre>
+
+<p>Reading the rules straight down the comparator, in order, is about as close as code gets to reading the RFC itself. The defaults matter more than they look, too &#8212; an absent LOCAL_PREF becomes 100, a missing ORIGIN sorts as &#8220;Incomplete,&#8221; an absent MED counts as zero &#8212; and getting any of those wrong quietly elects the wrong route. Underneath, each peer keeps its own Adj-RIB-In, the winners land in the Loc-RIB, and a longest-prefix-match lookup answers &#8220;where does this address actually go.&#8221;</p>
+
+<h2>Everything around the core</h2>
+
+<p>RFC 4271 is really just the trunk; the interesting routing world hangs off the branches. PathForge grew to negotiate capabilities (multiprotocol IPv4/IPv6, 4-byte AS numbers, route refresh, graceful restart), reflect routes for iBGP scaling, dampen flapping prefixes, validate route origins against RPKI, and filter with prefix and community lists. I kept a strict discipline of one module per concern, each pinned to the RFC it implements &#8212; <code>rr.rs</code> for route reflection, <code>dampening.rs</code> for RFC 2439, <code>mp.rs</code> for multiprotocol NLRI, and so on. That mapping is the only reason five thousand lines stayed navigable instead of turning into a swamp.</p>
+
+<h2>Being able to see inside it</h2>
+
+<p>A routing daemon you can&#8217;t observe is a frightening thing to run, so a real chunk of the work went into operability rather than protocol. There are Prometheus counters for sessions, messages, routes, and errors; <code>tracing</code> spans via <code>#[instrument]</code> so a single peer&#8217;s story can be followed through the logs; and a Unix-socket management CLI that dumps the live RIB without touching the data path. To check I hadn&#8217;t merely implemented my own private dialect of BGP, there&#8217;s a Docker Compose harness that peers PathForge against <a href="https://frrouting.org/">FRRouting</a> and watches a real handshake and route exchange happen end to end.</p>
+
+<h2>What I took away</h2>
+
+<p>Implementing a protocol from its specification is the most thorough way I know to actually read one. The RFC&#8217;s careful English becomes types and state transitions, its &#8220;SHOULD&#8221;s become judgment calls you can&#8217;t defer, and the corners you&#8217;d gloss over reading become the tests that fail at 11pm. Rust turned out to be a wonderful language for it &#8212; a spec written in terms of states, messages, and attributes maps almost directly onto enums and exhaustive matches, and the borrow checker quietly absorbs a class of bugs that would otherwise haunt a network daemon.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/pathforge">github.com/arazmj/pathforge</a> if you&#8217;d like to read the rest.</p>
+
+      <hr />
+      <footer role="contentinfo">
+        <p class="byline"><strong>PathForge: Writing a BGP-4 Daemon from Scratch in Rust</strong> was published on <time datetime="2026-05-10T10:00:00-04:00">May 10, 2026</time>.</p>
+      </footer>
+    </div><!-- /.article-wrap -->
+  
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrap">
+  <div class="related-articles">
+  <h4>You might also enjoy <small class="pull-right">(<a href="/posts/">View all posts</a>)</small></h4>
+    <ul>
+    
+      <li><a href="/writing-an-s3-proxy-in-rust/" title="Writing a Small S3 Proxy in Rust">Writing a Small S3 Proxy in Rust</a></li>
+    
+      <li><a href="/building-sentry-a-secure-job-runner/" title="Building Sentry: A Secure Job Runner with cgroups and mTLS">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+    
+      <li><a href="/why-does-functional-programming-matter/" title="Why Does Functional Programming Matter?">Why Does Functional Programming Matter?</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
+  <footer>
+    
+
+<span>&copy; 2026 Amir Razmjou. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/" rel="nofollow">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl = 
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'UA-60011536-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+	        
+
+</body>
+</html>
