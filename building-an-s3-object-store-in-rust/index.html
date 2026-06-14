@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reimplementing S3 from Scratch: An Object Store in Rust &#8211; Amir Razmjou</title>
+<meta name="description" content="Building R3, an S3-compatible object store in Rust: filesystem-backed objects, multipart upload assembly, and versioning with delete markers — where the real difficulty of S3 turns out to be the metadata, not the bytes.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="canonical" href="https://www.amirrazmjou.com/building-an-s3-object-store-in-rust/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reimplementing S3 from Scratch: An Object Store in Rust">
+<meta property="og:description" content="Building R3, an S3-compatible object store in Rust: filesystem-backed objects, multipart upload assembly, and versioning with delete markers — where the real difficulty of S3 turns out to be the metadata, not the bytes.">
+<meta property="og:url" content="https://www.amirrazmjou.com/building-an-s3-object-store-in-rust/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@arazmj">
+
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #070a12;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --prose: #c5ccda;
+  --accent-1: #5eead4;
+  --accent-2: #818cf8;
+  --accent-3: #c084fc;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 17px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: "Space Grotesk", "Inter", sans-serif; }
+
+.bg-grad, .vignette, .aurora { position: fixed; inset: 0; pointer-events: none; }
+.bg-grad {
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(129, 140, 248, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(94, 234, 212, 0.06), transparent 60%);
+}
+.aurora {
+  z-index: 0; filter: blur(45px);
+  background:
+    radial-gradient(closest-side 42% 42% at 16% 24%, rgba(94, 234, 212, 0.10), transparent),
+    radial-gradient(closest-side 42% 42% at 84% 30%, rgba(192, 132, 252, 0.10), transparent);
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift { from { transform: translate3d(-12px, -10px, 0); } to { transform: translate3d(16px, 12px, 0); } }
+.vignette { z-index: 1; background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.92)); }
+#spotlight {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(380px circle at var(--sx, 50%) var(--sy, -30%), rgba(129, 140, 248, 0.08), transparent 65%);
+}
+#progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 8;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2) 50%, var(--accent-3));
+  box-shadow: 0 0 18px rgba(129, 140, 248, 0.7);
+}
+
+.wrap { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0; border-bottom: 1px solid transparent; transition: 0.3s;
+}
+nav.scrolled {
+  background: rgba(7, 10, 18, 0.6); backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--border); padding: 14px 16px; margin: 0 -16px;
+}
+.monogram {
+  font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 20px;
+  text-decoration: none; color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; background: var(--surface);
+}
+.monogram span { color: var(--accent-1); }
+nav .links { display: flex; gap: 22px; }
+nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; transition: color 0.2s; }
+nav .links a:hover { color: var(--text); }
+
+article { padding: 48px 0 20px; }
+.post-kicker {
+  color: var(--accent-1); font-family: "Space Grotesk", sans-serif; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.post-kicker .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.post-title {
+  font-size: clamp(32px, 5.5vw, 52px); line-height: 1.08; letter-spacing: -1px; font-weight: 700;
+  background: linear-gradient(120deg, var(--text) 35%, var(--accent-2) 75%, var(--accent-3));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.prose { margin-top: 36px; color: var(--prose); font-size: 17.5px; }
+.prose > p { margin: 0 0 22px; }
+.prose h2 {
+  font-size: 25px; color: var(--text); margin: 46px 0 14px; line-height: 1.25;
+  padding-left: 14px; border-left: 3px solid var(--accent-2);
+}
+.prose h3 { font-size: 20px; color: var(--text); margin: 32px 0 12px; }
+.prose a { color: var(--accent-1); text-decoration: none; border-bottom: 1px solid rgba(94, 234, 212, 0.25); transition: border-color 0.2s; }
+.prose a:hover { border-bottom-color: var(--accent-1); }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose em { color: #d8def0; }
+.prose ul, .prose ol { margin: 0 0 22px; padding-left: 24px; }
+.prose li { margin: 6px 0; }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); margin: 8px 0; }
+.prose blockquote {
+  margin: 0 0 22px; padding: 8px 18px; border-left: 3px solid var(--accent-1);
+  color: var(--muted); background: var(--surface); border-radius: 0 10px 10px 0;
+}
+.prose hr { border: 0; height: 1px; background: var(--border); margin: 36px 0; }
+.prose :not(pre) > code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em;
+  background: rgba(129, 140, 248, 0.12); color: #cdd3ff; padding: 2px 7px;
+  border-radius: 6px; border: 1px solid rgba(129, 140, 248, 0.18);
+}
+.prose pre {
+  background: #0b1020; border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; overflow-x: auto; margin: 0 0 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.prose pre code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px; line-height: 1.6; color: #e6e9f0; background: none; border: 0; padding: 0;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+  text-decoration: none; font-size: 14px; margin-top: 40px; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent-1); }
+
+.related { margin: 64px 0 0; }
+.related h4 {
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-1); font-weight: 500; margin-bottom: 18px;
+}
+.related-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px; list-style: none;
+}
+.related-grid a {
+  display: block; text-decoration: none; color: var(--text); padding: 18px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+  backdrop-filter: blur(8px); transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  font-size: 15.5px; line-height: 1.4;
+}
+.related-grid a:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); transform: translateY(-3px);
+}
+
+footer {
+  position: relative; z-index: 2; text-align: center; color: var(--muted);
+  font-size: 13.5px; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 64px;
+}
+footer a { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aurora { animation: none; }
+  #spotlight, #progress { display: none; }
+}
+
+.code-wrap { position: relative; }
+.code-wrap .copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  font: 500 12px "Inter", system-ui, sans-serif; color: var(--muted);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  opacity: 0; transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.code-wrap:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.code-wrap .copy-btn:hover { color: var(--text); border-color: rgba(94, 234, 212, 0.4); }
+.code-wrap .copy-btn.done { color: var(--accent-1); border-color: rgba(94, 234, 212, 0.5); }
+.prose pre code .t-c { color: #6b7394; font-style: italic; }
+.prose pre code .t-s { color: #9be8c9; }
+.prose pre code .t-n { color: #f5b07a; }
+.prose pre code .t-k { color: #b6a6ff; }
+</style>
+</head>
+
+<body>
+<div class="bg-grad" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div id="spotlight" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<nav>
+  <a class="monogram" href="/">AR<span>.</span></a>
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/#writing">Writing</a>
+    <a href="/posts/">All Posts</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</nav>
+
+<article>
+  <div class="post-kicker"><span>May 23, 2025</span><span class="dot"></span><span>7 min read</span></div>
+  <h1 class="post-title">Reimplementing S3 from Scratch: An Object Store in Rust</h1>
+  <div class="prose">
+<p>The S3 API looks like the simplest thing in the world. You <code>PUT</code> an object, you <code>GET</code> it back, you <code>DELETE</code> it. Three verbs and a bucket name. I&#8217;ve used it for years without once wondering what it would take to <em>be</em> the thing on the other end of those requests &#8212; and that itch is exactly the kind I can&#8217;t leave alone. So I sat down and rebuilt it. <a href="https://github.com/arazmj/r3">R3</a> is an S3-compatible object store I wrote from scratch in Rust, and it taught me that the simplicity of S3&#8217;s front door is a very elegant lie.</p>
+
+<h2>The simple core is genuinely simple</h2>
+
+<p>The first afternoon was almost suspiciously easy. On <a href="https://actix.rs/">actix-web</a>, a bucket is a directory and an object is a file. Upload writes bytes to disk; download reads them back. That&#8217;s the whole storage engine:</p>
+
+<pre><code>#[post("/{bucket}/{object}")]
+pub async fn create_object(path: web::Path&lt;ObjectPath&gt;, payload: web::Payload)
+    -&gt; Result&lt;impl Responder, Error&gt; {
+    let bytes = payload.to_bytes().await?;
+    let mut f = path.into_file()?;            // bucket dir + object file
+    f.write_all(&amp;bytes)?;
+
+    let etag = format!("{:x}", md5::compute(&amp;bytes)); // S3's content fingerprint
+    versioning::create_version(&amp;path.bucket, &amp;path.object, &amp;bytes, &amp;etag)?;
+    Ok(HttpResponse::Created().insert_header(("ETag", etag)).finish())
+}</code></pre>
+
+<p>Add registration and login on top &#8212; passwords hashed with bcrypt, nothing fancy &#8212; and you have something that answers to a few <code>curl</code> commands and feels like a storage service. For about a day, I thought this was going to be easy. Then I started implementing the features that make S3 actually <em>S3</em>.</p>
+
+<h2>Multipart upload: where the bookkeeping lives</h2>
+
+<p>The first real wall is multipart upload. It exists for a good reason: you don&#8217;t want to push a five-gigabyte file in a single request that dies at 99% and starts over. So S3 lets you cut a big object into parts, upload them independently (in parallel, even), and stitch them together at the end. The dance has three steps &#8212; <em>initiate</em> hands you an <code>uploadId</code>, you <em>upload</em> each numbered part, and you <em>complete</em> the upload to seal it.</p>
+
+<p>What surprised me is that the actual byte-shuffling is the boring part. The interesting part is the accounting: remembering which parts have arrived, in what order, and with which ETags. Each part lands on disk as <code>part-1</code>, <code>part-2</code>, and so on, with its own MD5. Completing the upload is then just a careful, sorted concatenation &#8212; <em>after</em> checking that no part is missing:</p>
+
+<pre><code>// every part from 1..=N must be present, no gaps
+let expected: Vec&lt;u32&gt; = (1..=upload_info.parts.len() as u32).collect();
+let mut got: Vec&lt;u32&gt; = upload_info.parts.keys().cloned().collect();
+got.sort();
+if got != expected {
+    return Err(ErrorBadRequest("Not all parts are present"));
+}
+
+// concatenate the parts in order into the final object, then clean up
+for n in &amp;got {
+    let mut part = File::open(format!("{}/{}/part-{}", bucket, upload_id, n))?;
+    std::io::copy(&amp;mut part, &amp;mut final_file)?;
+}
+fs::remove_dir_all(&amp;upload_dir).ok();</code></pre>
+
+<p>That &#8220;no gaps&#8221; check is the kind of thing you skip in a toy and regret in anything real &#8212; a client that uploads parts 1, 2, and 4 and then asks you to finish should get an honest error, not a silently corrupt object. Getting that right felt like the moment R3 stopped being a file dump and started being a <em>protocol</em>.</p>
+
+<h2>Versioning, and the beautiful idea of a delete marker</h2>
+
+<p>Then I reached versioning, and that&#8217;s where I fell a little in love with how S3 is designed. Turn versioning on, and every write to a key keeps the old contents around under a unique version ID instead of clobbering them. My store for this is just a nested map &#8212; bucket, to key, to a stack of versions:</p>
+
+<pre><code>// bucket -> key -> ordered list of versions
+versions: Mutex&lt;HashMap&lt;String, HashMap&lt;String, Vec&lt;VersionInfo&gt;&gt;&gt;&gt;
+
+fn add_version(&amp;self, bucket: &amp;str, key: &amp;str, info: VersionInfo) {
+    let list = /* ... entry for bucket/key ... */;
+    for v in list.iter_mut() { v.is_latest = false; } // demote the old head
+    list.push(info);                                   // new latest on top
+}</code></pre>
+
+<p>But the part that genuinely delighted me was how S3 handles <em>deletion</em> of a versioned object. It doesn&#8217;t delete anything. Instead it pushes a special, empty version on top of the stack &#8212; a <strong>delete marker</strong> &#8212; with a flag I named <code>is_delete_marker</code>. A plain <code>GET</code> now walks to the top of the stack, finds the tombstone, and returns a <code>404</code> as if the object were gone:</p>
+
+<pre><code>if let Some(version) = VERSION_STORE.get_latest_version(&amp;bucket, &amp;object) {
+    if version.is_delete_marker {
+        return Err(ErrorNotFound("Object is deleted"));
+    }
+}</code></pre>
+
+<p>And yet every byte is still sitting right there, one version down, fully recoverable by asking for its version ID. &#8220;Delete&#8221; becomes a reversible, append-only event rather than destruction. The first time I deleted an object, watched it 404, and then pulled it back out by version ID, I actually grinned at my terminal. That single idea &#8212; that a deletion is just another version &#8212; is what makes S3&#8217;s undo-everything durability possible.</p>
+
+<h2>The dirty secret is XML</h2>
+
+<p>There&#8217;s a less glamorous lesson hiding in all of this: a huge part of being &#8220;S3-compatible&#8221; is emitting exactly the right XML. Real S3 clients don&#8217;t want JSON; they want a <code>&lt;CompleteMultipartUploadResult&gt;</code> shaped precisely the way the SDK&#8217;s parser expects, down to the element names. R3 overloads a single URL with query strings the way S3 does &#8212; <code>?uploads</code> begins a multipart upload, <code>?uploadId=&#8230;</code> addresses one in flight, <code>?versionId=&#8230;</code> reaches into history &#8212; and each one answers in the dialect the client is listening for. Compatibility, it turns out, is mostly empathy for someone else&#8217;s parser.</p>
+
+<h2>What it actually taught me</h2>
+
+<p>R3 is unapologetically a learning implementation &#8212; the metadata lives in in-memory maps, the backend is the local filesystem, it runs on a single node. It is not going to replace anyone&#8217;s storage tier. But that was never the point. The point was to discover where the difficulty in an &#8220;obvious&#8221; API actually lives, and the answer was clarifying: it isn&#8217;t in reading and writing bytes. It&#8217;s in the <em>metadata</em> &#8212; the parts that must arrive in order, the versions that must never clobber each other, the deletes that aren&#8217;t deletes. S3&#8217;s real genius is putting a three-verb surface over all of that and making it feel effortless. Rebuilding the inside is the best way I know to appreciate the outside.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/r3">github.com/arazmj/r3</a> if you want to poke around the parts that aren&#8217;t bytes.</p>
+  </div>
+  <a class="back-link" href="/posts/">&#8592; All posts</a>
+</article>
+
+<section class="related">
+  <h4>You might also enjoy</h4>
+  <ul class="related-grid">
+    <li><a href="/writing-an-s3-proxy-in-rust/">Writing a Small S3 Proxy in Rust</a></li>
+    <li><a href="/building-a-key-value-store-in-go/">Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</a></li>
+    <li><a href="/building-sentry-a-secure-job-runner/">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+  </ul>
+</section>
+
+</div>
+
+<footer>&copy; 2026 Amir Razmjou &middot; <a href="/">amirrazmjou.com</a></footer>
+
+<script>
+(function () {
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var prog = document.getElementById("progress");
+  var nav = document.querySelector("nav");
+  var doc = document.documentElement;
+  function onScroll() {
+    var max = doc.scrollHeight - doc.clientHeight;
+    var t = window.pageYOffset || 0;
+    if (prog) prog.style.width = max > 0 ? (t / max * 100).toFixed(2) + "%" : "0";
+    if (nav) nav.classList.toggle("scrolled", t > 24);
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  if (reduce || !fine) return;
+  addEventListener("pointermove", function (e) {
+    document.body.style.setProperty("--sx", e.clientX + "px");
+    document.body.style.setProperty("--sy", e.clientY + "px");
+  }, { passive: true });
+})();
+</script>
+
+
+<script>
+/* lightweight syntax highlighting + copy buttons for code blocks */
+(function () {
+  var KW = ["fn","let","const","mut","pub","use","impl","struct","enum","trait","match","move",
+    "async","await","return","if","else","for","while","loop","in","as","where","func","package",
+    "import","type","var","go","defer","chan","interface","map","range","select","switch","case",
+    "default","break","continue","new","class","function","void","true","false","null","nil",
+    "None","Some","Ok","Err","self","super","static","unsafe","extern","crate","mod","ref","dyn",
+    "throw","try","catch","finally","typeof","instanceof","of"];
+  var TOKEN = new RegExp(
+    "(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*)" +
+    "|(\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|`(?:\\\\.|[^`\\\\])*`)" +
+    "|(\\b0[xX][0-9a-fA-F]+\\b|\\b\\d[\\d_]*(?:\\.\\d+)?\\b)" +
+    "|(\\b(?:" + KW.join("|") + ")\\b)", "g");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(raw) {
+    var out = "", last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(raw))) {
+      out += esc(raw.slice(last, m.index));
+      var cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "n" : "k";
+      out += '<span class="t-' + cls + '">' + esc(m[0]) + "</span>";
+      last = m.index + m[0].length;
+    }
+    return out + esc(raw.slice(last));
+  }
+  document.querySelectorAll(".prose pre").forEach(function (pre) {
+    var code = pre.querySelector("code") || pre;
+    var raw = code.textContent;
+    code.innerHTML = hl(raw);
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement("button");
+    btn.className = "copy-btn"; btn.type = "button"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(raw) : Promise.reject()).then(function () {
+        btn.textContent = "Copied!"; btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      }).catch(function () {});
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
