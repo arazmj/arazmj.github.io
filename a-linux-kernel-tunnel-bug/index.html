@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel &#8211; Amir Razmjou</title>
+<meta name="description" content="The story of a one-line Linux kernel fix: while routing one app's traffic by UID into a FOU/SIT tunnel, encapsulated IPv6 to a local peer silently vanished — an RTN_LOCAL route the transmit path refused to allow.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="canonical" href="https://www.amirrazmjou.com/a-linux-kernel-tunnel-bug/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel">
+<meta property="og:description" content="The story of a one-line Linux kernel fix: while routing one app's traffic by UID into a FOU/SIT tunnel, encapsulated IPv6 to a local peer silently vanished — an RTN_LOCAL route the transmit path refused to allow.">
+<meta property="og:url" content="https://www.amirrazmjou.com/a-linux-kernel-tunnel-bug/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@arazmj">
+
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #070a12;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --prose: #c5ccda;
+  --accent-1: #5eead4;
+  --accent-2: #818cf8;
+  --accent-3: #c084fc;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 17px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: "Space Grotesk", "Inter", sans-serif; }
+
+.bg-grad, .vignette, .aurora { position: fixed; inset: 0; pointer-events: none; }
+.bg-grad {
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(129, 140, 248, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(94, 234, 212, 0.06), transparent 60%);
+}
+.aurora {
+  z-index: 0; filter: blur(45px);
+  background:
+    radial-gradient(closest-side 42% 42% at 16% 24%, rgba(94, 234, 212, 0.10), transparent),
+    radial-gradient(closest-side 42% 42% at 84% 30%, rgba(192, 132, 252, 0.10), transparent);
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift { from { transform: translate3d(-12px, -10px, 0); } to { transform: translate3d(16px, 12px, 0); } }
+.vignette { z-index: 1; background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.92)); }
+#spotlight {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(380px circle at var(--sx, 50%) var(--sy, -30%), rgba(129, 140, 248, 0.08), transparent 65%);
+}
+#progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 8;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2) 50%, var(--accent-3));
+  box-shadow: 0 0 18px rgba(129, 140, 248, 0.7);
+}
+
+.wrap { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0; border-bottom: 1px solid transparent; transition: 0.3s;
+}
+nav.scrolled {
+  background: rgba(7, 10, 18, 0.6); backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--border); padding: 14px 16px; margin: 0 -16px;
+}
+.monogram {
+  font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 20px;
+  text-decoration: none; color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; background: var(--surface);
+}
+.monogram span { color: var(--accent-1); }
+nav .links { display: flex; gap: 22px; }
+nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; transition: color 0.2s; }
+nav .links a:hover { color: var(--text); }
+
+article { padding: 48px 0 20px; }
+.post-kicker {
+  color: var(--accent-1); font-family: "Space Grotesk", sans-serif; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.post-kicker .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.post-title {
+  font-size: clamp(32px, 5.5vw, 52px); line-height: 1.08; letter-spacing: -1px; font-weight: 700;
+  background: linear-gradient(120deg, var(--text) 35%, var(--accent-2) 75%, var(--accent-3));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.prose { margin-top: 36px; color: var(--prose); font-size: 17.5px; }
+.prose > p { margin: 0 0 22px; }
+.prose h2 {
+  font-size: 25px; color: var(--text); margin: 46px 0 14px; line-height: 1.25;
+  padding-left: 14px; border-left: 3px solid var(--accent-2);
+}
+.prose h3 { font-size: 20px; color: var(--text); margin: 32px 0 12px; }
+.prose a { color: var(--accent-1); text-decoration: none; border-bottom: 1px solid rgba(94, 234, 212, 0.25); transition: border-color 0.2s; }
+.prose a:hover { border-bottom-color: var(--accent-1); }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose em { color: #d8def0; }
+.prose ul, .prose ol { margin: 0 0 22px; padding-left: 24px; }
+.prose li { margin: 6px 0; }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); margin: 8px 0; }
+.prose blockquote {
+  margin: 0 0 22px; padding: 8px 18px; border-left: 3px solid var(--accent-1);
+  color: var(--muted); background: var(--surface); border-radius: 0 10px 10px 0;
+}
+.prose hr { border: 0; height: 1px; background: var(--border); margin: 36px 0; }
+.prose :not(pre) > code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em;
+  background: rgba(129, 140, 248, 0.12); color: #cdd3ff; padding: 2px 7px;
+  border-radius: 6px; border: 1px solid rgba(129, 140, 248, 0.18);
+}
+.prose pre {
+  background: #0b1020; border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; overflow-x: auto; margin: 0 0 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.prose pre code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px; line-height: 1.6; color: #e6e9f0; background: none; border: 0; padding: 0;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+  text-decoration: none; font-size: 14px; margin-top: 40px; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent-1); }
+
+.related { margin: 64px 0 0; }
+.related h4 {
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-1); font-weight: 500; margin-bottom: 18px;
+}
+.related-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px; list-style: none;
+}
+.related-grid a {
+  display: block; text-decoration: none; color: var(--text); padding: 18px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+  backdrop-filter: blur(8px); transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  font-size: 15.5px; line-height: 1.4;
+}
+.related-grid a:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); transform: translateY(-3px);
+}
+
+footer {
+  position: relative; z-index: 2; text-align: center; color: var(--muted);
+  font-size: 13.5px; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 64px;
+}
+footer a { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aurora { animation: none; }
+  #spotlight, #progress { display: none; }
+}
+
+.code-wrap { position: relative; }
+.code-wrap .copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  font: 500 12px "Inter", system-ui, sans-serif; color: var(--muted);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  opacity: 0; transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.code-wrap:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.code-wrap .copy-btn:hover { color: var(--text); border-color: rgba(94, 234, 212, 0.4); }
+.code-wrap .copy-btn.done { color: var(--accent-1); border-color: rgba(94, 234, 212, 0.5); }
+.prose pre code .t-c { color: #6b7394; font-style: italic; }
+.prose pre code .t-s { color: #9be8c9; }
+.prose pre code .t-n { color: #f5b07a; }
+.prose pre code .t-k { color: #b6a6ff; }
+</style>
+</head>
+
+<body>
+<div class="bg-grad" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div id="spotlight" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<nav>
+  <a class="monogram" href="/">AR<span>.</span></a>
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/#writing">Writing</a>
+    <a href="/posts/">All Posts</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</nav>
+
+<article>
+  <div class="post-kicker"><span>January 12, 2022</span><span class="dot"></span><span>6 min read</span></div>
+  <h1 class="post-title">How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel</h1>
+  <div class="prose">
+<p>Some bugs announce themselves with a crash. This one announced itself with <em>silence</em> &#8212; a packet that simply never left the machine. No panic, no error, no log line. Just a ping that timed out while its twin sailed through.</p>
+
+<p>It was early 2022, and I was at Cloudflare with a very specific goal: take the traffic of <strong>one particular application</strong> &#8212; and only that application &#8212; and push it through a <strong>FOU</strong> tunnel. FOU, &#8220;Foo-over-UDP,&#8221; wraps tunneled packets inside an ordinary UDP datagram so they pass cleanly through middleboxes that would otherwise choke on exotic protocol numbers.</p>
+
+<p>Linux has a beautiful tool for the &#8220;only that application&#8221; part: <strong>policy-based routing</strong>, where you match packets by the <strong>UID</strong> of the process that generated them and send them to their own routing table. So the plan was to match the app by its UID, point that table at a <code>sit</code> tunnel (IPv6-in-IPv4) with FOU encapsulation, and let the tunnel carry it.</p>
+
+<pre><code># steer just this app's traffic (matched by its UID) into table 100
+$ sudo ip rule add uidrange 1000-1000 lookup 100
+
+# table 100 routes everything out through the FOU tunnel
+$ sudo ip link add name fou_test type sit \
+    remote 127.0.0.1 encap fou encap-sport auto encap-dport 1111
+$ sudo ip link set fou_test up
+$ sudo ip route add default dev fou_test table 100
+</code></pre>
+
+<p>To sanity-check the tunnel itself, I sent a little of each kind of traffic through it:</p>
+
+<pre><code>$ ping  -I fou_test -c 1 1.1.1.1
+$ ping6 -I fou_test -c 1 fe80::d0b0:dfff:fe4c:fcbc
+</code></pre>
+
+<p>&#8230;and watched the wire:</p>
+
+<pre><code>$ tcpdump -i any udp dst port 1111
+</code></pre>
+
+<p>The IPv4 ping appeared, neatly wrapped in UDP on port 1111. The IPv6 ping didn&#8217;t. No encapsulated packet, no error thrown back at me &#8212; it just evaporated. Same tunnel, same config, two protocols: one worked, one vanished.</p>
+
+<h2>The asymmetry</h2>
+
+<p>That asymmetry is what nagged at me. If the tunnel were simply broken, IPv4 would have failed too. If IPv6 were unsupported, the interface would have rejected the route outright. Instead the kernel happily encapsulated IPv4 to the peer and quietly refused to do the same for IPv6.</p>
+
+<p>The clue was hiding in plain sight in my own setup: <code>remote 127.0.0.1</code>. The tunnel&#8217;s far end was an address configured on the very machine doing the sending. That looks like a contrived test &#8212; until you remember it&#8217;s exactly what happens in a cluster. An orchestrator schedules a &#8220;peer&#8221; service onto some node, and once in a while that node is the same one trying to reach it. Most of the fleet would be fine. The one unlucky server that happened to co-host the peer would silently fail to send.</p>
+
+<h2>Into sit.c</h2>
+
+<p>Encapsulated IPv4 to a local address was allowed; IPv6 wasn&#8217;t. So I went reading <code>net/ipv6/sit.c</code>. In <code>ipip6_tunnel_xmit()</code> &#8212; the function that wraps an IPv6 packet in its IPv4 outer header &#8212; there&#8217;s a route lookup, and right after it, a guard:</p>
+
+<pre><code>if (rt-&gt;rt_type != RTN_UNICAST) {
+    ip_rt_put(rt);
+    dev-&gt;stats.tx_carrier_errors++;
+    goto tx_error_icmp;
+}
+</code></pre>
+
+<p>There it was. When the tunnel&#8217;s remote is an address that lives on the local box, the route lookup doesn&#8217;t return a <code>RTN_UNICAST</code> route &#8212; it returns <code>RTN_LOCAL</code>. This check saw &#8220;not unicast,&#8221; threw the packet away, bumped <code>tx_carrier_errors</code>, and bailed to the error path. The IPv4 transmit path had no equivalent restriction, which is precisely why only IPv6 disappeared.</p>
+
+<h2>A line older than git</h2>
+
+<p>The strangest part: nobody could say <em>why</em> the restriction was there. It predates the observable git history &#8212; older than the kernel&#8217;s move to git in 2005 &#8212; so there was no commit, no message, no rationale to point to. Just an over-cautious guard that had quietly outlawed a perfectly reasonable case for over fifteen years, until a cloud scheduler happened to place a service on the wrong node.</p>
+
+<p>The fix is one line. Allow <code>RTN_LOCAL</code> too:</p>
+
+<pre><code>- if (rt-&gt;rt_type != RTN_UNICAST) {
++ if (rt-&gt;rt_type != RTN_UNICAST &amp;&amp; rt-&gt;rt_type != RTN_LOCAL) {
+</code></pre>
+
+<h2>One line, several signatures</h2>
+
+<p>My colleague Ignat Korchagin turned the finding into a patch and sent it to netdev. David Ahern reviewed it; Jakub Kicinski, the networking maintainer, replied &#8220;Applied, thanks!&#8221; and it landed as commit <code>ed6ae5ca437d</code>, later backported across the stable kernels. My name rode along on the <code>Reported-by:</code> line &#8212; which is its own small thrill: a tag in a tree that runs on a meaningful fraction of the planet&#8217;s servers.</p>
+
+<p>What stuck with me isn&#8217;t the patch &#8212; it&#8217;s the shape of the thing. The change was a single <code>&amp;&amp;</code>. Getting there meant noticing a silence, trusting an asymmetry, and reading code old enough to have no author left to ask. Most of the work in a one-line fix is everything that isn&#8217;t the line.</p>
+
+<p><em>Patch thread on <a href="https://lore.kernel.org/all/20220107123842.211335-1-ignat@cloudflare.com/">lore.kernel.org</a> &#183; upstream commit <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ed6ae5ca437d9d238117d90e95f7f2cc27da1b31"><code>ed6ae5ca437d</code></a>.</em></p>
+  </div>
+  <a class="back-link" href="/posts/">&#8592; All posts</a>
+</article>
+
+<section class="related">
+  <h4>You might also enjoy</h4>
+  <ul class="related-grid">
+    <li><a href="/building-sentry-a-secure-job-runner/">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
+    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
+    <li><a href="/qos-voice-freebsd/">QoS optimization for real-time services in FreeBSD</a></li>
+  </ul>
+</section>
+
+</div>
+
+<footer>&copy; 2026 Amir Razmjou &middot; <a href="/">amirrazmjou.com</a></footer>
+
+<script>
+(function () {
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var prog = document.getElementById("progress");
+  var nav = document.querySelector("nav");
+  var doc = document.documentElement;
+  function onScroll() {
+    var max = doc.scrollHeight - doc.clientHeight;
+    var t = window.pageYOffset || 0;
+    if (prog) prog.style.width = max > 0 ? (t / max * 100).toFixed(2) + "%" : "0";
+    if (nav) nav.classList.toggle("scrolled", t > 24);
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  if (reduce || !fine) return;
+  addEventListener("pointermove", function (e) {
+    document.body.style.setProperty("--sx", e.clientX + "px");
+    document.body.style.setProperty("--sy", e.clientY + "px");
+  }, { passive: true });
+})();
+</script>
+
+
+<script>
+/* lightweight syntax highlighting + copy buttons for code blocks */
+(function () {
+  var KW = ["fn","let","const","mut","pub","use","impl","struct","enum","trait","match","move",
+    "async","await","return","if","else","for","while","loop","in","as","where","func","package",
+    "import","type","var","go","defer","chan","interface","map","range","select","switch","case",
+    "default","break","continue","new","class","function","void","true","false","null","nil",
+    "None","Some","Ok","Err","self","super","static","unsafe","extern","crate","mod","ref","dyn",
+    "throw","try","catch","finally","typeof","instanceof","of"];
+  var TOKEN = new RegExp(
+    "(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*)" +
+    "|(\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|`(?:\\\\.|[^`\\\\])*`)" +
+    "|(\\b0[xX][0-9a-fA-F]+\\b|\\b\\d[\\d_]*(?:\\.\\d+)?\\b)" +
+    "|(\\b(?:" + KW.join("|") + ")\\b)", "g");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(raw) {
+    var out = "", last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(raw))) {
+      out += esc(raw.slice(last, m.index));
+      var cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "n" : "k";
+      out += '<span class="t-' + cls + '">' + esc(m[0]) + "</span>";
+      last = m.index + m[0].length;
+    }
+    return out + esc(raw.slice(last));
+  }
+  document.querySelectorAll(".prose pre").forEach(function (pre) {
+    var code = pre.querySelector("code") || pre;
+    var raw = code.textContent;
+    code.innerHTML = hl(raw);
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement("button");
+    btn.className = "copy-btn"; btn.type = "button"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(raw) : Promise.reject()).then(function () {
+        btn.textContent = "Copied!"; btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      }).catch(function () {});
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
