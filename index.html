@@ -23,14 +23,14 @@
 
 <style>
 :root {
-  --bg: #f7f8fb;
-  --surface: rgba(255, 255, 255, 0.65);
-  --border: rgba(15, 23, 42, 0.10);
-  --text: #10182b;
-  --muted: #4b5469;
-  --accent-1: #0d9488;
-  --accent-2: #6366f1;
-  --accent-3: #a855f7;
+  --bg: #070a12;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --accent-1: #5eead4;
+  --accent-2: #818cf8;
+  --accent-3: #c084fc;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -64,8 +64,8 @@ h1, h2, h3 { font-family: "Space Grotesk", "Inter", sans-serif; }
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99, 102, 241, 0.07), transparent 60%),
-    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(247, 248, 251, 0.92));
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(129, 140, 248, 0.08), transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.9));
 }
 
 .wrap {
@@ -145,7 +145,7 @@ h1 {
   max-width: 560px;
   font-size: 19px;
   color: var(--muted);
-  text-shadow: 0 1px 14px rgba(247, 248, 251, 0.95);
+  text-shadow: 0 1px 14px rgba(7, 10, 18, 0.9);
 }
 
 
@@ -170,13 +170,13 @@ h1 {
 
 .btn:hover {
   transform: translateY(-2px);
-  border-color: rgba(13, 148, 136, 0.45);
-  box-shadow: 0 8px 30px rgba(13, 148, 136, 0.18);
+  border-color: rgba(94, 234, 212, 0.4);
+  box-shadow: 0 8px 30px rgba(94, 234, 212, 0.12);
 }
 
 .btn.primary {
-  background: linear-gradient(120deg, rgba(13, 148, 136, 0.10), rgba(99, 102, 241, 0.10));
-  border-color: rgba(13, 148, 136, 0.40);
+  background: linear-gradient(120deg, rgba(94, 234, 212, 0.14), rgba(129, 140, 248, 0.14));
+  border-color: rgba(94, 234, 212, 0.35);
 }
 
 .btn svg { width: 17px; height: 17px; fill: currentColor; }
@@ -254,8 +254,8 @@ h2 {
 }
 
 .card:hover {
-  border-color: rgba(99, 102, 241, 0.50);
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12), 0 0 40px rgba(99, 102, 241, 0.10);
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 40px rgba(129, 140, 248, 0.08);
 }
 
 /* glare highlight that follows the cursor */
@@ -264,7 +264,7 @@ h2 {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(99, 102, 241, 0.10), transparent 60%);
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(129, 140, 248, 0.13), transparent 60%);
   opacity: 0;
   transition: opacity 0.25s;
   pointer-events: none;
@@ -602,15 +602,15 @@ if (renderer) {
     uTime: { value: 0 },
     uSize: { value: 1.8 * Math.min(devicePixelRatio || 1, 2) },
     uAlpha: { value: 1 },
-    uColA: { value: new THREE.Color("#0d9488") },
-    uColB: { value: new THREE.Color("#6366f1") }
+    uColA: { value: new THREE.Color("#5eead4") },
+    uColB: { value: new THREE.Color("#818cf8") }
   };
 
   const material = new THREE.ShaderMaterial({
     uniforms,
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending,
+    blending: THREE.AdditiveBlending,
     vertexShader: `
       attribute vec3 p1;
       attribute vec3 p2;
@@ -660,7 +660,7 @@ if (renderer) {
         float d = length(gl_PointCoord - 0.5);
         float alpha = smoothstep(0.5, 0.06, d);
         vec3 col = mix(uColA, uColB, vRand);
-        gl_FragColor = vec4(col, alpha * (0.16 + 0.30 * vFade) * uAlpha);
+        gl_FragColor = vec4(col, alpha * (0.16 + 0.40 * vFade) * uAlpha);
       }
     `
   });
@@ -681,7 +681,7 @@ if (renderer) {
   }
   starGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3));
   const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
-    size: 0.14, sizeAttenuation: true, color: 0x8a94ab,
+    size: 0.14, sizeAttenuation: true, color: 0x9aa6c8,
     transparent: true, opacity: 0.45, depthWrite: false
   }));
 
