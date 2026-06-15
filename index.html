@@ -720,7 +720,7 @@ if (renderer) {
     const a = new Float32Array(n * 3);
     const arms = 4;
     for (let i = 0; i < n; i++) {
-      if (i % 6 === 0) {
+      if (i % 9 === 0) {
         // dense, rounded central bulge
         const r = Math.pow(rnd(), 1.8) * 2.3;
         const phi = Math.acos(1 - 2 * rnd());
@@ -908,7 +908,7 @@ if (renderer) {
 
         vec4 mv = modelViewMatrix * vec4(pos, 1.0);
         float twSize = mix(1.0, vTw, 0.55);
-        gl_PointSize = uSize * (0.5 + 1.1 * aRand) * twSize * (1.0 + 1.7 * vCore) * (60.0 / -mv.z);
+        gl_PointSize = uSize * (0.5 + 1.1 * aRand) * twSize * (1.0 + 0.5 * vCore) * (60.0 / -mv.z);
         vFade = smoothstep(75.0, 14.0, -mv.z);
         gl_Position = projectionMatrix * mv;
       }
@@ -932,7 +932,7 @@ if (renderer) {
 
         vec3 col = mix(uColA, uColB, vRand);
         col = mix(col, uColC, smoothstep(0.55, 1.0, vRand) * 0.6);
-        col = mix(col, uColCore, pow(vCore, 1.5));   // warm glowing nucleus
+        col = mix(col, uColCore, pow(vCore, 2.4) * 0.6);   // subtle warm nucleus
 
         alpha *= (0.15 + 0.46 * vFade) * uAlpha * vTw;
         gl_FragColor = vec4(col, alpha);
