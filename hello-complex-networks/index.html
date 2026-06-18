@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Hello Complex Networks!!! &#8211; Amir Razmjou</title>
-<meta name="description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
+<meta name="description" content="Growing a network in the browser with vis.js and reading its degree distribution: from naive random (Erdos-Renyi) attachment to Barabasi-Albert preferential attachment, scale-free power laws, log-log plots, and why hubs make a network robust yet fragile.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -11,7 +11,7 @@
 <link rel="canonical" href="https://www.amirrazmjou.com/hello-complex-networks/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hello Complex Networks!!!">
-<meta property="og:description" content="I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.">
+<meta property="og:description" content="Growing a network in the browser with vis.js and reading its degree distribution: from naive random (Erdos-Renyi) attachment to Barabasi-Albert preferential attachment, scale-free power laws, log-log plots, and why hubs make a network robust yet fragile.">
 <meta property="og:url" content="https://www.amirrazmjou.com/hello-complex-networks/">
 <meta property="og:image" content="https://www.amirrazmjou.com/images/og/hello-complex-networks.png">
 <meta property="og:image:width" content="1200">
@@ -214,7 +214,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Hello Complex Networks!!!", "description": "I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.", "image": "https://www.amirrazmjou.com/images/og/hello-complex-networks.png", "articleSection": "Networks", "datePublished": "2014-08-26", "dateModified": "2014-08-26", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/hello-complex-networks/"}, "url": "https://www.amirrazmjou.com/hello-complex-networks/", "keywords": "Networks", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Hello Complex Networks!!!", "description": "Growing a network in the browser with vis.js and reading its degree distribution: from naive random (Erdos-Renyi) attachment to Barabasi-Albert preferential attachment, scale-free power laws, log-log plots, and why hubs make a network robust yet fragile.", "image": "https://www.amirrazmjou.com/images/og/hello-complex-networks.png", "articleSection": "Networks", "datePublished": "2014-08-26", "dateModified": "2014-08-26", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/hello-complex-networks/"}, "url": "https://www.amirrazmjou.com/hello-complex-networks/", "keywords": "Networks, Graph Theory, Data Visualization", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
 <meta property="og:image:alt" content="Hello Complex Networks!!!">
@@ -241,68 +241,102 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>August 26, 2014</span><span class="dot"></span><span>2 min read</span></div>
+  <div class="post-kicker"><span>August 26, 2014</span><span class="dot"></span><span>6 min read</span></div>
   <h1 class="post-title">Hello Complex Networks!!!</h1>
   <div class="prose">
-      <p>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.</p>
+<p>This began as an excuse to knock the rust off my JavaScript while working through a graph-theory assignment, but it quickly turned into a small tour of why the networks we actually care about &#8212; the web, social graphs, the brain, the power grid &#8212; look almost nothing like the random graphs we tend to reach for first.</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">nodes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
-<span class="kd">var</span> <span class="nx">edges</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">DataSet</span><span class="p">();</span>
+<p>The plan was simple: grow a network one node at a time in the browser, draw it live, and watch its <strong>degree distribution</strong> &#8212; the histogram of how many connections each node has. That single curve turns out to say almost everything about a network&#8217;s character.</p>
 
-<span class="kd">var</span> <span class="nx">lastNodeId</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// create a network</span>
-<span class="kd">var</span> <span class="nx">networkContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;mynetwork&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">histogramContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;histogram&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="o">:</span> <span class="nx">nodes</span><span class="p">,</span>
-<span class="nx">edges</span><span class="o">:</span> <span class="nx">edges</span>
-<span class="p">};</span>
-<span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">network</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">vis</span><span class="p">.</span><span class="nx">Network</span><span class="p">(</span><span class="nx">networkContainer</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+<h2>Drawing a living graph with vis.js</h2>
 
-<span class="kd">function</span> <span class="nx">addNewNode</span><span class="p">()</span> <span class="p">{</span>
-<span class="nx">nodes</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">.</span><span class="nx">toString</span><span class="p">()}]);</span>
+<p>For the visualization I reached for <a href="https://visjs.org/">vis.js</a>, which makes an interactive, force-directed network almost embarrassingly easy: a <code>DataSet</code> of nodes, a <code>DataSet</code> of edges, and a <code>Network</code> bound to a container.</p>
 
-<span class="k">if</span> <span class="p">(</span><span class="nx">lastNodeId</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">randomNode</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="nx">lastNodeId</span><span class="p">));</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">randomNode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nx">edges</span><span class="p">.</span><span class="nx">add</span><span class="p">([{</span><span class="nx">from</span><span class="o">:</span> <span class="nx">lastNodeId</span><span class="p">,</span> <span class="nx">to</span><span class="o">:</span><span class="nx">randomNode</span> <span class="p">}]);</span>
-<span class="p">}</span>
-<span class="nx">lastNodeId</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+<pre><code>const nodes = new vis.DataSet();
+const edges = new vis.DataSet();
+const container = document.getElementById('mynetwork');
+const network = new vis.Network(container, { nodes, edges }, {});
+</code></pre>
 
-<p>An another quick search on google bring up FlotCharts JS library for histograms to visualize the degree distribution of nodes in a graph.</p>
+<p>Because the DataSets are live, the picture re-renders on its own every time I add a node or an edge. So the only real question is the <em>growth rule</em>: when a new node joins, who does it connect to?</p>
 
-<p>But it’s a bit tricky to extract Degree Distribution off edges dataset. One has to first create a HashMap to map degree number of nodes to occurance number of nodes in JavaScript</p>
+<h2>The naive rule: connect at random</h2>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">h</span> <span class="o">=</span> <span class="p">{};</span> 
-    <span class="nx">edges</span>
-      <span class="p">.</span><span class="nx">get</span><span class="p">()</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">to</span> 
-      <span class="p">})</span>
-      <span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span> 
-        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">])</span> <span class="o">===</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> 
-          <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
-        <span class="k">else</span> <span class="nx">h</span><span class="p">[</span><span class="nx">b</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
-      <span class="p">});</span>
-<span class="nx">And</span> <span class="nx">then</span> <span class="nx">again</span> <span class="nx">convert</span> <span class="nx">that</span> <span class="nx">to</span> <span class="nx">an</span> <span class="nx">array</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">used</span> <span class="k">in</span> <span class="nx">Flot</span><span class="p">.</span>
+<p>The first instinct is to wire each new node to an existing one chosen uniformly at random.</p>
 
-<span class="kd">var</span> <span class="nx">hArray</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">o</span> <span class="k">in</span> <span class="nx">h</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">hArray</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nb">Number</span><span class="p">(</span><span class="nx">o</span><span class="p">),</span> <span class="nx">h</span><span class="p">[</span><span class="nx">o</span><span class="p">]]);</span>
-    <span class="p">}</span>
+<pre><code>let lastId = 0;
+function addRandomNode() {
+  const id = ++lastId;
+  nodes.add({ id, label: String(id) });
+  if (id > 1) {
+    const target = 1 + Math.floor(Math.random() * (id - 1)); // any existing node
+    edges.add({ from: id, to: target });
+  }
+}
+</code></pre>
 
-    <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-      <span class="nx">$</span><span class="p">.</span><span class="nx">plot</span><span class="p">(</span><span class="s2">&quot;#histogram&quot;</span><span class="p">,</span>  <span class="p">[</span><span class="nx">hArray</span><span class="p">]);</span>
-    <span class="p">});</span></code></pre></div>
+<p>This is essentially the Erd&#337;s&#8211;R&#233;nyi mental model: every node is equally likely to receive a connection. Grow it for a while and the degree distribution is sharply peaked around the mean &#8212; a bell-shaped (Poisson) curve. Every node is more or less average; there are no celebrities. It is tidy, and it is almost nothing like reality.</p>
+
+<h2>Why real networks aren&#8217;t random</h2>
+
+<p>Map the actual web, or who-follows-whom, or which airports connect to which, and you do not get a bell curve. You get a <strong>power law</strong>: the overwhelming majority of nodes have very few links, while a tiny handful &#8212; the <em>hubs</em> &#8212; carry an enormous number. Google, a superconnector airport, a celebrity account. These are <strong>scale-free</strong> networks, and the mechanism behind them is wonderfully intuitive.</p>
+
+<h2>Preferential attachment: the rich get richer</h2>
+
+<p>The insight of the <a href="https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model">Barab&#225;si&#8211;Albert model</a> is that new nodes don&#8217;t choose uniformly &#8212; they prefer what is already popular. A new website links to sites that are already well-linked; a newcomer follows accounts that already have followers. Make the probability of connecting to a node proportional to its <em>current</em> degree, and hubs emerge on their own.</p>
+
+<pre><code>function addPreferentialNode() {
+  const id = ++lastId;
+  nodes.add({ id, label: String(id) });
+  if (id === 1) return;
+
+  // Each existing node appears in `stubs` once per edge it already has, so
+  // drawing uniformly from stubs selects a target with probability
+  // proportional to its degree -- the essence of preferential attachment.
+  const stubs = [];
+  edges.get().forEach(e => stubs.push(e.from, e.to));
+  const target = stubs.length
+    ? stubs[Math.floor(Math.random() * stubs.length)]
+    : 1; // the very first edge has nothing to bias toward yet
+  edges.add({ from: id, to: target });
+}
+</code></pre>
+
+<p>That <code>stubs</code> array is the whole trick. A node that already owns ten edges appears ten times in it, so it is ten times as likely to win the next connection. Run this and the graph visibly sprouts a few dominant hubs while most nodes stay sparse &#8212; the signature of a scale-free network, falling straight out of one biased coin flip.</p>
+
+<h2>Reading the degree distribution</h2>
+
+<p>To <em>see</em> the structure rather than just admire it, I tally the degree of every node. Extracting that from the edge list is a two-step frequency count: first each node&#8217;s degree, then how many nodes share each degree.</p>
+
+<pre><code>function degreeDistribution() {
+  const degree = {};
+  edges.get().forEach(e => {
+    degree[e.from] = (degree[e.from] || 0) + 1;
+    degree[e.to]   = (degree[e.to]   || 0) + 1;
+  });
+  const counts = {};                       // degree k -> number of nodes with degree k
+  Object.values(degree).forEach(k => { counts[k] = (counts[k] || 0) + 1; });
+  return Object.entries(counts).map(([k, n]) => [Number(k), n]);
+}
+</code></pre>
+
+<p>I plotted that with <a href="http://www.flotcharts.org/">Flot</a>, and here is the part worth internalizing: on ordinary linear axes a power law just looks like a cliff hugging both walls, and it tells you very little. Plot it on <strong>log&#8211;log axes</strong> and a genuine power law straightens into a line whose slope is the exponent &#947;. That straight line is the fingerprint of scale-free structure &#8212; the single most useful thing to check about any network you meet.</p>
+
+<pre><code>$.plot('#histogram', [degreeDistribution()], {
+  xaxis: { transform: v => Math.log(v || 1) },  // log-log turns a power law
+  yaxis: { transform: v => Math.log(v || 1) },  // into a straight line
+});
+</code></pre>
+
+<h2>Why the shape matters</h2>
+
+<p>The degree distribution is not merely aesthetic &#8212; it predicts how a network lives and dies. Scale-free networks are remarkably <strong>robust</strong> to random failure: knock out a random node and you almost certainly hit one of the many low-degree ones, and nothing much notices. But they are <strong>fragile</strong> to targeted attack: remove a few hubs and the whole thing shatters into disconnected islands. Erd&#337;s&#8211;R&#233;nyi graphs, having no hubs, degrade gracefully under either. The same curve that tells you a network has celebrities also tells you exactly where it is vulnerable &#8212; which is why &#8220;what does the degree distribution look like?&#8221; is the first question worth asking about any complex system.</p>
+
+<p>The interactive sketch below is where all of this started &#8212; a network growing live in the browser. Add a few nodes and watch the structure assemble itself.</p>
 
 <p><a href="/assets/demo/cse5656_01.html">Full Screen Version</a></p>
 
 <iframe src="/assets/demo/cse5656_01.html" style="border:none" width="100%" height="800"></iframe>
-
-
-      
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
