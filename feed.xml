@@ -80,6 +80,14 @@
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
+    <title>Stacking Streams: A Rate-Limited File Transfer in Java</title>
+    <link href="https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/"/>
+    <id>https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/</id>
+    <updated>2016-01-12T10:00:00Z</updated>
+    <summary>Building JunkTransfer, a rate-limited file-transfer system in Java: a stack of FilterOutputStreams (compression, then throttling, then socket) governed by a single shared token bucket that caps total egress and self-balances across clients.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
     <title>OpenStack REST API Direct Call</title>
     <link href="https://www.amirrazmjou.com/openstack-nova-api-direct-call/"/>
     <id>https://www.amirrazmjou.com/openstack-nova-api-direct-call/</id>

@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Building Sentry: A Secure Job Runner with cgroups and mTLS &#8211; Amir Razmjou</title>
-<meta name="description" content="Notes on building Sentry, a small Go service that runs Linux processes under hard CPU, memory, and I/O limits with cgroups v2, streams their logs over gRPC, and authenticates everyone with mutual TLS.">
+<title>Stacking Streams: A Rate-Limited File Transfer in Java &#8211; Amir Razmjou</title>
+<meta name="description" content="Building JunkTransfer, a rate-limited file-transfer system in Java: a stack of FilterOutputStreams (compression, then throttling, then socket) governed by a single shared token bucket that caps total egress and self-balances across clients.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/building-sentry-a-secure-job-runner/">
+<link rel="canonical" href="https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Building Sentry: A Secure Job Runner with cgroups and mTLS">
-<meta property="og:description" content="Notes on building Sentry, a small Go service that runs Linux processes under hard CPU, memory, and I/O limits with cgroups v2, streams their logs over gRPC, and authenticates everyone with mutual TLS.">
-<meta property="og:url" content="https://www.amirrazmjou.com/building-sentry-a-secure-job-runner/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/building-sentry-a-secure-job-runner.png">
+<meta property="og:title" content="Stacking Streams: A Rate-Limited File Transfer in Java">
+<meta property="og:description" content="Building JunkTransfer, a rate-limited file-transfer system in Java: a stack of FilterOutputStreams (compression, then throttling, then socket) governed by a single shared token bucket that caps total egress and self-balances across clients.">
+<meta property="og:url" content="https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/rate-limited-file-transfer-in-java.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/building-sentry-a-secure-job-runner.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/rate-limited-file-transfer-in-java.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -214,10 +214,10 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Building Sentry: A Secure Job Runner with cgroups and mTLS", "description": "Notes on building Sentry, a small Go service that runs Linux processes under hard CPU, memory, and I/O limits with cgroups v2, streams their logs over gRPC, and authenticates everyone with mutual TLS.", "image": "https://www.amirrazmjou.com/images/og/building-sentry-a-secure-job-runner.png", "articleSection": "Go", "datePublished": "2026-05-24", "dateModified": "2026-05-24", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/building-sentry-a-secure-job-runner/"}, "url": "https://www.amirrazmjou.com/building-sentry-a-secure-job-runner/", "keywords": "Go, Systems", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Stacking Streams: A Rate-Limited File Transfer in Java", "description": "Building JunkTransfer, a rate-limited file-transfer system in Java: a stack of FilterOutputStreams (compression, then throttling, then socket) governed by a single shared token bucket that caps total egress and self-balances across clients.", "image": "https://www.amirrazmjou.com/images/og/rate-limited-file-transfer-in-java.png", "articleSection": "Java", "datePublished": "2016-01-12", "dateModified": "2016-01-12", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/"}, "url": "https://www.amirrazmjou.com/rate-limited-file-transfer-in-java/", "keywords": "Java, Networking", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
-<meta property="og:image:alt" content="Building Sentry: A Secure Job Runner with cgroups and mTLS">
+<meta property="og:image:alt" content="Stacking Streams: A Rate-Limited File Transfer in Java">
 <meta name="twitter:creator" content="@arazmj">
 </head>
 
@@ -241,64 +241,83 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>May 24, 2026</span><span class="dot"></span><span>5 min read</span></div>
-  <h1 class="post-title">Building Sentry: A Secure Job Runner with cgroups and mTLS</h1>
+  <div class="post-kicker"><span>January 12, 2016</span><span class="dot"></span><span>6 min read</span></div>
+  <h1 class="post-title">Stacking Streams: A Rate-Limited File Transfer in Java</h1>
   <div class="prose">
-      <p>Every so often you run into a problem that sounds simple right up until you start building it. Mine was this: I wanted to hand a server a command, have it run that command under strict CPU, memory, and disk limits, watch its output live, and kill it on demand &#8212; all without trusting whoever asked. That turned into <a href="https://github.com/arazmj/sentry">Sentry</a>, a small job runner I wrote in Go. This is a tour of what I learned putting it together.</p>
+<p>Here&#8217;s a deceptively simple problem: you have one big file and a crowd of clients who all want it, but only so much uplink bandwidth to give them. Hand it out too fast and you saturate the pipe and starve everything else on the box; hand it out naively and one greedy client hogs the link. What you actually want is a <em>budget</em> &#8212; a hard ceiling on total throughput, shared fairly &#8212; plus a little compression to make the most of every byte. That&#8217;s <a href="https://github.com/arazmj/JunkTransfer">JunkTransfer</a>, a rate-limited file-transfer system I wrote in Java, and it turned into a small lesson in how elegantly orthogonal concerns can stack.</p>
 
-<p>The shape of it is deliberately small: a gRPC server that owns the jobs, and a command-line client that talks to it. The server can start a job, kill it, report whether it&#8217;s still alive, list everything that&#8217;s running, and stream a job&#8217;s logs back to you in real time. Everything in between &#8212; the resource limits, the process supervision, the log fan-out &#8212; is where the interesting parts live.</p>
+<h2>The setup: chunks and threads</h2>
 
-<h2>cgroups v2 is just a filesystem</h2>
+<p>The server splits the file into fixed 1&#8239;MB chunks and gives each connected client one chunk, served by its own thread. The actual byte-pumping leans entirely on Guava&#8217;s <code>ByteStreams</code> &#8212; skip to this client&#8217;s offset, cap the read at one chunk, and copy:</p>
 
-<p>The resource-limiting turned out to be the friendliest part, and that surprised me. There&#8217;s no exotic API to learn. Under cgroups v2 a control group is a <em>directory</em> under <code>/sys/fs/cgroup</code>, and you configure it by writing plain strings into files. Putting a job in a box is almost anticlimactic:</p>
+<pre><code>ByteStreams.skipFully(fileBuffered, chunkSize * chunkId);   // seek to my chunk
+InputStream chunk = ByteStreams.limit(fileBuffered, chunkSize); // bound it
+long sent = ByteStreams.copy(chunk, socketOutputStream);    // pump bytes</code></pre>
 
-<pre><code>cgroupPath := "/sys/fs/cgroup/sentry-run-" + jobID
-os.MkdirAll(cgroupPath, 0755)
+<p>That last line &#8212; <code>copy</code> &#8212; is doing nothing clever. It just reads bytes and writes them. All the interesting behavior is hidden inside what <code>socketOutputStream</code> actually <em>is</em>.</p>
 
-os.WriteFile(cgroupPath+"/cgroup.procs", []byte(pid), 0644)
-os.WriteFile(cgroupPath+"/cpu.max",      []byte("50000 100000"), 0644) // 50% of one core
-os.WriteFile(cgroupPath+"/memory.max",   []byte("268435456"),    0644) // 256 MiB
-</code></pre>
+<h2>The gem: a stack of streams</h2>
 
-<p>Write the PID into <code>cgroup.procs</code> and the kernel moves the process &#8212; and anything it later forks &#8212; into the group. <code>cpu.max</code> is a quota/period pair (here, 50&#8239;ms of CPU every 100&#8239;ms), and <code>memory.max</code> is a hard byte ceiling. Once they&#8217;re set, the kernel does the enforcing. There&#8217;s no daemon to poll, no accounting loop I had to write myself. That&#8217;s the whole appeal.</p>
+<p>This is the part I still find satisfying. Java&#8217;s <code>FilterOutputStream</code> lets you wrap one stream in another, each transforming the bytes on their way through. So the server&#8217;s output stream isn&#8217;t a socket &#8212; it&#8217;s a <em>stack</em>:</p>
 
-<h2>The I/O limit that ate an afternoon</h2>
+<pre><code>OutputStream out =
+    new CompressedBlockOutputStream(1024,        // 1) compress in 1 KB blocks
+        new SpeedLimitedOutputStream(8, bucket,  // 2) then throttle to the budget
+            socket.getOutputStream()));          // 3) then write to the wire</code></pre>
 
-<p>Disk I/O was where I lost the most time. Unlike CPU and memory, <code>io.max</code> doesn&#8217;t take a path &#8212; it takes a <em>block device</em>, addressed by its major and minor number, like <code>8:0 wbps=1048576</code>. You can&#8217;t hardcode that, because it depends on which disk the job is writing to. The fix was to <code>stat()</code> the filesystem and pull the device number out of the result:</p>
+<p>A byte written at the top gets compressed, then rate-limited, then sent &#8212; and <code>ByteStreams.copy</code> is blissfully unaware that any of it is happening. Compression doesn&#8217;t know about throttling; throttling doesn&#8217;t know about sockets; the copy loop doesn&#8217;t know about either. Three independent concerns, composed like Lego, each readable on its own. The decorator pattern gets used as a textbook example so often that it&#8217;s easy to forget how genuinely nice it is when the bytes are real.</p>
 
-<pre><code>var st syscall.Stat_t
-syscall.Stat("/", &st)
-major := (st.Dev >> 8) & 0xfff
-ioLimit := fmt.Sprintf("%d:0 wbps=%s rbps=%s", major, writeBps, readBps)
-</code></pre>
+<h2>The governor: a token bucket</h2>
 
-<p>The minor number gets pinned to <code>0</code> on purpose. I/O throttling in cgroups applies to the whole block device, not an individual partition, so addressing a partition&#8217;s exact minor number just earns you a confusing no-op &#8212; the limit looks set but never fires. That&#8217;s the kind of detail no API surface warns you about; you only find it by watching a 1&#8239;MB/s cap do absolutely nothing.</p>
+<p>The throttling itself is a classic <strong>token bucket</strong>. The bucket holds a number of tokens equal to your byte-per-second budget; sending a byte costs a token; every one-second period the bucket refills. If you&#8217;ve run out, you block until the next refill. Tokens that would overflow a full bucket are simply lost &#8212; which is what makes it behave like the leaky bucket it&#8217;s modeled on:</p>
 
-<h2>Killing the whole tree, not just the process</h2>
+<pre><code>public void consume(long tokens) {
+    while (true) {
+        synchronized (this) {
+            long now = Ticker.systemTicker().read();
+            if (now > nextRefillTime) {        // a new period began
+                nextRefillTime = now + periodDuration; // = 1 second
+                size = numTokens;              // refill to the budget
+            }
+        }
+        if (size >= tokens) { size -= tokens; break; } // spend and go
+        Uninterruptibles.sleepUninterruptibly(1, NANOSECONDS); // else wait
+    }
+}</code></pre>
 
-<p>Before the process even starts, I set <code>Setpgid</code> so the job and all of its children share a single process group. That one flag is what makes &#8220;kill the job&#8221; actually mean &#8220;kill the whole tree&#8221; instead of orphaning a pile of grandchildren that keep chewing through your limits. For a bit of filesystem isolation there&#8217;s an optional <code>chroot</code>, wired straight through <code>SysProcAttr.Chroot</code> &#8212; cheap, not bulletproof, but enough to keep a job from wandering the host&#8217;s filesystem.</p>
+<p>There&#8217;s a real trade-off buried in that <code>periodDuration</code>, and it&#8217;s the kind of knob QoS people obsess over. A long refill period lets a big burst through at once &#8212; cheap on CPU, but bursty traffic that&#8217;s murder for real-time or multimedia flows. A short period smooths the traffic into a fine drip, but you pay for it in CPU as threads wake up constantly to check the clock. Smooth or cheap: pick one.</p>
 
-<h2>Streaming logs without missing the start</h2>
+<h2>The trick: one bucket, many threads</h2>
 
-<p>The piece I&#8217;m happiest with is log streaming. A job&#8217;s stdout and stderr are each read in their own goroutine, in 32&#8239;KB chunks. Every chunk does two things: it gets appended to an in-memory history buffer, and it gets pushed to a list of subscriber callbacks.</p>
+<p>Here&#8217;s the detail that makes the whole thing work as a <em>system</em> rather than a per-connection limiter: every client thread shares the <strong>same</strong> bucket.</p>
 
-<p>That little bit of bookkeeping pays off in the client experience. When you run <code>sentry logs</code> ten seconds after a job started, the server replays the buffered history first and <em>then</em> drops you into the live feed. You don&#8217;t miss the beginning, and you didn&#8217;t have to have been watching from the start. It&#8217;s a tiny publish/subscribe system, maybe forty lines, but it&#8217;s what makes the CLI feel like <code>tail -f</code> over the network rather than a polling loop.</p>
+<pre><code>bucket = new TokenBucket(maxTransferRate); // one bucket...
+for (int i = 0; i < clientsCount; i++)
+    new Thread(() -> transfer(clients[i], i)).start(); // ...shared by every thread</code></pre>
 
-<h2>The certificate is the identity</h2>
+<p>Because the budget lives in one shared bucket, the server&#8217;s <em>total</em> egress is capped at the user&#8217;s limit no matter how many clients connect &#8212; ten clients don&#8217;t get ten times the bandwidth, they split the one pipe. And it self-balances: if a client drops mid-transfer, its thread stops drawing tokens and the survivors naturally absorb the slack. The bandwidth ceiling is a property of the bucket, not of any one connection.</p>
 
-<p>All of this sits behind mutual TLS. The server runs with <code>RequireAndVerifyClientCert</code>, so a connection without a certificate signed by my CA never gets far enough to say hello. The nice side effect is that the certificate <em>becomes</em> the identity &#8212; there&#8217;s no separate user table, no password, no token to leak. Authorization keys off the client certificate&#8217;s Common Name, so deciding who&#8217;s allowed to start or kill jobs is just a question of which CN is on the cert. It&#8217;s TLS 1.3 only, with modern AEAD ciphers, and the handshake doubles as authentication for free.</p>
+<p>The rate-limited stream that draws on it is itself tiny &#8212; a <code>FilterOutputStream</code> that spends tokens before it writes, in configurable <code>burst</code>-sized gulps:</p>
 
-<h2>One last surprise on the way out</h2>
+<pre><code>public void write(byte[] b, int off, int len) throws IOException {
+    for (; off + burst <= len; off += burst) {
+        bucket.consume(burst);          // pay first...
+        super.write(b, off, burst);     // ...then send
+    }
+    // ...and the remainder
+}</code></pre>
 
-<p>Teardown had a final gotcha. You don&#8217;t remove a cgroup by deleting its files &#8212; you <code>rmdir</code> the directory, and only after the last process has left it. Try it while the job is still alive and you get <code>EBUSY</code>. So cleanup waits for both output streams to hit EOF (which is a reliable sign the process is gone), and only then removes the group&#8217;s directory.</p>
+<p>That <code>burst</code> is the same smooth-versus-cheap dial as the bucket period, one level down: consume one token per byte and the shaping is exquisite but the CPU cries; consume in bigger gulps and you trade a little burstiness for a lot of headroom.</p>
 
-<h2>What I left on the table</h2>
+<h2>Watching it actually work</h2>
 
-<p>There&#8217;s plenty I didn&#8217;t build. The limits are coarse, isolation stops at <code>chroot</code> rather than full Linux namespaces, and nothing survives a server restart. But the lesson that stuck with me is how much &#8220;container-like&#8221; behavior falls out of a handful of well-placed syscalls and some text files in <code>/sys/fs/cgroup</code>. You don&#8217;t need a runtime the size of Docker to put a hard ceiling on a process &#8212; you need a directory, a PID, and the patience to track down the right device number.</p>
+<p>The fun part of a bandwidth limiter is that you can <em>see</em> whether it&#8217;s lying. I spun up multiple clients on a single machine using loopback interfaces with distinct IPs, ran the whole thing across Vagrant VMs to mimic distributed nodes, and then stared at <code>iftop</code>, <code>tcpdump</code>, and Wireshark to confirm the line held at the number I asked for. The most satisfying test was the cruel one: kill a client mid-transfer and watch the remaining flows climb to reclaim its share, with the aggregate never once poking above the ceiling.</p>
 
-<p>The code is on GitHub at <a href="https://github.com/arazmj/sentry">github.com/arazmj/sentry</a> if you&#8217;d like to poke at it.</p>
+<h2>What it taught me</h2>
 
-      
+<p>JunkTransfer is an older project &#8212; Java 8, Ant, one thread per client, IPv4 only &#8212; and I wouldn&#8217;t architect a transfer service this way today. But the ideas in it have aged well. Composing compression, rate-limiting, and I/O as a stack of independent filters is still the cleanest way I know to keep orthogonal concerns from tangling. And a token bucket is still the whole of traffic shaping in about thirty lines: a count, a clock, and the discipline to pay before you send. Sometimes the most durable thing you build is a good metaphor with a tight loop around it.</p>
+
+<p>The code is on GitHub at <a href="https://github.com/arazmj/JunkTransfer">github.com/arazmj/JunkTransfer</a>.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -306,8 +325,9 @@ ioLimit := fmt.Sprintf("%d:0 wbps=%s rbps=%s", major, writeBps, readBps)
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/why-does-functional-programming-matter/">Why Does Functional Programming Matter?</a></li>
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
+    <li><a href="/qos-voice-freebsd/">QoS optimization for real-time services in FreeBSD</a></li>
+    <li><a href="/writing-a-bgp-daemon-in-rust/">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></li>
+    <li><a href="/building-sentry-a-secure-job-runner/">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></li>
   </ul>
 </section>
 
