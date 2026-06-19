@@ -8,6 +8,14 @@
   <updated>2026-06-18T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
   <entry>
+    <title>Neural Networks from Scratch, Part 2: Multilayer Perceptrons</title>
+    <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/"/>
+    <id>https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/</id>
+    <updated>2026-06-18T10:00:00Z</updated>
+    <summary>Part 2 of building a neural network from scratch, no frameworks: why a single neuron can't learn XOR, and how stacking neurons into layers (Neuron, Layer, MLP) solves it -- using the very same backward() autograd engine from Part 1.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
     <title>Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule</title>
     <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/"/>
     <id>https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/</id>
@@ -120,19 +128,19 @@
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
-    <title>Why does functional programming matter?</title>
-    <link href="https://www.amirrazmjou.com/why-does-functional-programming-matter/"/>
-    <id>https://www.amirrazmjou.com/why-does-functional-programming-matter/</id>
-    <updated>2015-02-22T10:00:00Z</updated>
-    <summary>Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.</summary>
-    <author><name>Amir Razmjou</name></author>
-  </entry>
-  <entry>
     <title>Playing With K-nearest Neighbors Algorithm</title>
     <link href="https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/"/>
     <id>https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/</id>
     <updated>2015-02-22T10:00:00Z</updated>
     <summary>A hands-on study of the k-nearest-neighbors classifier: k as a bias-variance dial, the decision threshold as a precision/recall lever, ROC/AUC, and why cross-validation and a worst-case extrapolation split change the story.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
+    <title>Why does functional programming matter?</title>
+    <link href="https://www.amirrazmjou.com/why-does-functional-programming-matter/"/>
+    <id>https://www.amirrazmjou.com/why-does-functional-programming-matter/</id>
+    <updated>2015-02-22T10:00:00Z</updated>
+    <summary>Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.</summary>
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>

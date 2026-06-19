@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>QoS optimization for real-time services in FreeBSD &#8211; Amir Razmjou</title>
-<meta name="description" content="VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.">
+<title>Neural Networks from Scratch, Part 2: Multilayer Perceptrons &#8211; Amir Razmjou</title>
+<meta name="description" content="Part 2 of building a neural network from scratch, no frameworks: why a single neuron can't learn XOR, and how stacking neurons into layers (Neuron, Layer, MLP) solves it -- using the very same backward() autograd engine from Part 1.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/qos-voice-freebsd/">
+<link rel="canonical" href="https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="QoS optimization for real-time services in FreeBSD">
-<meta property="og:description" content="VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.">
-<meta property="og:url" content="https://www.amirrazmjou.com/qos-voice-freebsd/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/qos-voice-freebsd.png">
+<meta property="og:title" content="Neural Networks from Scratch, Part 2: Multilayer Perceptrons">
+<meta property="og:description" content="Part 2 of building a neural network from scratch, no frameworks: why a single neuron can't learn XOR, and how stacking neurons into layers (Neuron, Layer, MLP) solves it -- using the very same backward() autograd engine from Part 1.">
+<meta property="og:url" content="https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-multilayer-perceptrons.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/qos-voice-freebsd.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-multilayer-perceptrons.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -214,10 +214,10 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "QoS optimization for real-time services in FreeBSD", "description": "VSAT systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm.", "image": "https://www.amirrazmjou.com/images/og/qos-voice-freebsd.png", "articleSection": "Networking", "datePublished": "2012-09-05", "dateModified": "2012-09-05", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/qos-voice-freebsd/"}, "url": "https://www.amirrazmjou.com/qos-voice-freebsd/", "keywords": "Networking", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Neural Networks from Scratch, Part 2: Multilayer Perceptrons", "description": "Part 2 of building a neural network from scratch, no frameworks: why a single neuron can't learn XOR, and how stacking neurons into layers (Neuron, Layer, MLP) solves it -- using the very same backward() autograd engine from Part 1.", "image": "https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-multilayer-perceptrons.png", "articleSection": "Machine Learning", "datePublished": "2026-06-18", "dateModified": "2026-06-18", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/"}, "url": "https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/", "keywords": "Machine Learning, Neural Networks, Python", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
-<meta property="og:image:alt" content="QoS optimization for real-time services in FreeBSD">
+<meta property="og:image:alt" content="Neural Networks from Scratch, Part 2: Multilayer Perceptrons">
 <meta name="twitter:creator" content="@arazmj">
 </head>
 
@@ -241,156 +241,142 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>September 05, 2012</span><span class="dot"></span><span>11 min read</span></div>
-  <h1 class="post-title">QoS optimization for real-time services in FreeBSD</h1>
+  <div class="post-kicker"><span>June 18, 2026</span><span class="dot"></span><span>10 min read</span></div>
+  <h1 class="post-title">Neural Networks from Scratch, Part 2: Multilayer Perceptrons</h1>
   <div class="prose">
-      <section id="table-of-contents" class="toc">
-  <header>
-    <h3>Overview</h3>
-  </header>
-<div id="drawer">
-<ul id="markdown-toc">
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#test-environment">Test Environment</a></li>
-  <li><a href="#my-attempts">My Attempts</a>    <ul>
-      <li><a href="#proposed-solutions-to-lbta-fcs-phenomena">Proposed Solutions to LBTA-FCS Phenomena</a></li>
-    </ul>
-  </li>
-  <li><a href="#solution-viq">Solution: VIQ</a></li>
-  <li><a href="#challenges">Challenges</a>    <ul>
-      <li><a href="#transition-costs">Transition Costs</a></li>
-      <li><a href="#solution-2-h323-proxy">Solution 2: H.323 Proxy</a></li>
-    </ul>
-  </li>
-  <li><a href="#risks">Risks</a></li>
-</ul>
+<p>In <a href="/neural-networks-from-scratch-the-neuron/">Part 1</a> we built a scalar autograd engine &#8212; a little <code>Value</code> class that records every operation and can backpropagate gradients through the whole graph &#8212; and we used it to train a single neuron. It worked, but a single neuron has a hard ceiling on what it can learn, and in this part we&#8217;re going to crash straight into that ceiling, then climb over it by stacking neurons into layers. The reward is the first network that deserves the name, and the realization that the <code>backward()</code> we already wrote needs <em>no changes at all</em> to train it.</p>
 
-  </div>
-</section>
-<!-- /#table-of-contents -->
+<p>(This is Part 2 of a series that builds a neural network from scratch, no frameworks, up to a small GPT. If you haven&#8217;t read <a href="/neural-networks-from-scratch-the-neuron/">Part 1</a>, start there &#8212; we build directly on its <code>Value</code> engine.)</p>
 
-<h2 id="introduction">Introduction</h2>
-<p>VSAT  systems generally connect a large number of geographically dispersed sites to a central location. one of my customers offers VSAT service to different types of business including banking, telecomm. During technical sessions we have had with my customer we witnessed the following challenges in terms QoS:</p>
+<h2>The wall: one neuron can&#8217;t learn XOR</h2>
 
-<ul>
-  <li>
-    <p>Real-Time service (voice, video) do not fit very well to VSAT data infrastructure very well and results in bad customer experience in both Data Loss and Data Delay quality metrics of these services.</p>
-  </li>
-  <li>
-    <p>VSAT specific bandwidth sharing methods (Multiple Access methods like TDMA, DAMA and etc.) and general QoS optimization on end-point devices (BOD  from SATPath Company) conflict with most of QoS devices exist on market since these QoS devices in the market are targeted for more common type of networks.</p>
-  </li>
-  <li>
-    <p>Expensive-to-implement nature of VSAT link relays made some big differences in to a typical form of QoS network users got accustomed to. DAMA  allows maximum link utilization based on the bandwidth a site demands resulting poor QoS of most services and increasing network fluctuations which compensates for a reasonable good TCO to restricted-budget customers.</p>
-  </li>
-  <li>
-    <p>Long distance between 	Access Satellites in geosynchronous orbit   and VSAT terminal on earth result in long RTTs  in network. Since most QoS techniques are centered around the presence or absence of ACK packet of outgoing TCP packets. Meanwhile RTT around 600ms is common and even ideal in the VSAT environments. It’s almost impossible to determine whether the ACK packet is on the way back or it’s lost.  </p>
-  </li>
-  <li>
-    <p>Expensive nature VSAT links persuade customers to have more tendencies toward employing compression-oriented protocols which make it difficult to guaranty any type of QoS to these services and link maximum utilization. The uncertainty of bandwidth consumption on a compressed voice connection over a packet-based network results in more fluctuation and unintentionally dropping quality-critic packets like voice packets. 
-It’s important that any type of QoS in this type of environments must offer the best QoS possible and best link utilization for any type traffic (so-called bulk data) at the same time. </p>
-  </li>
-</ul>
+<p>Here is the smallest problem in the world that a single neuron cannot solve. XOR &#8212; &#8220;exclusive or&#8221; &#8212; is true when exactly one of its two inputs is true:</p>
 
-<h2 id="test-environment">Test Environment</h2>
-<p>The test environment consisted of two different networks in the same building of my customer. Two networks are connected to each other using a DAMA/Mesh VSAT link and they use SatPath products as modem. Our Product-In-Test sits exactly between the network switch of each one of these networks and the modem.  There’s exactly one PC on each one of networks that constantly download/upload files using FileZilla ftp protocol to push the network into congestion. On both networks my customer had employed voice gateways from Tenor Company which are configured to get connected to other voice gateways using H.323 protocol family. On each tests we call one IP phones and listen through from the other IP phone and check the voice quality both in terms of voice lost and voice lags respectively. </p>
+<pre><code>  x1   x2  | XOR
+  -------- | ----
+   0    0  |  -1
+   0    1  |  +1
+   1    0  |  +1
+   1    1  |  -1
+</code></pre>
 
-<p>The important situation to note is both VSAT end-points are set to use 64Kb bandwidths. Normally H.323 consumes 32Kb in its peak bandwidth usage and 2Kb in its lowest bandwidth usage. </p>
+<p>(I&#8217;ve written the labels as &#8722;1 and +1 so they live in the range of <code>tanh</code>.) The trouble is that no single straight line can separate the +1 cases from the &#8722;1 cases &#8212; the two positives sit on opposite corners, with the two negatives on the other diagonal. A neuron computes a weighted sum and squashes it, which geometrically is exactly <em>one</em> straight dividing line. XOR needs more than a line.</p>
 
-<figure>
-    <a href="/images/vsat/image002.png"><img src="/images/vsat/image002.png" /></a>
-    <figcaption><a href="/images/vsat/image002.png" title="Figure 1">Figure 1</a>.</figcaption>
-</figure>
+<p>Watch it fail. If we take the single-neuron model from Part 1 and train it on XOR, the loss flatlines and never recovers:</p>
 
-<h2 id="my-attempts">My Attempts</h2>
-<p>During three technical sessions with have had with my customer we tried several solutions keeping in mind the following practices:
-1.	The solution must be as simple enough to solve the customer problem, over-perfect solutions not only increase maintenance and support costs but also we might miss the goal in the end. The best approach is to start with simple solutions and increase complexity to project on demand and that’s where the complexity pays off for itself in terms of value and customer satisfaction .
-2.	Concentrate on customer concerns.
-3.	Quality matters 
-4.	Customer needs change always.
-Session 1: (Warm-up): Experimenting with PRIQ<br />
-PRIQ is a queue discipline from AltQ family which prioritizes traffic over other type of traffic. Although the solution came very promising at first glance we came to the conclusion that:
-1.	PRIQ prioritizes traffic in terms of dequeing the prioritized packets and when it comes to congestion it has no idea which type of traffic to drop to avoid congestion.
-2.	PRIQ is more suitable when the prioritized traffic relative to whole bandwidth is at small ratio like an SSH traffic over 2Mb traffic.
-3.	Traffic acceleration and traffic shaping techniques are entirely useless when there’s reasonable amount of congestion in the link.
-4.	Even when you employ simple PRIQ traffic acceleration methods in uncongested networks you can only accelerate outgoing traffic not incoming traffic, considering we have a long RTT between two endpoints you will need one acceleration device in each end-points at least.
-Session 2: Experimenting with HFSC 
-Apparently HFSC lacks good borrowing mechanism in our scenario and we ended up utilizing roughly half of bandwidth for bulk data. I believe more investigation is needed on HFSC as it is poorly documented in all UNIX man pages and over the internet.
-Session 3: Experimenting with CBQ 
-CBQ had three main characteristics which made the best experiment results we ever had in our scenarios. 
-1.	Borrowing
-2.	Prioritizing
-3.	Shaping (the bulk traffic)
-Using CBQ we almost reached 90% of voice quality relative to ideal situation (when no bulk traffic exists along voice traffic) in terms of Packet Loss (voice lost) and Packet Delays (voice lags) and getting most of all available bandwidth when no voice data crosses over the link. Next we are going to explain the reasons why we cannot currently approach 100% voice quality.
-Late Bulk Traffic Adaptation to Fluctuated Critical Services Phenomena 
-Unlike uncompressed voice protocols, compressed voice protocols like G.XXX of H.323 protocol family usually use compression in terms of both lossy data compression and lossless compression for their multimedia services. One problem with lossy data compression algorithms is that they are too reliant on acoustic characteristics of the data crossing the wire, some of voice parts and frequencies might easily be eliminated off voice packets without any deceiving affects (e.g. the frequencies that overlap each other). On the other hand lossless compression algorithms depend on abnormality that a voice packet adheres (the more abnormal the packet data is the less it gets compressed). Silence in phone conversations are considered the less abnormal data a carrier can carry so these packets get compressed the most, in comparison to other voice packets in a voice session. There are still some environmental noises in silence although. 
-Though compression of voice packets saves a considerable amount of bandwidth, it also makes these types of services to have a fluctuating traffic so no conventional queue discipline can anticipate the bandwidth they will require in advance even for next few milliseconds . What queue disciplines like CBQ do is to simply make available the unused bandwidth on voice queue to bulk queue too immediately with zero heuristic ahead and once the voice service wants reclaim the borrowed traffic from bulk traffic queue it takes a little while for bulk traffic to get adopted to new bandwidth (the bandwidth without borrow from voice bandwidth), the problem gets even more severe when RTT is too long (in our case VSAT environment) and TCP hosts have no idea whether they lost the packet or the packet is on the way back because of absence of ACK packets. The problem is illustrated in figure 2.</p>
+<pre><code>single neuron on XOR after 2000 steps: loss = 1.0
+preds: [-0.0, 0.0, 0.0, 0.0]   targets: [-1.0, 1.0, 1.0, -1.0]
+</code></pre>
 
-<figure>
-    <a href="/images/vsat/image003.png"><img src="/images/vsat/image003.png" /></a>
-    <figcaption><a href="/images/vsat/image003.png" title="Figure 2">Figure 2</a>.</figcaption>
-</figure>
+<p>It doesn&#8217;t just do poorly &#8212; it gives up and outputs roughly zero for every input, the average of the targets, because that&#8217;s the best a single line can do here. The neuron isn&#8217;t broken; the model is too simple. We need to compose several lines into a curved boundary, and that means more than one layer.</p>
 
-<p>Horizontal axis represents time and the vertical axis represents amount of traffic .The vertical axis for bulk traffic and voice traffic are in opposite direction to highlight clearly the situation where both traffics overlap (the red area) and packet drops happen either by network interfaces or queue disciplines </p>
+<h2>The idea: layers compose simple boundaries</h2>
 
-<h3 id="proposed-solutions-to-lbta-fcs-phenomena">Proposed Solutions to LBTA-FCS Phenomena</h3>
-<p>They are two solutions our development team came up with, during a brainstorming session we had recently. Both solutions approach the voice quality to almost 100% of ideal situation (when no bulk traffic exists on link).
-Solution 1: VIQ , A Modification to CBQ
-This solution proposed adding a new feature to standard CBQ queue discipline named VIQ.  A queue in CBQ hierarchy marked with VIQ flag and provided with a T time parameter is defined as blow.
-The other queues on hierarchy can borrow unused VIQ queue bandwidth if and only if no packet has crossed the queue in last T milliseconds.
-altq on em0 cbq bandwidth 2Mb queue { icmp, default }
-queue icmp bandwidth 500Kb priority 2  cbq(viq 1000)
-queue default bandwidth 1.5Mb priority  1 cbq(default, borrow)
-pass out proto ICMP to queue icmp</p>
+<p>The fix is a <strong>hidden layer</strong>. Instead of one neuron staring at the raw inputs, we put a row of neurons in the middle. Each hidden neuron still draws its own straight line, but the output neuron no longer sees <code>x1</code> and <code>x2</code> &#8212; it sees the <em>outputs of those hidden neurons</em>, and learns to combine them. Two or three lines, combined, can fence off the region XOR needs. Stacking is how simple parts become a complex whole, and it&#8217;s the entire reason &#8220;deep&#8221; learning is deep.</p>
 
-<figure>
-    <a href="/images/vsat/image004.png"><img src="/images/vsat/image005.png" /></a>
-    <figcaption><a href="/images/vsat/image004.png" title="Figure 3">Figure 3 illustrates the mechanism of VIQ</a>.</figcaption>
-</figure>
+<h2>Neurons, layers, and a network</h2>
 
-<p>A simple configuration file for pf.conf using new viq is shown in figure 3, According to definition we can induce that default queue cannot borrow 500Kb bandwidth of icmp queue unless no ICMP packet has crossed the icmp queue for 1000 milliseconds. In real world scenarios one can do the same type of QoS to solve LBTA-FCS problem for any type of real-time services over long RTT networks by just adjusting the right value for T.</p>
+<p>None of this requires touching the engine. We just need three small classes that <em>build expressions</em> out of <code>Value</code>s. A <code>Neuron</code> owns a weight per input and a bias, and when you call it on an input it produces the familiar squashed weighted sum:</p>
 
-<h2 id="solution-viq">Solution: VIQ</h2>
-<p>We can see VIQ doesn’t borrow the bandwidth from bulk traffic between first two hills in voice traffic whereas the time intervals between first two hills are less than 1000 milliseconds. But as you can see VIQ borrows all voice bandwidth from bulk bandwidth between 2nd and 3ird hills that’s because the time interval between 2nd and 3rd hills are less than 1000 milliseconds.<br />
-VIQ seems a promising approach although there’s some disadvantages with it. There’s still some red area in figure 3. The red area (critical point) is due to the fact that it’s impossible for VIQ to predict the 3rd hill even though timeout has been expired and it also takes a little time for bulk traffic to adapt.</p>
+<pre><code>import random
 
-<h2 id="challenges">Challenges</h2>
-<p>VIQ must be implemented in Kernel, The modification is very delicate because of criticality of kernel space, every single programming fault can break the whole kernel not only VIQ and network stack. 
-CBQ is a part of AltQ module. AltQ module is not a loadable module so one has to rebuild kernel for each modification to AltQ (I know fastbuild exists on FreeBSD development model but it takes 2 minutes on my PC to fastbuilt FreeBSD kernel)
-Kernel Debugging is still daunting task to people. We haven’t done that before and it’s probably more time consuming than user-land debugging.</p>
+class Neuron:
+    def __init__(self, nin):
+        self.w = [Value(random.uniform(-1, 1)) for _ in range(nin)]
+        self.b = Value(0.0)
 
-<h3 id="transition-costs">Transition Costs</h3>
-<p>Despite the disadvantages VIQ it has, it can be considered a general solution to wide-range of real-time services. Even in case of H.323 protocols this solution is less prone to changes that occur during H.323 protocol updates or vendor specific modifications to this protocol.
-# Research Value
-It increases development understanding of AltQ and kernel network stack internals. These type insights solidify development team troubleshooting skills when something wrong happens in kernel network stack. This is currently the only opportunity to investigate development of new queue discipline for a real-world need. It also sounds more likely for such solutions to be included in our future products like UTMs and make them available to customers with no fear of how the real-time service is implemented.</p>
+    def __call__(self, x):
+        act = sum((wi*xi for wi, xi in zip(self.w, x)), self.b)
+        return act.tanh()
 
-<h3 id="solution-2-h323-proxy">Solution 2: H.323 Proxy</h3>
-<p>All H.323 protocols as defined in their RFC must establish a TCP connection known as Control Connection Control Connection is responsible for all type of control messages two peers need to send each other including establishing a Data Connection, authentication, negotiation for QoS or data connection protocols and ports. Sniffing the whole connection controls brings us valuable information such as</p>
+    def parameters(self):
+        return self.w + [self.b]
+</code></pre>
 
-<ul>
-  <li>When Data Connection started exactly.</li>
-  <li>What the source and destination IP address of two peers are.</li>
-  <li>What the source and destination ports of two peers are.</li>
-  <li>When Data Connection stopped exactly.</li>
-</ul>
+<p>A <code>Layer</code> is just a list of neurons, each fed the same input; calling it returns one <code>Value</code> per neuron:</p>
 
-<p>Using the exact start and stop time of Data Connection we can allocate new queues for the just established Data Connection and keep this queue as long as Data Connection lasts. Having the exact starting time of data connection at hand we even won’t have the tiny red area of congestion introduced in VIQ solution. We can also release the bandwidth allocated for voice queue exactly at the time that peers don’t require their dedicated bandwidth anymore. We believe this solution approaches voice quality up to 100% of ideal situation.
-Construction
-We can use the other part of information extracted from control connection to discover the exact source and destination information (IP and port) using these information we can make a zero-configuration device that doesn’t require new configuration in 
-1.	New deployments of device in new environments will become a trivial task for both our support staffs and customers.
-2.	Network topology changes won’t affect this device, including IP changes of both IP Phones and VOIP gateways.
-3.	Lowering the cost to support and train customers.
-4.	Offering more customer-friendly and plug-and-play product.</p>
+<pre><code>class Layer:
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
 
-<h2 id="risks">Risks</h2>
-<p>H.323 Proxy must not be error-prone to situations where:
-1. H.323 Control Connection sends special messages that might be mistaken by negotiation messages.
-2. Vendor specific features that take advantages of open parts of H.323 control connection RFC.
-3. Administrator specific configurations that affects the behavior of device.
-There’s no guarantee that device will receive the stop message from peers that TCP connection might be lost or even each one of peer might be defected so it’s a good practice to consider a time-out value for data-connection and release voice bandwidth even if there’s to stop message from control connection.
-## Research Value
-This type of research experiences can be valuable to other type of full connection deep packet inspection; such applications can be IDS and IPS which inspect the connection for all types of viruses, intrusions and etc.</p>
+    def __call__(self, x):
+        outs = [n(x) for n in self.neurons]
+        return outs[0] if len(outs) == 1 else outs
 
-      
+    def parameters(self):
+        return [p for n in self.neurons for p in n.parameters()]
+</code></pre>
+
+<p>And an <code>MLP</code> &#8212; a multilayer perceptron &#8212; is just a list of layers, each feeding the next:</p>
+
+<pre><code>class MLP:
+    def __init__(self, nin, nouts):
+        sizes = [nin] + nouts
+        self.layers = [Layer(sizes[i], sizes[i+1]) for i in range(len(nouts))]
+
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)        # the output of one layer is the input to the next
+        return x
+
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
+</code></pre>
+
+<p>That <code>__call__</code> is the forward pass of the entire network, and here is the quietly profound part: calling <code>model(x)</code> just builds one big <code>Value</code> expression &#8212; inputs flowing through dozens of multiplies, adds, and <code>tanh</code>s. The engine from Part 1 sees no difference between that and the single-neuron expression. <strong>Backpropagation through a deep network is the exact same <code>backward()</code> we already wrote</strong>; the graph is simply larger. We didn&#8217;t teach the engine about layers &#8212; we didn&#8217;t have to.</p>
+
+<h2>The training loop (and the bug everyone hits)</h2>
+
+<p>Training is almost identical to Part 1, now iterating over <code>model.parameters()</code>. But there&#8217;s one line that, if you forget it, will quietly ruin everything &#8212; and it&#8217;s a direct consequence of how we wrote the engine:</p>
+
+<pre><code>random.seed(42)
+model = MLP(2, [8, 1])      # 2 inputs -> hidden layer of 8 -> 1 output
+xs = [(0.0,0.0), (0.0,1.0), (1.0,0.0), (1.0,1.0)]
+ys = [-1.0, 1.0, 1.0, -1.0]                       # XOR
+
+lr = 0.1
+for step in range(300):
+    # forward: mean squared error over the four examples
+    loss = Value(0.0)
+    for x, y in zip(xs, ys):
+        diff = model(x) - y
+        loss = loss + diff*diff
+    loss = loss * (1.0/len(xs))
+
+    for p in model.parameters():   # &lt;-- ZERO THE GRADIENTS FIRST
+        p.grad = 0.0
+    loss.backward()
+
+    for p in model.parameters():   # gradient-descent step
+        p.data += -lr * p.grad
+
+    if step % 50 == 0:
+        print(f"step {step:3d}  loss {loss.data:.4f}")
+</code></pre>
+
+<p>That <code>p.grad = 0.0</code> loop matters because of a decision we made back in Part 1: every operation <em>accumulates</em> into <code>.grad</code> with <code>+=</code>, not <code>=</code>. That was deliberate &#8212; a value used in several places must sum the gradients from all of them. But it means gradients don&#8217;t reset on their own; if you skip the zeroing, this step&#8217;s gradient piles on top of every previous step&#8217;s, the updates blow up, and training diverges into nonsense. &#8220;Forgot to zero the gradients&#8221; is a rite of passage; now you know why it happens.</p>
+
+<h2>Eight neurons do what one couldn&#8217;t</h2>
+
+<p>Run it, and the wall we hit earlier simply isn&#8217;t there anymore:</p>
+
+<pre><code>step   0  loss 1.2434
+step  50  loss 0.2526
+step 100  loss 0.0686
+step 150  loss 0.0326
+step 200  loss 0.0201
+step 250  loss 0.0142
+
+preds: [-0.922, 0.896, 0.891, -0.88]   targets: [-1.0, 1.0, 1.0, -1.0]
+</code></pre>
+
+<p>The loss falls from 1.24 to about 0.01, and the predictions land firmly on the right side of zero for all four cases &#8212; the exact problem that pinned a single neuron at a loss of 1.0. With one hidden layer of eight neurons (thirty-three parameters in total), the network learned to bend a straight boundary into one that wraps around XOR&#8217;s diagonal. The hidden neurons discovered useful intermediate lines; the output neuron learned how to combine them.</p>
+
+<h2>What actually changed</h2>
+
+<p>Almost nothing, and that&#8217;s the lesson. We added no new math and not a single line to the autograd engine. We wrote three tiny container classes, pointed the same training loop at a bigger pile of parameters, and a network that was previously impossible became routine. This is the whole shape of deep learning in miniature: <em>the learning algorithm doesn&#8217;t get smarter as networks get deeper &#8212; it just gets more knobs to turn, and composition does the rest.</em> The same forward-then-<code>backward()</code>-then-nudge loop, scaled up, is what trains a model with billions of parameters.</p>
+
+<p>There&#8217;s a soft spot in what we have, though. We&#8217;re using <code>tanh</code> outputs and squared-error loss to do what is really a <em>classification</em> task, and that pairing is clumsy &#8212; it learns slowly and says nothing about confidence. In <strong>Part 3</strong> we&#8217;ll fix the output end of the network: meet the <code>softmax</code> function and the cross-entropy loss, the natural language for &#8220;which class, and how sure?&#8221; That upgrade is also exactly what we&#8217;ll need to start predicting the next character in a sequence &#8212; the first real step toward a language model.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -398,9 +384,9 @@ This type of research experiences can be valuable to other type of full connecti
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
-    <li><a href="/gsoc-2015-routeflow-proposal/">GSoC 2015 RouteFlow Proposal</a></li>
+    <li><a href="/neural-networks-from-scratch-the-neuron/">Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule</a></li>
+    <li><a href="/playing-with-k-nearest-neighbors-algorithm/">Playing With k-Nearest Neighbors</a></li>
+    <li><a href="/why-does-functional-programming-matter/">Why does functional programming matter?</a></li>
   </ul>
 </section>
 
