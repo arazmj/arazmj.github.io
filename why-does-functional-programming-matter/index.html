@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Why does functional programming matter? &#8211; Amir Razmjou</title>
-<meta name="description" content="Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex interfaces. Likewise any built-in language supported feature can result in code clarity, elegance and maintainability and leave the responsibility of optimization and other concerns to programming language in order to have programmers focus on their problems.">
+<meta name="description" content="Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -11,7 +11,7 @@
 <link rel="canonical" href="https://www.amirrazmjou.com/why-does-functional-programming-matter/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Why does functional programming matter?">
-<meta property="og:description" content="Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex interfaces. Likewise any built-in language supported feature can result in code clarity, elegance and maintainability and leave the responsibility of optimization and other concerns to programming language in order to have programmers focus on their problems.">
+<meta property="og:description" content="Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.">
 <meta property="og:url" content="https://www.amirrazmjou.com/why-does-functional-programming-matter/">
 <meta property="og:image" content="https://www.amirrazmjou.com/images/og/why-does-functional-programming-matter.png">
 <meta property="og:image:width" content="1200">
@@ -214,7 +214,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Why does functional programming matter?", "description": "Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex interfaces. Likewise any built-in language supported feature can result in code clarity, elegance and maintainability and leave the responsibility of optimization and other concerns to programming language in order to have programmers focus on their problems.", "image": "https://www.amirrazmjou.com/images/og/why-does-functional-programming-matter.png", "articleSection": "Programming", "datePublished": "2015-02-22", "dateModified": "2015-02-22", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/why-does-functional-programming-matter/"}, "url": "https://www.amirrazmjou.com/why-does-functional-programming-matter/", "keywords": "Programming", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Why does functional programming matter?", "description": "Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.", "image": "https://www.amirrazmjou.com/images/og/why-does-functional-programming-matter.png", "articleSection": "Programming", "datePublished": "2015-02-22", "dateModified": "2015-02-22", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/why-does-functional-programming-matter/"}, "url": "https://www.amirrazmjou.com/why-does-functional-programming-matter/", "keywords": "Functional Programming, Programming", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
 <meta property="og:image:alt" content="Why does functional programming matter?">
@@ -241,53 +241,54 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>February 22, 2015</span><span class="dot"></span><span>4 min read</span></div>
+  <div class="post-kicker"><span>February 22, 2015</span><span class="dot"></span><span>7 min read</span></div>
   <h1 class="post-title">Why does functional programming matter?</h1>
   <div class="prose">
-      <section id="table-of-contents" class="toc">
-  <header>
-    <h3>Overview</h3>
-  </header>
-<div id="drawer">
-<ul id="markdown-toc">
-  <li><a href="#overview">Overview</a></li>
-  <li><a href="#no-side-effects">No side effects</a></li>
-  <li><a href="#lazy-evaluation">Lazy-evaluation</a></li>
-  <li><a href="#high-order-functions">High order functions</a></li>
-  <li><a href="#emergence-of-new-hardware-platforms">Emergence of new hardware platforms</a></li>
-  <li><a href="#lambda-expression-parsing">Lambda-expression Parsing</a></li>
-</ul>
+<p>The title of this post is borrowed, deliberately, from John Hughes&#8217;s 1990 classic <a href="https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf"><em>Why Functional Programming Matters</em></a> &#8212; still one of the most quietly persuasive papers in our field. Its argument is sharper than the usual sales pitch. Functional programming, Hughes says, is <em>not</em> mainly about what it forbids &#8212; no assignment, no mutable state, no side effects. A list of prohibitions can&#8217;t make a language more powerful. What makes FP matter is what it <em>adds</em>: two kinds of glue &#8212; higher-order functions and lazy evaluation &#8212; that let you assemble programs out of small, reusable pieces. And modularity, the ability to build big things from small things, is the whole game in maintainable software.</p>
 
-  </div>
-</section>
-<!-- /#table-of-contents -->
+<h2 id="no-side-effects">Purity is testability</h2>
 
-<h2 id="overview">Overview</h2>
-<p>As software constructs are getting more complicated it’s evident that programming languages must come up with new techniques for modularity, separation of concerns to improve maintainability. Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex interfaces. Likewise any built-in language supported feature can result in code clarity, elegance and maintainability and leave the responsibility of optimization and other concerns to programming language in order to have programmers focus on their problems. </p>
+<p>Start with the prohibition everyone notices first: no side effects. A pure function&#8217;s output depends only on its inputs, which buys you <strong>referential transparency</strong> &#8212; you can replace a call with its result and reason about code like algebra. The practical payoff is testing. A pure function can be verified in complete isolation; there is no hidden global state to set up, no order-of-execution to get right, no spooky action at a distance.</p>
 
-<h2 id="no-side-effects">No side effects</h2>
-<p>Emergence of vast diverse type of dependency injection frameworks is the evidence that all in conventional programming languages there’s a more need for separation of primitive language types, which are primarily classes and objects. Not only existence of global variables and static variables in conventional programming languages makes program hard to debug and maintain they made dependency between software constructs too transparent so it’s hard to justify if a particular module of program is modular enough. In pure functional programming languages it’s guaranteed that every function can be tested and verified in isolation of rest of program so software bugs can be replicated and resolved in function resolution.  </p>
+<p>It&#8217;s worth noticing that much of the machinery in conventional object-oriented codebases &#8212; the sprawling dependency-injection frameworks, the elaborate mocking &#8212; exists to claw back, at considerable cost, the testability that purity hands you for free. When state is everywhere, you have to work hard to prove any one module is actually independent. When there is no shared state, independence is the default.</p>
 
-<h2 id="lazy-evaluation">Lazy-evaluation</h2>
-<p>Having hardware support for features like “Page Faults” in MMU in even hardware level it are apparent this lazy-evaluation features must exist as first-class constructs in programming languages. Lazy-evaluation is important not only because of saving some more CPU cycles but its significance can be viewed as a facility to add more layers of abstraction without developing more performance concerns. Most software engineering practices advocate the usage of abstraction throughout different levels of abstraction but the trade-off to keep modules as general as possible and performance wise at the sometime is challenging. Mainly lower levels libraries have no clear idea that what evaluations and operations might be needed later by high-level applications. 
-Parameterizing library interfaces, to specify the exact requirements (which makes library interface even more complicated) or sacrificing performance seem to be the only solution to this issue in conventional programming languages. </p>
+<h2 id="higher-order-functions">Higher-order functions: the first glue</h2>
 
-<h2 id="high-order-functions">High order functions</h2>
-<p>Higher-order functions and lambda expressions allow making structures regardless of control flow of that structure. One example might condition to verify certain element of a list must be iterated can be isolated from iteration algorithm itself. This feature like lazy-evaluation can contribute to layered software design as higher levels of software can still maintain control flow flexibility with no need to sacrifice performance or modularity by passing the required control flow as a parameter to lower levels.</p>
+<p>A higher-order function takes a function as an argument or returns one, and that single capability lets you separate <em>what</em> a computation does from <em>how</em> it&#8217;s structured. The traversal of a list and the work done at each step become independent pieces you can mix and match. <code>map</code>, <code>filter</code>, and <code>reduce</code> are the canonical example: the recursion is written once, and the behavior is passed in.</p>
 
-<h2 id="emergence-of-new-hardware-platforms">Emergence of new hardware platforms</h2>
-<p>We have seen emergence of more multicore processors due to the fact that semiconductors companies are reaching to processors speed limit to avoiding power consumption problem by scaling processor frequency and other problems. Meanwhile graphic processor manufactures claim their products have much more potential for general-purpose computing than any other type of processors.  On the other hand, recent studies show that FPGA can outperform specific tasks easily.</p>
+<pre><code>// sum, product, and "any negatives?" are all the same fold,
+// differing only in the function glued into it.
+const sum     = xs => xs.reduce((a, b) => a + b, 0);
+const product = xs => xs.reduce((a, b) => a * b, 1);
+const anyNeg  = xs => xs.reduce((a, b) => a || b &lt; 0, false);
+</code></pre>
 
-<p>No-side effect of functional languages ideal for parallel computing as function constructs are stateless there won’t be any race conditions anymore and consequently no locking costs. Immutability of data in functional programming languages allows sharing data easily across core in general-purpose processors and graphic processors without having concurrency concerns.</p>
+<p>This is Hughes&#8217;s point made concrete: once iteration is a reusable skeleton, &#8220;a new problem&#8221; often means &#8220;a small new function to glue in,&#8221; not a new loop. Higher levels of a program keep full control over behavior while delegating mechanism downward &#8212; modularity without a performance tax.</p>
 
-<p>Taking into account embedding feature of domain-specific languages into account and the fact all hardware description languages are merely another representation of mathematical functions. Functional meta-programming languages seem to be ideal candidate for embedding hardware description languages. They also certainly seem to be potentially a worthy candidate to be a cross-hardware-platform for computation intensive problems as they capture abstract-enough definition of problem and this leaves a lot of room for optimizations and platform migration by programming language and provided libraries. </p>
+<h2 id="lazy-evaluation">Lazy evaluation: the second glue</h2>
 
-<h2 id="lambda-expression-parsing">Lambda-expression Parsing</h2>
-<p>Capability of parsing lambda-expression parsing in multi-paradigm languages like C# enables framework developers to parse or modify lambda-expressions at runtime. This allows end-developers to benefit from single programming language for programs that interoperate with variety of systems with different programming language input. In this case end-programmer leaves the job of translation from source language to target languages to framework. An example would be LINQ feature in C# 3.0 which can dynamically construct query statements for different type of databases at runtime only providing required lambda expression. This reduces software construct complexity, as there’s no need to mix different type of languages together, it also benefits to compile-time checking and even optimization for query statements instead of passing to target database as string literals which their content makes no sense to original programming language. It also allows more tight integration query statements with program data structures. All supported as first-class feature in a functional and multi-paradigm programming language.</p>
+<p>The deeper half of Hughes&#8217;s argument is lazy evaluation &#8212; computing a value only when it&#8217;s actually needed. Laziness is the glue that lets you separate <em>generating</em> a structure from <em>selecting</em> from it. You can write a producer that, on paper, yields an infinite amount of data, and a consumer that stops as soon as it has enough, and compose them without either one knowing about the other.</p>
 
-<p>The growing demand for server-side scalability in era of internet of things resulted in requirement to have services even more scalable. We can see the concept of scalability and being stateless are tightly coupled in RESTfull related technologies even. </p>
+<pre><code>-- an infinite list of primes; only as many are computed as you take
+primes = sieve [2..]
+  where sieve (p:xs) = p : sieve [x | x &lt;- xs, x `mod` p /= 0]
 
-      
+-- take 5 primes  ==&gt;  [2, 3, 5, 7, 11]
+</code></pre>
+
+<p>Hughes&#8217;s loveliest examples are numerical: a square root by Newton&#8217;s method becomes &#8220;generate the infinite sequence of improving approximations, then take the first pair that&#8217;s close enough&#8221; &#8212; the iteration strategy and the stopping condition written as two independent, reusable functions. Laziness is what lets you add a layer of abstraction without paying for the work you don&#8217;t use, which is exactly the trade-off that usually makes engineers wary of abstraction.</p>
+
+<h2 id="emergence-of-new-hardware-platforms">Why it matters more now: parallelism</h2>
+
+<p>Hughes wrote in 1990, before the free lunch ended. Once single-core clock speeds hit a power wall, the industry pivoted to multicore, then to GPUs, then to FPGAs and other accelerators &#8212; and suddenly FP&#8217;s &#8220;restrictions&#8221; started looking like gifts. If functions are stateless and data is immutable, there are no race conditions to guard against and no locks to pay for; values can be shared across cores or shipped to a GPU without a second thought. The property that made pure functions easy to <em>test</em> in 1990 is the same property that makes them easy to <em>parallelize</em> today. It&#8217;s no accident that map/reduce became the vocabulary of large-scale data processing.</p>
+
+<h2 id="lambda-expression-parsing">Lambdas as data: LINQ and expression trees</h2>
+
+<p>There&#8217;s a final twist that Hughes didn&#8217;t foresee but would have enjoyed. In multi-paradigm languages like C#, a lambda can be more than code &#8212; it can be captured as <em>data</em>, an expression tree the program can inspect and rewrite at runtime. That&#8217;s the engine under LINQ: you write a query as ordinary lambdas, and the framework translates that expression tree into SQL for whatever database is behind it, rather than passing an opaque string the compiler can&#8217;t check. One language, type-checked end to end, with the translation to other systems handled for you &#8212; and, of course, the query executes lazily, only when you enumerate it. Deferred execution and higher-order functions, arriving in the most mainstream of languages by way of the same two ideas.</p>
+
+<h2 id="conclusion">The quiet victory</h2>
+
+<p>Three decades on, the striking thing about Hughes&#8217;s paper is how thoroughly it won. You don&#8217;t have to write Haskell to feel it: <code>map</code>, <code>filter</code>, and <code>reduce</code> are in every mainstream language; immutability and statelessness are the default advice for anything concurrent or distributed; lambdas are everywhere; and &#8220;referential transparency&#8221; quietly underwrites everything from React&#8217;s render model to the scalability of stateless REST services. Functional programming mattered, in the end, for exactly the reason Hughes claimed: not because of what it takes away, but because better glue makes programs you can take apart and put back together &#8212; which is the only kind that survives contact with time.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>

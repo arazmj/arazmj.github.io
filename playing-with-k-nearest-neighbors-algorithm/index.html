@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Playing With K-nearest Neighbors Algorithm &#8211; Amir Razmjou</title>
-<meta name="description" content="This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.">
+<meta name="description" content="A hands-on study of the k-nearest-neighbors classifier: k as a bias-variance dial, the decision threshold as a precision/recall lever, ROC/AUC, and why cross-validation and a worst-case extrapolation split change the story.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -11,7 +11,7 @@
 <link rel="canonical" href="https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Playing With K-nearest Neighbors Algorithm">
-<meta property="og:description" content="This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.">
+<meta property="og:description" content="A hands-on study of the k-nearest-neighbors classifier: k as a bias-variance dial, the decision threshold as a precision/recall lever, ROC/AUC, and why cross-validation and a worst-case extrapolation split change the story.">
 <meta property="og:url" content="https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/">
 <meta property="og:image" content="https://www.amirrazmjou.com/images/og/playing-with-k-nearest-neighbors-algorithm.png">
 <meta property="og:image:width" content="1200">
@@ -214,7 +214,7 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Playing With K-nearest Neighbors Algorithm", "description": "This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.", "image": "https://www.amirrazmjou.com/images/og/playing-with-k-nearest-neighbors-algorithm.png", "articleSection": "Machine Learning", "datePublished": "2015-02-22", "dateModified": "2015-02-22", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/"}, "url": "https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/", "keywords": "Machine Learning", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Playing With K-nearest Neighbors Algorithm", "description": "A hands-on study of the k-nearest-neighbors classifier: k as a bias-variance dial, the decision threshold as a precision/recall lever, ROC/AUC, and why cross-validation and a worst-case extrapolation split change the story.", "image": "https://www.amirrazmjou.com/images/og/playing-with-k-nearest-neighbors-algorithm.png", "articleSection": "Machine Learning", "datePublished": "2015-02-22", "dateModified": "2015-02-22", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/"}, "url": "https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/", "keywords": "Machine Learning, Classification, kNN", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
 <meta property="og:image:alt" content="Playing With K-nearest Neighbors Algorithm">
@@ -241,110 +241,104 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>February 22, 2015</span><span class="dot"></span><span>4 min read</span></div>
+  <div class="post-kicker"><span>February 22, 2015</span><span class="dot"></span><span>7 min read</span></div>
   <h1 class="post-title">Playing With K-nearest Neighbors Algorithm</h1>
   <div class="prose">
-      <section id="table-of-contents" class="toc">
-  <header>
-    <h3>Overview</h3>
-  </header>
-<div id="drawer">
-<ul id="markdown-toc">
-  <li><a href="#testing-method">Testing Method</a></li>
-  <li><a href="#cross-validation">Cross-validation</a></li>
-  <li><a href="#worst-case">Worst-case</a></li>
-</ul>
+<p>k-Nearest Neighbors is the algorithm that barely deserves the name. It doesn&#8217;t train; it doesn&#8217;t fit parameters; it doesn&#8217;t build a model. It just <em>remembers</em> every labeled example, and when you hand it a new point it finds the <code>k</code> closest ones it has seen and lets them vote. That&#8217;s the whole idea &#8212; and yet, exactly because it&#8217;s so transparent, kNN is one of the best lenses I know for thinking about the questions that haunt every classifier: how much should a model trust its neighbors, where do you draw the line, and how do you know your accuracy isn&#8217;t a lie?</p>
 
-  </div>
-</section>
-<!-- /#table-of-contents -->
+<p>(One terminology note up front, since the original version of this post got it wrong: kNN classification is <strong>supervised</strong> learning &#8212; it relies on labeled examples. The unsupervised cousin, k-means, is a different animal entirely.)</p>
 
-<p>This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.
-This program accepts a CSV file, k nearest neighbors, decision boundary value and K value for cross-validation all as parameter. It calculates accuracy value for different values of decision boundary and k values. The program accepts a coordinate as second and third parameter to classify it either as positive (red) or negative (blue) using the dataset provided. It basically finds the longest distance of in k-neighbor set relative to the given coordinate then it sums up all instances that can be reached from the coordinate, omitting the given coordinate itself. </p>
+<p>So I built a small kNN classifier over a two-dimensional dataset and studied how its two dials &#8212; the number of neighbors <code>k</code> and the decision threshold &#8212; change its behavior, validated three different ways.</p>
 
-<h2 id="testing-method">Testing Method</h2>
-<p>This example shows two different approaches for validation of classifier, cross-validation and worst-case.</p>
+<h2 id="the-algorithm">The algorithm, in a handful of lines</h2>
 
-<ul>
-  <li>
-    <p>Cross-Validation: First all instances are shuffled, then they are split into X folds, which the value of X is already provided as a parameter to the program. The program uses each one of folds as training set and the remaining as test set until it covered all the folds as test set. It also applies one of aggregation functions to summarize results. Different type of aggregation functions implemented (i.e. average, maximum, minimum) to choose (hard-coded). In case of cross-validation average aggregation function has been applied.  </p>
-  </li>
-  <li>
-    <p>Worst-Case: In case of worst case the training set is the outer set of 800 of instances relative to center and inner 200 instances for the test set. In the case of worst-case minimum aggregation function has been applied.</p>
-  </li>
-</ul>
+<p>The core is almost insultingly simple: measure the distance to every stored point, keep the nearest <code>k</code>, and take a (thresholded) vote.</p>
+
+<pre><code>def classify(point, training, k, boundary):
+    # rank every labeled example by Euclidean distance to `point`
+    nearest = sorted(training, key=lambda p: distance(point, p))[:k]
+    # fraction of those neighbors that are positive
+    score = sum(1 for n in nearest if n.label == "positive") / k
+    return "positive" if score >= boundary else "negative"
+</code></pre>
+
+<p>Two parameters fall out of that snippet, and the entire study is about what they do. <code>k</code> controls how many voices get heard; <code>boundary</code> controls how big a majority you demand before calling a point positive.</p>
 
 <figure>
     <a href="/images/knn/image004.png"><img src="/images/knn/image004.png" /></a>
-    <figcaption><a href="/images/knn/image004.png" title="Figure 1">Dataset</a>.</figcaption>
+    <figcaption>The dataset: positives cluster in the first quadrant, negatives in the third.</figcaption>
 </figure>
 
-<p>Visualization of dataset in Euclidian space shows distribution of almost all of positive instances in first quadrant and negative instances in third quadrant. 
-There’s some negative instances penetrated into first quadrant but there’s almost no positive case entering into third quadrant.</p>
+<p>The data is deliberately tidy &#8212; positives sit mostly in the first quadrant, negatives in the third &#8212; with one telling asymmetry: a few negative points leak into the positive region, but almost no positive points stray into the negative one. That lopsidedness drives everything that follows.</p>
 
-<p>Training set as test set: all instances used for both training set and test set.</p>
+<h2 id="the-bias-variance-dial">k is a bias&#8211;variance dial</h2>
+
+<p>The number of neighbors is the cleanest illustration of the <strong>bias&#8211;variance trade-off</strong> in all of machine learning. A tiny <code>k</code> (say 1) gives an exquisitely flexible, jagged decision boundary that contours around every point &#8212; low bias, but high variance, and exquisitely sensitive to noise. A large <code>k</code> averages over a wide neighborhood, smoothing the boundary into something stable but blunt &#8212; high bias, low variance. Crank <code>k</code> high enough and every query just sees the majority class.</p>
 
 <figure>
     <a href="/images/knn/image007.png"><img src="/images/knn/image007.png" /></a>
-    <figcaption><a href="/images/knn/image007.png" title="Figure 2">Accuracy decreases as k, the number of neighbors increases</a>.</figcaption>
+    <figcaption>Accuracy declines as k grows &#8212; the neighborhood blurs past the useful scale.</figcaption>
 </figure>
 
 <figure>
     <a href="/images/knn/image009.png"><img src="/images/knn/image009.png" /></a>
-    <figcaption><a href="/images/knn/image009.png" title="Figure 3">True Positive Rate remains constant while False Positive Rate increases gradually as k increases</a>.</figcaption>
+    <figcaption>The true-positive rate holds steady while the false-positive rate climbs with k.</figcaption>
 </figure>
+
+<p>Here&#8217;s where the dataset&#8217;s asymmetry shows up. As <code>k</code> grows, false positives rise faster than false negatives: the negative points that wandered into positive territory are surrounded by positives, so a wide vote happily mislabels them. The tightly packed positive cluster, by contrast, is barely perturbed. Geometry, not magic.</p>
+
+<h2 id="the-decision-boundary">The decision threshold: optimism vs. pessimism</h2>
+
+<p>The <code>boundary</code> is the probability cutoff for declaring a point positive, and it is a pure precision/recall lever. Lower it and you become optimistic &#8212; you catch more true positives but also wave through more false ones. Raise it and you turn cautious, trading recall for precision.</p>
 
 <figure>
     <a href="/images/knn/image011.png"><img src="/images/knn/image011.png" /></a>
-    <figcaption><a href="/images/knn/image011.png" title="Figure 4">Accuracy forms a “downward parabola curve” similar to Gaussian distribution for decision boundary range between zero and one</a>.</figcaption>
+    <figcaption>Accuracy versus decision boundary traces a downward parabola &#8212; the extremes are bad, a middling threshold is best.</figcaption>
 </figure>
 
 <figure>
     <a href="/images/knn/image013.png"><img src="/images/knn/image013.png" /></a>
-    <figcaption><a href="/images/knn/image013.png" title="Figure 5">TPR decreases as decision boundary increases while FPR increases as decision boundary increases</a>.</figcaption>
+    <figcaption>As the threshold rises, the true- and false-positive rates both fall.</figcaption>
 </figure>
+
+<p>The accuracy curve over the threshold is a downward parabola: both extremes are poor and a moderate cutoff wins, which is exactly what you&#8217;d hope for. Sweeping the threshold from 0 to 1 and plotting the true-positive rate against the false-positive rate traces the <strong>ROC curve</strong>, and the area under it (AUC) is the threshold-independent summary of how well the classifier separates the classes.</p>
 
 <figure>
     <a href="/images/knn/image015.png"><img src="/images/knn/image015.png" /></a>
-    <figcaption><a href="/images/knn/image015.png" title="Figure 7">ROC graph shows a near-perfect classifier</a>.</figcaption>
+    <figcaption>The ROC curve hugs the top-left corner: a near-perfect classifier on this dataset.</figcaption>
 </figure>
 
-<h2 id="cross-validation">Cross-validation</h2>
-<p>K folds as test set and K-1 as training set repeatedly covering all data set as test set.</p>
+<h2 id="cross-validation">Trust, but cross-validate</h2>
+
+<p>A near-perfect ROC is thrilling until you remember <em>how</em> it was measured. Scoring a classifier on the same data it learned from is the original sin of machine learning &#8212; it measures memorization, not generalization. The honest approach is <strong>k-fold cross-validation</strong>: shuffle the data, split it into folds, and repeatedly train on all-but-one fold and test on the one held out, so every point is predicted exactly once by a model that never saw it.</p>
 
 <figure>
     <a href="/images/knn/image019.png"><img src="/images/knn/image019.png" /></a>
-    <figcaption><a href="/images/knn/image019.png" title="Figure 7">Cross Validation shows more realistic results</a>.</figcaption>
+    <figcaption>Cross-validation yields a more realistic, slightly humbler accuracy curve.</figcaption>
 </figure>
 
 <figure>
-    <a href="/images/knn/image021.png"><img src="/images/knn/image019.png" /></a>
-    <figcaption><a href="/images/knn/image019.png" title="Figure 8">Cross Validation shows a jump on FPR around K=450</a>.</figcaption>
+    <a href="/images/knn/image021.png"><img src="/images/knn/image021.png" /></a>
+    <figcaption>A sharp jump in the false-positive rate appears around k &#8776; 450.</figcaption>
 </figure>
 
 <figure>
     <a href="/images/knn/image023.png"><img src="/images/knn/image023.png" /></a>
-    <figcaption><a href="/images/knn/image023.png" title="Figure 9">ROC curve obtained by cross validation, still near-perfect but shows some fluctuation</a>.</figcaption>
+    <figcaption>The cross-validated ROC stays excellent but now shows honest fluctuation.</figcaption>
 </figure>
 
-<h2 id="worst-case">Worst-case</h2>
-<p>Inner part of dataset used as training set and outer part of dataset used as test set. The purpose is to get worst AUC we can get off the dataset using the same classifier.</p>
+<h2 id="worst-case">The worst case: forcing it to extrapolate</h2>
+
+<p>Cross-validation estimates the <em>average</em> case. To find the floor, I rigged a deliberately cruel split: train only on the inner core of the data and test on the outer ring. That forces the classifier to <strong>extrapolate</strong> beyond the region it learned, which is precisely where nearest-neighbor methods are weakest &#8212; there are no near neighbors out there to ask.</p>
 
 <figure>
     <a href="/images/knn/image025.png"><img src="/images/knn/image025.png" /></a>
-    <figcaption><a href="/images/knn/image025.png" title="Figure 9">Worst-Case validation shows worst AUC</a>.</figcaption>
+    <figcaption>Train-on-the-core, test-on-the-edges: the lowest AUC the dataset will give up.</figcaption>
 </figure>
 
-<p>Accuracy curve confirms to the previous results except that they show less complexity (more consistent value with less fluctuation). Remarkably, FPR and TPR show more complexity compared to last results. </p>
+<h2 id="what-it-taught-me">What the experiment actually shows</h2>
 
-<p>Analysis and conclusions comparing all results. Please provide a critical interpretation of what you’re observing in the graphs.</p>
-
-<p>Increasing k for KNN algorithm causes more FPs than TPs. The reason for that is there’s less likely to have a red points in first quadrant to be justified as blue. As red points are relatively adjacent to each other and big k values would not affect classifier substantially. Inversely, some of blue points are scattered into red region and a fairly large value of k can predict them as red as they are all surrounded by red points.
-Decision boundary is the trade-off of optimism and pessimism. The lower decision boundary increases TPs also increases FPs and vice versa. The curve depicting accuracy over decision boundary value almost forms a Gaussian distribution and implies that a moderate value for decision boundary is most likely the best bet for the given dataset. 
-Dataset contains very few anomalies so ROC shows a near-perfect classifier and AUC is almost maximum.
-Comparing the fluctuation in results obtained in task 2 and task 3. It may imply that cross-validation alleviates the complexity of accuracy curve and increase of fluctuation FPR and TPR curves and consequently ROC curve increase. But in both cases value curves remain consistent on values for decision boundary near 0 or 1.</p>
-
-      
+<p>Three lessons survive the graphs. First, <code>k</code> is a bias&#8211;variance knob and the best value lives in the middle, not at either extreme. Second, the decision threshold is an independent precision/recall knob, and accuracy over it is a parabola with a comfortable optimum. Third &#8212; and most importantly &#8212; the headline number depends entirely on how you measure it: training-on-test flatters, cross-validation tells the truth, and a worst-case split tells you how bad things get when the model is asked to leave home. A near-perfect ROC says as much about how separable this particular dataset is as it does about kNN. The algorithm that doesn&#8217;t really learn turns out to be a wonderful teacher.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
