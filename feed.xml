@@ -8,6 +8,14 @@
   <updated>2026-06-18T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
   <entry>
+    <title>Neural Networks from Scratch, Part 3: Softmax and Cross-Entropy</title>
+    <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-softmax-and-cross-entropy/"/>
+    <id>https://www.amirrazmjou.com/neural-networks-from-scratch-softmax-and-cross-entropy/</id>
+    <updated>2026-06-18T10:00:00Z</updated>
+    <summary>Part 3 of building a neural network from scratch: why squared error is wrong for classification, and how softmax + cross-entropy fix it. We extend the autograd engine with exp, log, pow, and division, then train a 3-class classifier -- the exact loss every LLM uses for next-token prediction.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
     <title>Neural Networks from Scratch, Part 2: Multilayer Perceptrons</title>
     <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/"/>
     <id>https://www.amirrazmjou.com/neural-networks-from-scratch-multilayer-perceptrons/</id>
