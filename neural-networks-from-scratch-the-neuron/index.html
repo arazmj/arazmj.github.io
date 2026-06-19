@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>GSoC 2015 RouteFlow Proposal &#8211; Amir Razmjou</title>
-<meta name="description" content="Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015">
+<title>Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule &#8211; Amir Razmjou</title>
+<meta name="description" content="Building a neural network from first principles with no frameworks -- just Python. Part 1: a neuron as a tiny function, why the derivative answers “which way?”, and a working scalar autograd engine (a Value class that backpropagates) that trains one neuron.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 
-<link rel="canonical" href="https://www.amirrazmjou.com/gsoc-2015-routeflow-proposal/">
+<link rel="canonical" href="https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GSoC 2015 RouteFlow Proposal">
-<meta property="og:description" content="Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015">
-<meta property="og:url" content="https://www.amirrazmjou.com/gsoc-2015-routeflow-proposal/">
-<meta property="og:image" content="https://www.amirrazmjou.com/images/og/gsoc-2015-routeflow-proposal.png">
+<meta property="og:title" content="Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule">
+<meta property="og:description" content="Building a neural network from first principles with no frameworks -- just Python. Part 1: a neuron as a tiny function, why the derivative answers “which way?”, and a working scalar autograd engine (a Value class that backpropagates) that trains one neuron.">
+<meta property="og:url" content="https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-the-neuron.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/gsoc-2015-routeflow-proposal.png">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-the-neuron.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@arazmj">
 
@@ -214,10 +214,10 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
 </style>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "GSoC 2015 RouteFlow Proposal", "description": "Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015", "image": "https://www.amirrazmjou.com/images/og/gsoc-2015-routeflow-proposal.png", "articleSection": "Networking", "datePublished": "2015-03-30", "dateModified": "2015-03-30", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/gsoc-2015-routeflow-proposal/"}, "url": "https://www.amirrazmjou.com/gsoc-2015-routeflow-proposal/", "keywords": "Networking", "inLanguage": "en"}
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule", "description": "Building a neural network from first principles with no frameworks -- just Python. Part 1: a neuron as a tiny function, why the derivative answers “which way?”, and a working scalar autograd engine (a Value class that backpropagates) that trains one neuron.", "image": "https://www.amirrazmjou.com/images/og/neural-networks-from-scratch-the-neuron.png", "articleSection": "Machine Learning", "datePublished": "2026-06-18", "dateModified": "2026-06-18", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/"}, "url": "https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/", "keywords": "Machine Learning, Neural Networks, Python", "inLanguage": "en"}
 </script>
 <!-- seo-extra -->
-<meta property="og:image:alt" content="GSoC 2015 RouteFlow Proposal">
+<meta property="og:image:alt" content="Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule">
 <meta name="twitter:creator" content="@arazmj">
 </head>
 
@@ -241,98 +241,197 @@ footer a { color: var(--muted); }
 </nav>
 
 <article>
-  <div class="post-kicker"><span>March 30, 2015</span><span class="dot"></span><span>6 min read</span></div>
-  <h1 class="post-title">GSoC 2015 RouteFlow Proposal</h1>
+  <div class="post-kicker"><span>June 18, 2026</span><span class="dot"></span><span>11 min read</span></div>
+  <h1 class="post-title">Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule</h1>
   <div class="prose">
-      <section id="table-of-contents" class="toc">
-  <header>
-    <h3>Overview</h3>
-  </header>
-<div id="drawer">
-<ul id="markdown-toc">
-  <li><a href="#executive-summary">Executive Summary</a></li>
-  <li><a href="#introduction">Introduction</a>    <ul>
-      <li><a href="#related-works">Related works</a></li>
-      <li><a href="#goals-and-objectives">Goals and Objectives</a></li>
-      <li><a href="#procedures">Procedures</a></li>
-    </ul>
-  </li>
-  <li><a href="#timeline-and-milestones">Timeline and milestones</a></li>
-</ul>
+<p>Large language models can feel like magic, and magic is a terrible way to understand anything. So I want to do the opposite: build a neural network up from a single multiplication, with <strong>no frameworks</strong> &#8212; no PyTorch, no TensorFlow, not even NumPy at first &#8212; just plain Python and a willingness to compute every derivative ourselves. By the end of this series we will have written, by hand, the same machinery that powers a <a href="https://github.com/karpathy/nanoGPT">GPT</a>: a small transformer that reads <em>tinyshakespeare</em> and dreams up more of it. But we earn that one multiply at a time.</p>
 
-  </div>
-</section>
-<!-- /#table-of-contents -->
+<p>This is Part 1. Its entire goal is to answer the question that every neural network is secretly built around: <em>if I wiggle this number, which way does the answer move?</em> Get that, and you understand backpropagation. Everything after is scale.</p>
 
-<p>Here it is my Google Summer of Code proposal for unified end-to-end tests of RouteFlow project for 2015 </p>
+<h2>Where we&#8217;re headed</h2>
 
-<h3 id="executive-summary">Executive Summary</h3>
-<p>The purpose of this paper is to propose an automated test suite for RouteFlow (RF) project. RF project has gone through reasonable number of architectural changes since its origin. The unified test project for RF aims to provide a series of tests to ensure that the integrated components of RF function as expected in both development and production environments.  It is expected this project to expedite the project development path by avoiding manual tests. The biggest impact is that developers can make changes in RF components without worrying about breaking the integrity of the whole RF framework. </p>
+<p>The series climbs a ladder, each rung a small, runnable program:</p>
 
-<h3 id="introduction">Introduction</h3>
-<p>The overall objective of this proposal is to ensure that we can cover requirements for unified test project as much possible in advance. </p>
-
-<p>As part of a developer activity, a typical RT test case scenario would be to set up a proper RT development environment, make component modifications, and verify the expected behavior change in RT while ensuring the integrity and correctness of the RT codebase being modified. For example, in the case of altering RFProtocol specification, not only must the whole RF framework be rebuilt, but the flows in switches must also be flushed and the connection between host be confirmed. </p>
-
-<p>RF provides virtualized IP routing services for OpenFlow networks.  It is mainly the integration of several interconnected and distributed systems and technologies, each built using different protocols from a variety of organizations as well as its main components developed by RF community. The verification and validation of overall system functionalities of the whole system during development can be viewed as a tedious and challenging task, taking into account possible combination of components and configurations. </p>
-
-<p>One challenging aspect is RF independency from specific routing engine implementation (i.e. Quagga, XORP, Bird), which entails the use LXC virtualization environment in order to retain multiple instances of routing engines and routing tables simultaneously in isolation, which evidently presents more complexity to the architecture as well as the virtual network connectivity of containers of components in addition to IPC mechanism of them must also be verified.</p>
-
-<p>Another challenging aspect is to embed a  portion of test scenarios as an auto-self-test module to the RT platform so end-users can take advantage of auto-self-test, to validate RT configuration regardless of underlying OpenFlow switches or network topology. </p>
-
-<h4 id="related-works">Related works</h4>
-<p>GNU AutoTest: Basically is going to be used in integrity test suite. It simplifies tests that depend on text matching it also allow us to easily put a wrapper around each test by using a macro to invoke it. It can also integrated with the project make file to make sure it is invoked as part of built process.  </p>
-
-<p>Mininet: it is a network emulator, which creates a network of virtual hosts, switches, controllers, and links. Mininet hosts run standard Linux network software, and its switches support OpenFlow for highly flexible custom routing and Software-Defined Networking.</p>
-
-<h4 id="goals-and-objectives">Goals and Objectives</h4>
-<p>Currently the RF package includes two shell scripts that automatically configure and run RF components, one illustrating a single network and the other one a network topology with four routers exchanging routes through OSPF routing protocol. The former one instantiates LXC containers representing physical hosts and while the second one employs MiniNet to create a corresponding physical network topology. </p>
-
-<p>Three main categories of requirements Connectivity tests, Component integrity test, Components integrity test for E2E tests in this proposal are going to be addressed. </p>
-
-<figure>
-    <a href="/images/routeflow.png"><img src="/images/routeflow.png" /></a>
-    <figcaption><a href="/images/routeflow.png" title="Figure 1">Integrity vs Connectivity Tests</a>.</figcaption>
-</figure>
-
-<p><strong>Connectivity tests</strong>: ensure the connectivity between end-hosts, their corresponding virtual router gateway. 
-Throughout the connectivity tests we employ both positive and negative tests by not only testing the connectivity of hosts (positive) but also ensuring that the connection can not be maintained without means of RT. Specifically by disconnecting temporarily these components (negative test) (disconnecting the controller temporarily and flush out all flows switch and running the connectivity test again). This test suit also output related matrix indicating the connectivity state of all end-hosts as an end.</p>
-
-<p><strong>Components integrity test</strong>: this test suite verifies the expected state of RF components and the connectivity between all RF components once they are all properly configured and started by initial scripts. This test suite covers the connectivity between RFVMs and the host management interface. It also verifies of RFClient, Quagga specific processes, specifically, zebra, bgpd, ospfd as well on RFVMs as well as RF-Server, OpenFlow Controller (Ryu, Floodlight, POX, NOX) and RF-Proxy, MongoDB by verifying both status of the running process and expected listening port on that process. This test suite is also responsible to verify expected version of depended components (i.e. MongoDB, Open vSwitch, Linux Kernel, etc)</p>
-
-<p><strong>Consistency tests</strong>: This test suite is suitable to expedite test cycles by restricting the system under test (SUT) limited to only to hardware or software switches which in case that the automated test of this suite compares and verifies each RFVMs routing table entries and ARP table entries with the corresponding flow entries in the datapath under the test.</p>
-
-<h4 id="procedures">Procedures</h4>
-<p><em>Warm up</em>: BGP Test rftest3: Just another shell script for RF demonstration just like rftest2 but employing BGP routing protocol instead of OSPF between virtual routers. </p>
-
-<p><em>Integrity Tests</em>: This test suite is basically a series of shell scripts and python script which are invoked by AutoTest scripts to verify RF components status, listening ports, the connection between RFVMs and the host. This test suite must possibility test anything that might go wrong with deployment of RT framework thus new tests, features must be added to package during this summer project and throughout RT project development. </p>
-
-<p><em>Connectivity Test</em>: This test suite involves development of a Mininet modules and porting older RF tests into Python. In particular Mininet module allows for even more integration between RT framework and Mininet, it also makes the definition of implementation of new test scenarios much easier in future by using both Python scripts and Mininet CLI. </p>
-
-<p>Mininet Python Module (mininet.rf): this module provides RF specific extension to Mininet main object as new collection and functions:
-o	net.rfvms: the collection representing RFVMs objects.<br />
-o	net.addRfvm(): adds a new RFVM to RF controller
-o	net.mapSwitchRfvm() as well as supplying Quagga specific configurration to specific RFVMs.
-•	Revisited Tests (rftest1.py, rftest2.py, rftest3.py) the same and behavior and functionality of rftest1, rftest2 and rftest3, except that all tests are runnable in Mininet though there will be only a single initial script to configuration and start the main components environment which will be the same main script in Vandervechen branch, projectw.sh). 
-•	Once we have needed material constructed needed infrastructure to easily reuse built-in connectivity test features of the Mininet and also implement new a new command to implement positive and negative connectivity tests on end-hosts.  </p>
-
-<p>Consistency Tests: This test suite is a Shell Script making use of AutoTest M4 scripts, which verifies RFVM routing table entries with the switch in the test. 
-Self-Tests: Merging and rftest1 and ping.py in projectw.sh 
-Documentation: RouteFlow Mininet Module (mininet.rf) API Documentation, user  documentation, instructions on how to run integrity tests, connectivity tests (using Mininet).</p>
-
-<p>In general the only RT component that will be affected is the RF-Test and in the case Vandervechen branch the script file project.sh.</p>
-
-<h3 id="timeline-and-milestones">Timeline and milestones</h3>
 <ol>
-  <li>BGP Test Scenario (rftest3) due on 16 May</li>
-  <li>MiniNet Python version of rftest1, rftest2, rftest3 due on 30 May</li>
-  <li>Consistency Tests due on 13 June</li>
-  <li>Integrity Tests due on 26 June</li>
-  <li>Consistency Tests due on 11 July</li>
-  <li>Finalizing and documenting due on 31 July</li>
+<li><strong>The neuron and the chain rule</strong> &#8212; a scalar autograd engine; train one neuron. <em>(you are here)</em></li>
+<li>Multilayer perceptrons &#8212; stack neurons into layers and backprop through them.</li>
+<li>Making it learn well &#8212; softmax, cross-entropy, and a real training loop.</li>
+<li>Language modeling, the simplest version &#8212; a character-level model that samples text.</li>
+<li>Embeddings and context &#8212; turning symbols into vectors.</li>
+<li>Graduating to tensors &#8212; the same ideas, vectorized with NumPy.</li>
+<li>Attention from scratch &#8212; keys, queries, and values.</li>
+<li>The transformer block &#8212; multi-head attention, residuals, layer norm.</li>
+<li>A tiny GPT &#8212; assemble it all and generate Shakespeare.</li>
 </ol>
 
-      
+<h2>A neuron is a very small function</h2>
+
+<p>Strip away the mystique and a neuron is just a weighted sum of its inputs, plus a bias, squashed through a nonlinearity. With two inputs:</p>
+
+<pre><code>import math
+
+def neuron(x1, x2, w1, w2, b):
+    act = x1*w1 + x2*w2 + b   # the weighted sum
+    return math.tanh(act)     # the squashing nonlinearity
+
+print(neuron(2.0, 1.0, w1=-0.6, w2=0.8, b=0.1))  # -> -0.2913...
+</code></pre>
+
+<p>That <code>tanh</code> is what makes it interesting: it bends the straight line of the weighted sum into an S-curve that saturates toward &#8722;1 and +1, which is what lets a network of these represent things a plain line never could. The weights <code>w1, w2</code> and the bias <code>b</code> are the <em>knobs</em>. &#8220;Learning&#8221; is nothing more than turning those knobs until the neuron does what we want.</p>
+
+<h2>Learning is just reducing a loss</h2>
+
+<p>To turn the knobs in the right direction we need a number that says how wrong we currently are &#8212; a <strong>loss</strong>. For a handful of examples, each with an input and a desired output, the classic choice is the mean squared error:</p>
+
+<pre><code>def loss(params):
+    w1, w2, b = params
+    xs = [(2.0, 1.0), (1.0, -1.0), (-1.0, 1.0), (-2.0, -1.0)]
+    ys = [1.0, -1.0, -1.0, -1.0]               # the targets
+    total = 0.0
+    for (x1, x2), y in zip(xs, ys):
+        pred = neuron(x1, x2, w1, w2, b)
+        total += (pred - y) ** 2               # squared error
+    return total / len(xs)
+</code></pre>
+
+<p>When the loss is large the neuron is wrong; when it&#8217;s near zero it&#8217;s right. So the whole problem reduces to a single question: <em>how should I change each weight to make this loss go down?</em></p>
+
+<h2>The derivative is the answer to &#8220;which way?&#8221;</h2>
+
+<p>The derivative of the loss with respect to a weight is exactly that: <em>if I nudge this weight up a hair, does the loss go up or down, and how fast?</em> If we know that for every weight, we just step each one a little in the direction that lowers the loss, and repeat. That&#8217;s gradient descent.</p>
+
+<p>Before we get clever, here&#8217;s the dumbest possible way to measure a derivative &#8212; literally wiggle the input and watch the output. It&#8217;s too slow for real use, but it&#8217;s an unbeatable sanity check, and it makes the idea concrete:</p>
+
+<pre><code>def numerical_gradient(params, i, h=1e-6):
+    up = list(params); up[i] += h
+    dn = list(params); dn[i] -= h
+    return (loss(up) - loss(dn)) / (2*h)   # rise over run
+
+params = [-0.6, 0.8, 0.1]
+print([round(numerical_gradient(params, i), 4) for i in range(3)])
+# -> [gradients for w1, w2, b]
+</code></pre>
+
+<p>This works, but imagine doing it for a network with a hundred million weights: you&#8217;d have to re-run the entire model a hundred million times per step. Useless. We need a way to get <em>all</em> the derivatives from a single backward pass. That way is the chain rule.</p>
+
+<h2>The chain rule, and why it&#8217;s the whole game</h2>
+
+<p>Our loss isn&#8217;t one operation; it&#8217;s a chain of them: multiply, add, <code>tanh</code>, subtract, square. The chain rule says that to find how the final output depends on some input deep inside, you multiply the local derivatives along the path connecting them. Each operation only needs to know how to differentiate <em>itself</em> &#8212; its tiny local rule &#8212; and the chain rule stitches those local rules into a global one.</p>
+
+<p>That&#8217;s the entire trick behind <strong>backpropagation</strong>: build the computation as a graph, then walk it backward from the output, multiplying local derivatives as you go, handing each node its share of the gradient. Let&#8217;s make the computer do the bookkeeping.</p>
+
+<h2>Building a tiny autograd engine</h2>
+
+<p>We&#8217;ll wrap every number in a small object that remembers how it was produced &#8212; which numbers and which operation made it &#8212; and knows its own local derivative rule. This is the heart of every deep-learning framework, in about forty lines.</p>
+
+<pre><code>class Value:
+    def __init__(self, data, _children=(), _op=''):
+        self.data = data
+        self.grad = 0.0              # d(loss)/d(self), filled in by backward()
+        self._backward = lambda: None
+        self._prev = set(_children)  # the Values that produced this one
+        self._op = _op
+
+    def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other), '+')
+        def _backward():
+            self.grad  += out.grad   # d(a+b)/da = 1
+            other.grad += out.grad   # d(a+b)/db = 1
+        out._backward = _backward
+        return out
+
+    def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other), '*')
+        def _backward():
+            self.grad  += other.data * out.grad   # d(a*b)/da = b
+            other.grad += self.data  * out.grad   # d(a*b)/db = a
+        out._backward = _backward
+        return out
+
+    def tanh(self):
+        t = math.tanh(self.data)
+        out = Value(t, (self,), 'tanh')
+        def _backward():
+            self.grad += (1 - t**2) * out.grad    # d(tanh)/dx = 1 - tanh^2
+        out._backward = _backward
+        return out
+</code></pre>
+
+<p>Notice the pattern: every operation computes its result <em>and</em> closes over a <code>_backward</code> function that knows how to push gradient from the output back to its inputs. Addition copies the gradient through; multiplication swaps the data of the two operands; <code>tanh</code> scales by <code>1 - tanh&#178;</code>. Each is a one-line fact from calculus.</p>
+
+<p>The only thing left is to run those local rules in the right order &#8212; every node must receive its full gradient from downstream <em>before</em> it passes any upstream. That ordering is a topological sort of the graph, and then a single reversed walk:</p>
+
+<pre><code>    def backward(self):
+        topo, visited = [], set()
+        def build(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build(child)
+                topo.append(v)      # children come before parents
+        build(self)
+
+        self.grad = 1.0             # d(loss)/d(loss) = 1, the seed
+        for v in reversed(topo):    # walk from output back to inputs
+            v._backward()
+</code></pre>
+
+<p>A couple of Python conveniences &#8212; <code>__radd__</code>, <code>__rmul__</code>, <code>__neg__</code>, <code>__sub__</code> &#8212; let us write <code>x*w + b</code> and <code>pred - y</code> with ordinary operators, and that&#8217;s the engine. It can differentiate any expression you build out of <code>+</code>, <code>*</code>, and <code>tanh</code>, no matter how tangled, in one pass.</p>
+
+<h2>Training one neuron</h2>
+
+<p>Now the payoff. We rebuild the neuron out of <code>Value</code>s, compute the loss, call <code>backward()</code> once to fill in every gradient, and nudge each parameter downhill. Repeat a couple hundred times.</p>
+
+<pre><code>import random
+random.seed(1)
+
+xs = [(2.0, 1.0), (1.0, -1.0), (-1.0, 1.0), (-2.0, -1.0)]
+ys = [1.0, -1.0, -1.0, -1.0]
+
+w = [Value(random.uniform(-1, 1)), Value(random.uniform(-1, 1))]
+b = Value(0.0)
+
+def forward(x):
+    return (w[0]*x[0] + w[1]*x[1] + b).tanh()
+
+lr = 0.1
+for step in range(200):
+    # forward pass: mean squared error as one big expression
+    loss = Value(0.0)
+    for x, y in zip(xs, ys):
+        diff = forward(x) - y
+        loss = loss + diff*diff
+    loss = loss * (1.0/len(xs))
+
+    for p in w + [b]:        # reset gradients
+        p.grad = 0.0
+    loss.backward()          # fill them all in, in one pass
+
+    for p in w + [b]:        # gradient-descent step
+        p.data += -lr * p.grad
+
+    if step % 40 == 0:
+        print(f"step {step:3d}  loss {loss.data:.4f}")
+</code></pre>
+
+<p>Run it, and you watch a number learn:</p>
+
+<pre><code>step   0  loss 2.2508
+step  40  loss 0.0389
+step  80  loss 0.0186
+step 120  loss 0.0120
+step 160  loss 0.0088
+</code></pre>
+
+<p>The loss falls from 2.25 to under 0.01, and the neuron&#8217;s predictions snap to the targets. Nobody told it the weights; it found them by repeatedly asking &#8220;which way?&#8221; and taking a small step. That loop &#8212; forward, <code>backward()</code>, nudge &#8212; is, with more knobs and fancier pieces bolted on, <em>exactly</em> how a GPT is trained.</p>
+
+<h2>What we built, and what&#8217;s next</h2>
+
+<p>In one sitting we wrote a working automatic-differentiation engine and used it to train a neuron from nothing. The crucial idea &#8212; the one that scales all the way to billion-parameter models &#8212; is that backpropagation is just the chain rule, applied mechanically backward over a graph of tiny local derivatives. There is no magic in the gradient; there is only bookkeeping done carefully.</p>
+
+<p>One neuron can only carve the world with a single line. In <strong>Part 2</strong> we&#8217;ll wire many of them into layers, stack the layers into a multilayer perceptron, and watch the same <code>backward()</code> we just wrote train a network that can learn shapes a single neuron never could. Same engine, more knobs &#8212; that&#8217;s the whole road to the LLM.</p>
   </div>
   <a class="back-link" href="/posts/">&#8592; All posts</a>
 </article>
@@ -340,9 +439,9 @@ Documentation: RouteFlow Mininet Module (mininet.rf) API Documentation, user  do
 <section class="related">
   <h4>You might also enjoy</h4>
   <ul class="related-grid">
-    <li><a href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">Data-Mining PCAP files using Weka and Python DPKT library</a></li>
-    <li><a href="/openstack-nova-api-direct-call/">OpenStack REST API Direct Call</a></li>
-    <li><a href="/playing-with-k-nearest-neighbors-algorithm/">Playing With K-nearest Neighbors Algorithm</a></li>
+    <li><a href="/playing-with-k-nearest-neighbors-algorithm/">Playing With k-Nearest Neighbors</a></li>
+    <li><a href="/hello-complex-networks/">Hello Complex Networks!!!</a></li>
+    <li><a href="/why-does-functional-programming-matter/">Why does functional programming matter?</a></li>
   </ul>
 </section>
 

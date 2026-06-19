@@ -5,8 +5,16 @@
   <link href="https://www.amirrazmjou.com/feed.xml" rel="self"/>
   <link href="https://www.amirrazmjou.com/"/>
   <id>https://www.amirrazmjou.com/</id>
-  <updated>2026-06-12T10:00:00Z</updated>
+  <updated>2026-06-18T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
+  <entry>
+    <title>Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule</title>
+    <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/"/>
+    <id>https://www.amirrazmjou.com/neural-networks-from-scratch-the-neuron/</id>
+    <updated>2026-06-18T10:00:00Z</updated>
+    <summary>Building a neural network from first principles with no frameworks -- just Python. Part 1: a neuron as a tiny function, why the derivative answers “which way?”, and a working scalar autograd engine (a Value class that backpropagates) that trains one neuron.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
   <entry>
     <title>Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</title>
     <link href="https://www.amirrazmjou.com/building-a-key-value-store-in-go/"/>
@@ -112,19 +120,19 @@
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
-    <title>Playing With K-nearest Neighbors Algorithm</title>
-    <link href="https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/"/>
-    <id>https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/</id>
-    <updated>2015-02-22T10:00:00Z</updated>
-    <summary>This program is an inefficient (in terms of computing and memory complexity) yet simple demonstration to implement k-nearest neighbors unsupervised classification algorithm.</summary>
-    <author><name>Amir Razmjou</name></author>
-  </entry>
-  <entry>
     <title>Why does functional programming matter?</title>
     <link href="https://www.amirrazmjou.com/why-does-functional-programming-matter/"/>
     <id>https://www.amirrazmjou.com/why-does-functional-programming-matter/</id>
     <updated>2015-02-22T10:00:00Z</updated>
-    <summary>Like any other missing feature in any programming language imperative programming languages address these problems by making more libraries with complex interfaces. Likewise any built-in language supported feature can result in code clarity, elegance and maintainability and leave the responsibility of optimization and other concerns to programming language in order to have programmers focus on their problems.</summary>
+    <summary>Revisiting John Hughes's classic argument: functional programming matters not for what it forbids but for its glue -- higher-order functions and lazy evaluation -- plus what that buys us now in testability, parallelism, and LINQ.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
+    <title>Playing With K-nearest Neighbors Algorithm</title>
+    <link href="https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/"/>
+    <id>https://www.amirrazmjou.com/playing-with-k-nearest-neighbors-algorithm/</id>
+    <updated>2015-02-22T10:00:00Z</updated>
+    <summary>A hands-on study of the k-nearest-neighbors classifier: k as a bias-variance dial, the decision threshold as a precision/recall lever, ROC/AUC, and why cross-validation and a worst-case extrapolation split change the story.</summary>
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
@@ -148,7 +156,7 @@
     <link href="https://www.amirrazmjou.com/hello-complex-networks/"/>
     <id>https://www.amirrazmjou.com/hello-complex-networks/</id>
     <updated>2014-08-26T10:00:00Z</updated>
-    <summary>I just wanted to refresh my JavaScript programming skills along with exercising my homeworks. I searched few Network Visualization JS libraries in the net I came up with VisJS. It’s pretty easy to create networks in VisJS.</summary>
+    <summary>Growing a network in the browser with vis.js and reading its degree distribution: from naive random (Erdos-Renyi) attachment to Barabasi-Albert preferential attachment, scale-free power laws, log-log plots, and why hubs make a network robust yet fragile.</summary>
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
