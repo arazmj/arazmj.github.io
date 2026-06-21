@@ -112,14 +112,6 @@
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
-    <title>OpenStack REST API Direct Call</title>
-    <link href="https://www.amirrazmjou.com/openstack-nova-api-direct-call/"/>
-    <id>https://www.amirrazmjou.com/openstack-nova-api-direct-call/</id>
-    <updated>2015-05-16T10:00:00Z</updated>
-    <summary>Some OpenStack wrapper libraries like OpenStack4j or Cloud4j does not cover all OpenStack REST API. I tried to explain a simple and general approach for OpenStack developers to perform the same common OpenStack CLI tools tasks in Java.</summary>
-    <author><name>Amir Razmjou</name></author>
-  </entry>
-  <entry>
     <title>Data-Mining PCAP files using Weka and Python DPKT library</title>
     <link href="https://www.amirrazmjou.com/data-mining-pcap-files-using-weka-and-python-dpkt-library/"/>
     <id>https://www.amirrazmjou.com/data-mining-pcap-files-using-weka-and-python-dpkt-library/</id>
