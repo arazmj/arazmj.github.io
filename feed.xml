@@ -5,8 +5,16 @@
   <link href="https://www.amirrazmjou.com/feed.xml" rel="self"/>
   <link href="https://www.amirrazmjou.com/"/>
   <id>https://www.amirrazmjou.com/</id>
-  <updated>2026-06-18T10:00:00Z</updated>
+  <updated>2026-06-23T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
+  <entry>
+    <title>The Software Stack is Collapsing</title>
+    <link href="https://www.amirrazmjou.com/the-software-stack-is-collapsing/"/>
+    <id>https://www.amirrazmjou.com/the-software-stack-is-collapsing/</id>
+    <updated>2026-06-23T10:00:00Z</updated>
+    <summary>When the primary user of software is an AI agent, the case for simple workflows and static GUIs collapses -- the shift from graphical to language interfaces, hyper-graph workflows, plain-language CI/CD, and the engineer's new job.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
   <entry>
     <title>Neural Networks from Scratch, Part 3: Softmax and Cross-Entropy</title>
     <link href="https://www.amirrazmjou.com/neural-networks-from-scratch-softmax-and-cross-entropy/"/>
