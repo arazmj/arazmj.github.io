@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -298,6 +304,10 @@ $ ping6 -I fou_test -c 1 fe80::d0b0:dfff:fe4c:fcbc
 
 <p>The IPv4 ping appeared, neatly wrapped in UDP on port 1111. The IPv6 ping didn&#8217;t. No encapsulated packet, no error thrown back at me &#8212; it just evaporated. Same tunnel, same config, two protocols: one worked, one vanished.</p>
 
+
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 800 250" role="img" aria-label="From the tunnel transmit path, IPv4 is encapsulated while IPv6 is dropped by a route-type guard."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><rect x="28.0" y="100.0" width="104" height="50" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="80" y="123" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">app</text><text x="80" y="140" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">UID 1000</text><line x1="132" y1="125" x2="190" y2="125" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="210.0" y="100.0" width="104" height="50" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="262" y="129" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">table 100</text><line x1="314" y1="125" x2="372" y2="125" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="387.0" y="96.0" width="122" height="58" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="448" y="123" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">tunnel xmit</text><text x="448" y="140" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">sit &#183; FOU</text><line x1="509" y1="110" x2="568" y2="72" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="610.0" y="52.0" width="168" height="40" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="694" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">IPv4 &#8212; encapsulated &#10003;</text><line x1="509" y1="140" x2="568" y2="182" stroke="#ff8a3d" stroke-width="1.5" marker-end="url(#ARC)"/><rect x="620.0" y="158.0" width="168" height="48" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="704" y="180" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">IPv6 &#8212; dropped &#10005;</text><text x="704" y="197" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">rt_type != UNICAST</text></svg><figcaption>Same tunnel, two protocols: IPv4 is encapsulated; IPv6 hits an <b>RTN_LOCAL</b> guard and vanishes.</figcaption></figure>
+<!-- /auto-fig -->
 <h2>The asymmetry</h2>
 
 <p>That asymmetry is what nagged at me. If the tunnel were simply broken, IPv4 would have failed too. If IPv6 were unsupported, the interface would have rejected the route outright. Instead the kernel happily encapsulated IPv4 to the peer and quietly refused to do the same for IPv6.</p>

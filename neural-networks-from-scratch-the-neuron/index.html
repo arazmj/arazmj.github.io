@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -273,6 +279,10 @@ footer a { color: var(--muted); }
 
 <p>This is Part 1. Its entire goal is to answer the question that every neural network is secretly built around: <em>if I wiggle this number, which way does the answer move?</em> Get that, and you understand backpropagation. Everything after is scale.</p>
 
+
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 640 262" role="img" aria-label="A single neuron computes a weighted sum through tanh, with gradients flowing back by the chain rule."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><circle cx="80" cy="82" r="18" fill="#7fb2e6" fill-opacity="0.10" stroke="#7fb2e6" stroke-width="1.4"/><text x="80" y="86" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#e8eef5">x1</text><circle cx="80" cy="172" r="18" fill="#7fb2e6" fill-opacity="0.10" stroke="#7fb2e6" stroke-width="1.4"/><text x="80" y="176" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#e8eef5">x2</text><line x1="98" y1="82" x2="246" y2="125" stroke="#7fb2e6" stroke-opacity="0.5" stroke-width="1.4"/><line x1="98" y1="172" x2="246" y2="125" stroke="#7fb2e6" stroke-opacity="0.5" stroke-width="1.4"/><text x="165" y="96" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">w1</text><text x="165" y="162" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">w2</text><circle cx="272" cy="127" r="26" fill="#7fb2e6" fill-opacity="0.10" stroke="#7fb2e6" stroke-width="1.4"/><text x="272" y="131" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#e8eef5">&#931;+b</text><line x1="300" y1="127" x2="362" y2="127" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="368.0" y="103.0" width="112" height="48" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="424" y="125" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">tanh</text><text x="424" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">squash</text><line x1="480" y1="127" x2="542" y2="127" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><circle cx="570" cy="127" r="20" fill="#7fb2e6" fill-opacity="0.10" stroke="#7fb2e6" stroke-width="1.4"/><text x="570" y="131" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#e8eef5">out</text><path d="M570,152 Q330,250 82,202" fill="none" stroke="#ff8a3d" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#ARC)"/><text x="250" y="238" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="10" fill="#ff8a3d" letter-spacing="1">&#8706;loss / &#8706;w &#8212; gradients flow back (chain rule)</text></svg><figcaption>A neuron is a tiny function &#8212; weighted sum, bias, <b>tanh</b> &#8212; and the chain rule pushes gradients back.</figcaption></figure>
+<!-- /auto-fig -->
 <h2>Where we&#8217;re headed</h2>
 
 <p>The series climbs a ladder, each rung a small, runnable program:</p>

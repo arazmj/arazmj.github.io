@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -271,6 +277,10 @@ footer a { color: var(--muted); }
   <div class="prose">
 <p>Here&#8217;s a deceptively simple problem: you have one big file and a crowd of clients who all want it, but only so much uplink bandwidth to give them. Hand it out too fast and you saturate the pipe and starve everything else on the box; hand it out naively and one greedy client hogs the link. What you actually want is a <em>budget</em> &#8212; a hard ceiling on total throughput, shared fairly &#8212; plus a little compression to make the most of every byte. That&#8217;s <a href="https://github.com/arazmj/JunkTransfer">JunkTransfer</a>, a rate-limited file-transfer system I wrote in Java, and it turned into a small lesson in how elegantly orthogonal concerns can stack.</p>
 
+
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 640 360" role="img" aria-label="A vertical stack of filter streams throttled by a shared token bucket."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><rect x="120.0" y="40.0" width="240" height="42" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="240.0" y="65.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">file bytes</text><rect x="120.0" y="102.0" width="240" height="42" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="240.0" y="127.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">GZIP &#183; compress</text><rect x="120.0" y="164.0" width="240" height="42" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="240.0" y="189.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">throttle</text><rect x="120.0" y="226.0" width="240" height="42" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="240.0" y="251.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">socket</text><rect x="120.0" y="288.0" width="240" height="42" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="240.0" y="313.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">the wire</text><line x1="240.0" y1="82.0" x2="240.0" y2="102.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><line x1="240.0" y1="144.0" x2="240.0" y2="164.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><line x1="240.0" y1="206.0" x2="240.0" y2="226.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><line x1="240.0" y1="268.0" x2="240.0" y2="288.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="430" y="139.0" width="172" height="92" rx="10" fill="#ff8a3d" fill-opacity="0.06" stroke="#ff8a3d" stroke-opacity="0.5"/><text x="444" y="163.0" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="11" fill="#ff8a3d" letter-spacing="1">shared token bucket</text><text x="516" y="189.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">N tokens / sec</text><text x="516" y="207.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">all clients share</text><line x1="428" y1="185.0" x2="366" y2="185.0" stroke="#ff8a3d" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ARC)"/></svg><figcaption>A stack of streams &#8212; compress, <b>throttle</b>, socket &#8212; governed by one shared token bucket.</figcaption></figure>
+<!-- /auto-fig -->
 <h2>The setup: chunks and threads</h2>
 
 <p>The server splits the file into fixed 1&#8239;MB chunks and gives each connected client one chunk, served by its own thread. The actual byte-pumping leans entirely on Guava&#8217;s <code>ByteStreams</code> &#8212; skip to this client&#8217;s offset, cap the read at one chunk, and copy:</p>

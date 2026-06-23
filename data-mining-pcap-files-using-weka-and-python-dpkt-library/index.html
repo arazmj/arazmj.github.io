@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -272,6 +278,10 @@ footer a { color: var(--muted); }
       <p>While different types of data-mining algorithms have been studied for classification of network traffics, the application of structure data mining on network flows remained almost unexplored. Also the number of protocol standards are getting numerous as more services and applications emerge into the market. Also interpretation of a certain protocol usage often requires relevant domain knowledge of the protocol. </p>
 
 <p>Meanwhile, not all protocols specifications are public due to either security reasons or regulations that standardization organization imposes to keep open standard intact as much as possible. Also simply confirming traffic flow against protocol specification doesn’t always imply legitimate usage of the service some examples are XML XXE attacks and FTP bounce attacks all perfectly match to the protocol specifications.</p>
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 720 140" role="img" aria-label="Pipeline: pcap captures are parsed by dpkt into features and classified by Weka."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><rect x="8.0" y="31.0" width="141.5" height="58" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="78.75" y="58.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">.pcap</text><text x="78.75" y="75.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">captured flows</text><line x1="155.5" y1="60.0" x2="189.5" y2="60.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="195.5" y="31.0" width="141.5" height="58" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="266.25" y="58.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">dpkt</text><text x="266.25" y="75.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">parse + features</text><line x1="343.0" y1="60.0" x2="377.0" y2="60.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="383.0" y="31.0" width="141.5" height="58" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="453.75" y="58.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">Weka</text><text x="453.75" y="75.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">classifier</text><line x1="530.5" y1="60.0" x2="564.5" y2="60.0" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="570.5" y="31.0" width="141.5" height="58" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="641.25" y="58.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">verdict</text><text x="641.25" y="75.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">benign / malicious</text></svg><figcaption>Raw capture &#8594; features with <b>dpkt</b> &#8594; a Weka classifier that flags malicious flows.</figcaption></figure>
+<!-- /auto-fig -->
+
 
 <p>The objective of this experiment is to examine the possibility of intrusion detection assuming that there is no prior knowledge about the protocol specification at hand. I  expected this approach to have several advantages: </p>
 

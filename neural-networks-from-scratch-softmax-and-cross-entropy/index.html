@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -273,6 +279,10 @@ footer a { color: var(--muted); }
 
 <p>(Part 3 of a from-scratch, no-frameworks series. We build on the <code>Value</code> engine from <a href="/neural-networks-from-scratch-the-neuron/">Part 1</a> and the <code>MLP</code> from <a href="/neural-networks-from-scratch-multilayer-perceptrons/">Part 2</a>.)</p>
 
+
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 740 236" role="img" aria-label="Logits pass through softmax into a probability distribution scored by cross-entropy."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><text x="40" y="40" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="11" fill="#8fa6be" letter-spacing="1">LOGITS</text><rect x="69.0" y="54.0" width="86" height="32" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="112" y="74" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">2.0</text><rect x="69.0" y="102.0" width="86" height="32" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="112" y="122" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">1.0</text><rect x="69.0" y="150.0" width="86" height="32" rx="9" fill="#7fb2e6" fill-opacity="0.07" stroke="#7fb2e6" stroke-opacity="0.4"/><text x="112" y="170" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e8eef5">0.1</text><line x1="158" y1="118" x2="232" y2="118" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="244.0" y="92.0" width="112" height="52" rx="9" fill="#ff8a3d" fill-opacity="0.12" stroke="#ff8a3d"/><text x="300" y="116" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12.5" fill="#e8eef5">softmax</text><text x="300" y="133" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#8fa6be">normalise</text><line x1="356" y1="118" x2="430" y2="118" stroke="#7fb2e6" stroke-width="1.5" marker-end="url(#AR)"/><rect x="450" y="59" width="165" height="24" rx="4" fill="#ff8a3d" fill-opacity="0.45" stroke="#ff8a3d" stroke-opacity="0.6"/><text x="649" y="76" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">A: 0.66</text><rect x="450" y="105" width="60" height="24" rx="4" fill="#7fb2e6" fill-opacity="0.45" stroke="#7fb2e6" stroke-opacity="0.6"/><text x="544" y="122" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">B: 0.24</text><rect x="450" y="151" width="25" height="24" rx="4" fill="#7fb2e6" fill-opacity="0.45" stroke="#7fb2e6" stroke-opacity="0.6"/><text x="509" y="168" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="10" fill="#8fa6be">C: 0.10</text><text x="450" y="214" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="10" fill="#ff8a3d" letter-spacing="1">cross-entropy = &#8722;log p(correct class)</text></svg><figcaption>Softmax turns logits into probabilities; <b>cross-entropy</b> punishes the gap to the true class.</figcaption></figure>
+<!-- /auto-fig -->
 <h2>Why squared error is the wrong loss</h2>
 
 <p>Suppose a network must sort inputs into three classes. With squared error you&#8217;d force it to regress toward numeric labels &#8212; 0, 1, 2 &#8212; which quietly tells the model that class 2 is &#8220;twice&#8221; class 1 and that 1 sits &#8220;between&#8221; 0 and 2. That ordering is a fiction; the classes are just names. What we really want is for the network to output a <em>probability distribution</em> over the classes &#8212; &#8220;70% class A, 20% B, 10% C&#8221; &#8212; and a loss that rewards putting probability on the right answer. Squared error gives us neither. Softmax and cross-entropy give us both.</p>

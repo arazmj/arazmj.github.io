@@ -244,6 +244,12 @@ footer a { color: var(--muted); }
   nav .links{gap:10px}
 }
 </style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
 </head>
 
 <body>
@@ -275,6 +281,10 @@ footer a { color: var(--muted); }
 
 <p>So I built a small kNN classifier over a two-dimensional dataset and studied how its two dials &#8212; the number of neighbors <code>k</code> and the decision threshold &#8212; change its behavior, validated three different ways.</p>
 
+
+<!-- auto-fig -->
+<figure class="fig"><svg viewBox="0 0 620 330" role="img" aria-label="A query point classified by majority vote among its three nearest neighbours."><defs><marker id="AR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#7fb2e6"/></marker><marker id="ARC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff8a3d"/></marker></defs><circle cx="118" cy="221" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="197" cy="103" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="152" cy="224" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="179" cy="230" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="206" cy="86" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="213" cy="73" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="178" cy="136" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="199" cy="129" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="107" cy="253" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="178" cy="208" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="198" cy="191" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="159" cy="233" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="96" cy="129" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="220" cy="108" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="191" cy="169" r="5" fill="#7fb2e6" fill-opacity="0.75"/><circle cx="549" cy="73" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="531" cy="268" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="376" cy="110" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="554" cy="221" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="370" cy="147" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="559" cy="77" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="428" cy="191" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="512" cy="254" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="459" cy="252" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="469" cy="171" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="546" cy="275" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="507" cy="183" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="394" cy="163" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="384" cy="79" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="394" cy="196" r="5" fill="#ff8a3d" fill-opacity="0.75"/><circle cx="305" cy="176" r="74" fill="none" stroke="#8fa6be" stroke-opacity="0.7" stroke-dasharray="4 4"/><circle cx="305" cy="176" r="7" fill="#e8eef5"/><text x="305" y="90" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#8fa6be" letter-spacing="1">k = 3</text><circle cx="262" cy="150" r="5" fill="#7fb2e6"/><circle cx="350" cy="150" r="5" fill="#ff8a3d"/><circle cx="300" cy="240" r="5" fill="#7fb2e6"/></svg><figcaption>A query point takes the majority label of its <b>k</b> nearest neighbours &#8212; k is a bias/variance dial.</figcaption></figure>
+<!-- /auto-fig -->
 <h2 id="the-algorithm">The algorithm, in a handful of lines</h2>
 
 <p>The core is almost insultingly simple: measure the distance to every stored point, keep the nearest <code>k</code>, and take a (thresholded) vote.</p>
