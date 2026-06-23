@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Amir Razmjou — Software Engineer</title>
+<title>Amir Razmjou &mdash; Software Engineer</title>
 <meta name="description" content="Amir Razmjou — software engineer working on networked and distributed systems.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Amir Razmjou">
@@ -25,496 +25,109 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --bg: #070a12;
-  --surface: rgba(255, 255, 255, 0.04);
-  --border: rgba(255, 255, 255, 0.09);
-  --text: #e6e9f0;
-  --muted: #8b93a7;
-  --accent-1: #5eead4;
-  --accent-2: #818cf8;
-  --accent-3: #c084fc;
+:root{
+  --blueprint:#0a2540;--deep:#07192c;--graticule:rgba(120,170,220,.12);
+  --ink:#e8eef5;--dim:#8fa6be;--prose:#cdd8e6;--signal:#ff8a3d;
+  --field:rgba(120,170,220,.28);--cyan:#7fb2e6;--surface:rgba(120,170,220,.05);--border:rgba(120,170,220,.16);
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  font-size: 17px;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-h1, h2, h3 { font-family: "Space Grotesk", "Inter", sans-serif; }
-
-#space {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  opacity: 0;
-  transition: opacity 1.4s ease 0.1s;
-}
-
-.vignette {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(129, 140, 248, 0.08), transparent 60%),
-    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 10, 18, 0.9));
-}
-
-.wrap {
-  position: relative;
-  z-index: 2;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* ---------- nav ---------- */
-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28px 0;
-}
-
-.monogram {
-  font-family: "Space Grotesk", sans-serif;
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 6px 12px;
-  background: var(--surface);
-  backdrop-filter: blur(8px);
-}
-
-.monogram span { color: var(--accent-1); }
-
-nav .links { display: flex; gap: 26px; }
-
-nav .links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 15px;
-  transition: color 0.2s;
-}
-
-nav .links a:hover { color: var(--text); }
-
-/* ---------- hero ---------- */
-header {
-  min-height: 78vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px 0 60px;
-}
-
-.kicker {
-  color: var(--accent-1);
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 15px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-
-h1 {
-  font-size: clamp(44px, 8vw, 84px);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -1.5px;
-  background: linear-gradient(120deg, var(--text) 30%, var(--accent-2) 70%, var(--accent-3));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.tagline {
-  margin-top: 22px;
-  max-width: 560px;
-  font-size: 19px;
-  color: var(--muted);
-  text-shadow: 0 1px 14px rgba(7, 10, 18, 0.9);
-}
-
-
-
-.hero-links { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text);
-  padding: 11px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  backdrop-filter: blur(8px);
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  border-color: rgba(94, 234, 212, 0.4);
-  box-shadow: 0 8px 30px rgba(94, 234, 212, 0.12);
-}
-
-.btn.primary {
-  background: linear-gradient(120deg, rgba(94, 234, 212, 0.14), rgba(129, 140, 248, 0.14));
-  border-color: rgba(94, 234, 212, 0.35);
-}
-
-.btn svg { width: 17px; height: 17px; fill: currentColor; }
-
-/* ---------- sections ---------- */
-section { padding: 70px 0; }
-
-h2 {
-  font-size: 15px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--accent-1);
-  font-weight: 500;
-  margin-bottom: 28px;
-}
-
-.about-grid {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 48px;
-  align-items: start;
-}
-
-.about-grid > div:first-child {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 26px 28px;
-  backdrop-filter: blur(12px);
-}
-
-.about-grid p { color: var(--muted); margin-bottom: 16px; }
-.about-grid p:last-child { margin-bottom: 0; }
-
-.about-grid p strong, .tagline strong {
-  background: linear-gradient(110deg, var(--accent-1), var(--accent-2) 55%, var(--accent-3));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
-}
-
-.chips { display: flex; flex-wrap: wrap; gap: 10px; }
-
-.chip {
-  font-size: 14px;
-  color: var(--text);
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  white-space: nowrap;
-}
-
-/* ---------- writing cards ---------- */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 18px;
-  perspective: 1200px;
-}
-
-.card {
-  position: relative;
-  display: block;
-  text-decoration: none;
-  padding: 26px 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  backdrop-filter: blur(8px);
-  transform-style: preserve-3d;
-  transition: border-color 0.25s, box-shadow 0.25s;
-  will-change: transform;
-}
-
-.card:hover {
-  border-color: rgba(129, 140, 248, 0.45);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 40px rgba(129, 140, 248, 0.08);
-}
-
-/* glare highlight that follows the cursor */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(129, 140, 248, 0.13), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.25s;
-  pointer-events: none;
-}
-
-.card:hover::before { opacity: 1; }
-
-.card .tag {
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--accent-1);
-  transform: translateZ(30px);
-  display: inline-block;
-}
-
-.card h3 {
-  margin: 10px 0 8px;
-  font-size: 19px;
-  font-weight: 500;
-  color: var(--text);
-  line-height: 1.35;
-  transform: translateZ(40px);
-}
-
-.card p {
-  font-size: 14.5px;
-  color: var(--muted);
-  transform: translateZ(20px);
-}
-
-/* ---------- contact ---------- */
-#contact { text-align: center; padding-bottom: 110px; }
-
-#contact .big {
-  background: linear-gradient(110deg, var(--text) 30%, var(--accent-2) 70%, var(--accent-3));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(28px, 5vw, 44px);
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  margin-bottom: 14px;
-}
-
-#contact p { color: var(--muted); max-width: 460px; margin: 0 auto 32px; }
-
-footer {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  color: var(--muted);
-  font-size: 13.5px;
-  padding: 30px 0 40px;
-  border-top: 1px solid var(--border);
-}
-
-/* ---------- motion: hero entrance + scroll reveals ---------- */
-.kicker, header h1, .tagline, .hero-links {
-  opacity: 0;
-  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
-}
-header h1 { animation-delay: 0.12s; }
-.tagline { animation-delay: 0.26s; }
-.hero-links { animation-delay: 0.4s; }
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: none; }
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(34px) perspective(800px) rotateX(6deg);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.reveal.in { opacity: 1; transform: none; }
-
-/* once revealed, cards get a snappy transition so the 3D tilt feels live */
-.card.reveal.in {
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.15s ease-out;
-}
-
-@media (max-width: 760px) {
-  .about-grid { grid-template-columns: 1fr; gap: 28px; }
-  nav .links { gap: 18px; }
-  header { min-height: 64vh; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .btn, .card { transition: none; }
-  .kicker, header h1, .tagline, .hero-links { animation: none; opacity: 1; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-  #space { transition: none; }
-}
-
-/* ============================================================
-   EXTRAORDINARY LAYER — depth, parallax, holographic accents
-   ============================================================ */
-@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-
-/* scroll-progress beam */
-#progress {
-  position: fixed; top: 0; left: 0; height: 3px; width: 0;
-  z-index: 6; pointer-events: none;
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2) 50%, var(--accent-3));
-  box-shadow: 0 0 18px rgba(129, 140, 248, 0.7);
-}
-
-/* cursor-tracking spotlight */
-#spotlight {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  mix-blend-mode: screen;
-  background: radial-gradient(420px circle at var(--sx, 50%) var(--sy, -30%),
-              rgba(129, 140, 248, 0.10), rgba(94, 234, 212, 0.05) 40%, transparent 65%);
-}
-
-/* animated gradient text */
-h1, #contact .big { background-size: 220% 220%; animation: shimmer 9s ease-in-out infinite; }
-@keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-
-/* glowing aura behind the hero headline */
-header { position: relative; }
-.hero-aura {
-  position: absolute; z-index: -1; pointer-events: none;
-  width: min(700px, 88vw); height: 380px; left: -36px; top: 14%;
-  background:
-    radial-gradient(closest-side, rgba(94, 234, 212, 0.16), transparent 70%),
-    radial-gradient(closest-side, rgba(192, 132, 252, 0.15), transparent 72%);
-  background-position: 0 0, 65% 35%; background-repeat: no-repeat;
-  filter: blur(30px);
-  animation: aura 12s ease-in-out infinite alternate;
-}
-@keyframes aura {
-  from { transform: translate3d(-14px, -8px, 0) scale(1); opacity: 0.8; }
-  to   { transform: translate3d(20px, 14px, 0) scale(1.08); opacity: 1; }
-}
-
-/* parallax layers (driven by JS) */
-[data-depth] { will-change: transform; }
-
-/* nav: sticky, intensifying glass */
-nav {
-  position: sticky; top: 0; z-index: 5;
-  border-bottom: 1px solid transparent;
-  transition: padding 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
-}
-nav.scrolled {
-  padding: 14px 16px; margin: 0 -16px;
-  background: rgba(7, 10, 18, 0.55);
-  backdrop-filter: blur(14px) saturate(1.2);
-  border-bottom-color: var(--border);
-}
-
-.monogram { animation: float 6s ease-in-out infinite; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-
-.btn { will-change: transform; }
-
-/* scroll cue */
-.scroll-cue {
-  margin-top: 50px; width: 26px; height: 42px; border-radius: 14px;
-  border: 1px solid var(--border); position: relative; opacity: 0.6;
-}
-.scroll-cue::after {
-  content: ""; position: absolute; left: 50%; top: 9px; width: 4px; height: 8px;
-  border-radius: 2px; background: var(--accent-1); transform: translateX(-50%);
-  animation: cue 1.9s ease-in-out infinite;
-}
-@keyframes cue {
-  0% { opacity: 0; transform: translate(-50%, 0); }
-  30% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, 15px); }
-}
-
-/* holographic animated border on cards (hover) */
-.card::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
-  background: conic-gradient(from var(--ang, 0deg),
-    rgba(94, 234, 212, 0), rgba(94, 234, 212, 0.7), rgba(129, 140, 248, 0.7),
-    rgba(192, 132, 252, 0.7), rgba(94, 234, 212, 0));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  opacity: 0; transition: opacity 0.3s; pointer-events: none;
-}
-.card:hover::after { opacity: 1; animation: spin-ang 4s linear infinite; }
-@keyframes spin-ang { to { --ang: 360deg; } }
-
-/* chips: 3D lift */
-.chips { perspective: 600px; }
-.chip { transition: transform 0.2s ease, border-color 0.2s, box-shadow 0.2s; }
-.chip:hover {
-  transform: translateY(-3px) translateZ(10px);
-  border-color: rgba(94, 234, 212, 0.5);
-  box-shadow: 0 8px 24px rgba(94, 234, 212, 0.12);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  h1, #contact .big, .hero-aura, .monogram { animation: none; }
-  #spotlight, #progress { display: none; }
-  [data-depth] { transform: none !important; }
-  .card:hover::after { animation: none; }
-  .scroll-cue::after { animation: none; }
-}
-
-/* command palette */
-#cmdk-overlay { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(4,6,12,0.6); backdrop-filter: blur(4px); }
-#cmdk-overlay.open { display: block; }
-#cmdk { position: absolute; top: 14vh; left: 50%; transform: translateX(-50%); width: min(560px, 92vw);
-  background: rgba(16,20,32,0.96); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden; font-family: "Inter", system-ui, sans-serif; }
-#cmdk input { width: 100%; border: 0; outline: 0; background: transparent; color: #e6e9f0;
-  font-size: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-#cmdk-list { list-style: none; margin: 0; padding: 6px; max-height: 46vh; overflow-y: auto; }
-#cmdk-list li { padding: 11px 14px; border-radius: 10px; color: #c5ccda; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
-#cmdk-list li .sub { color: #6b7394; font-size: 12px; align-self: center; white-space: nowrap; }
-#cmdk-list li.sel, #cmdk-list li:hover { background: rgba(129,140,248,0.16); color: #fff; }
-#cmdk-empty { padding: 18px 20px; color: #6b7394; font-size: 14px; }
-#cmdk-hint { padding: 9px 16px; border-top: 1px solid rgba(255,255,255,0.07); color: #6b7394; font-size: 12px; display: flex; gap: 14px; }
-@media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--blueprint);color:var(--ink);font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.grid,.vign{position:fixed;inset:0;z-index:0;pointer-events:none}
+.grid{background:linear-gradient(var(--graticule) 1px,transparent 1px),linear-gradient(90deg,var(--graticule) 1px,transparent 1px);background-size:30px 30px;mask:radial-gradient(135% 100% at 50% 0%,#000 60%,transparent 100%);-webkit-mask:radial-gradient(135% 100% at 50% 0%,#000 60%,transparent 100%)}
+.vign{background:radial-gradient(120% 90% at 50% -10%,rgba(255,138,61,.05),transparent 45%),radial-gradient(100% 80% at 50% 110%,var(--deep),transparent 60%)}
+.wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:0 28px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:4px}
+.mlabel{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--signal)}
+nav{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:22px 0;transition:.3s;border-bottom:1px solid transparent}
+nav.scrolled{background:rgba(7,25,44,.72);backdrop-filter:blur(14px) saturate(1.2);border-bottom-color:var(--graticule);padding:14px 16px;margin:0 -16px}
+.monogram{font-family:"Martian Mono",monospace;font-weight:700;font-size:15px;letter-spacing:-.5px;color:var(--ink);text-decoration:none}
+.monogram b{color:var(--signal)}
+nav .links{display:flex;gap:22px;font-family:"JetBrains Mono",monospace;font-size:13px}
+nav .links a{color:var(--dim);text-decoration:none;transition:color .2s}
+nav .links a:hover,nav .links a:focus-visible,nav .links a.active{color:var(--signal)}
+section{padding:46px 0}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px;border-bottom:1px solid var(--graticule);padding-bottom:12px}
+.section-head a.more{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim);text-decoration:none;white-space:nowrap}
+.section-head a.more:hover{color:var(--signal)}
+.cap-wrap{overflow-x:auto}
+.cap{width:100%;border-collapse:collapse;font-size:15px}
+.cap thead th{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;border-bottom:1px solid var(--field);white-space:nowrap}
+.cap td{padding:13px 12px;border-bottom:1px solid var(--graticule);vertical-align:baseline}
+.cap tbody tr{transition:background .15s}
+.cap tbody tr:hover{background:rgba(255,138,61,.06)}
+.cap .no,.cap .time,.cap .len{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--dim);white-space:nowrap}
+.cap .info{min-width:260px}
+.cap .info a{color:var(--ink);text-decoration:none;font-weight:500}
+.cap .info a:hover{color:var(--signal)}
+.cap .info .desc{display:block;color:var(--dim);font-size:13.5px;margin-top:3px;font-weight:400;line-height:1.45}
+.cap .mark{color:var(--signal);font-family:"JetBrains Mono",monospace;text-align:center}
+.cap tr.hidden{display:none}
+footer{position:relative;z-index:2;padding:36px 0;border-top:1px solid var(--graticule);margin-top:28px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:var(--dim);text-decoration:none}
+footer a:hover{color:var(--signal)}
+#cmdk-overlay{position:fixed;inset:0;z-index:50;display:none;background:rgba(4,12,22,.6);backdrop-filter:blur(4px)}
+#cmdk-overlay.open{display:block}
+#cmdk{position:absolute;top:14vh;left:50%;transform:translateX(-50%);width:min(560px,92vw);background:rgba(10,30,52,.97);border:1px solid var(--field);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden;font-family:"JetBrains Mono",monospace}
+#cmdk input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);font-size:15px;font-family:"JetBrains Mono",monospace;padding:18px 20px;border-bottom:1px solid var(--graticule)}
+#cmdk-list{list-style:none;margin:0;padding:6px;max-height:46vh;overflow-y:auto}
+#cmdk-list li{padding:11px 14px;border-radius:9px;color:var(--prose);font-size:14px;cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+#cmdk-list li .sub{color:var(--dim);font-size:11px;align-self:center;white-space:nowrap}
+#cmdk-list li.sel,#cmdk-list li:hover{background:rgba(255,138,61,.14);color:var(--ink)}
+#cmdk-empty{padding:18px 20px;color:var(--dim);font-size:14px}
+#cmdk-hint{padding:9px 16px;border-top:1px solid var(--graticule);color:var(--dim);font-size:11px;display:flex;gap:14px}
+@media(max-width:680px){.cap .len,.cap thead .len{display:none}.cap .info .desc{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}#cmdk-overlay{backdrop-filter:none}}
+
+header{padding:46px 0 28px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--signal);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 12px var(--signal)}
+.wire{position:relative;height:2px;background:linear-gradient(90deg,transparent,var(--field),transparent);margin:0 0 26px}
+.packet{position:absolute;top:-3px;left:0;width:46px;height:8px;border-radius:6px;background:linear-gradient(90deg,transparent,var(--signal));box-shadow:0 0 16px var(--signal);opacity:0}
+.datagram{border:1px solid var(--field);border-radius:10px;background:rgba(7,25,44,.55);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.bitruler{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--dim);display:flex;justify-content:space-between;padding:8px 16px 8px 72px;border-bottom:1px solid var(--graticule);letter-spacing:1px}
+.drow{display:grid;grid-template-columns:56px 116px 1fr;border-bottom:1px solid var(--graticule)}
+.drow:last-child{border-bottom:0}
+.drow .off{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);opacity:.6;padding:19px 0 0 16px}
+.drow .f{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:16px;border-left:1px solid var(--graticule);border-right:1px solid var(--graticule);background:rgba(120,170,220,.04)}
+.drow .v{padding:14px 18px;display:flex;align-items:center;min-height:56px}
+.v .big{font-family:"Martian Mono",monospace;font-weight:700;font-size:clamp(26px,4.4vw,40px);letter-spacing:-1px;color:var(--ink)}
+.v .role{font-family:"Martian Mono",monospace;font-weight:500;font-size:clamp(15px,2.2vw,19px);color:var(--ink)}
+.v .pay{font-size:19px;color:var(--ink)}
+.v .pay em{color:var(--signal);font-style:normal}
+.type::after{content:"";display:inline-block;width:.55ch;height:1.05em;background:var(--signal);margin-left:2px;transform:translateY(2px);animation:blink 1s steps(1) infinite}
+.type.done::after{display:none}
+@keyframes blink{50%{opacity:0}}
+.tagline{font-size:20px;color:var(--prose);margin:26px 2px 0;max-width:62ch}
+.tagline strong{color:var(--ink);font-weight:600}
+.hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.hero-links a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);border:1px solid var(--field);border-radius:7px;padding:9px 15px;transition:.2s}
+.hero-links a:hover,.hero-links a:focus-visible{border-color:var(--signal);color:var(--signal);transform:translateY(-2px)}
+.hero-links a.primary{background:rgba(255,138,61,.12);border-color:rgba(255,138,61,.4)}
+.hero-links a .br{color:var(--dim)}
+.about p{margin:0 0 18px;color:var(--prose);max-width:64ch}
+.about strong{color:var(--ink)}
+.flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12px}
+.flags span{border:1px solid var(--border);border-radius:6px;padding:6px 11px;color:var(--dim);background:var(--surface)}
+.contact .big{font-family:"Martian Mono",monospace;font-weight:700;font-size:clamp(30px,6vw,52px);letter-spacing:-1.5px;color:var(--ink);margin-bottom:14px}
+.contact p{color:var(--prose);margin-bottom:22px;max-width:54ch}
+@media(max-width:560px){.drow{grid-template-columns:0 92px 1fr}.drow .off{display:none;padding:0}.bitruler{padding-left:16px}}
 </style>
-<!-- seo-extra -->
-<meta property="og:site_name" content="Amir Razmjou">
-<meta property="og:locale" content="en_US">
-<meta property="og:image:alt" content="Amir Razmjou — Software Engineer">
-<meta name="twitter:creator" content="@arazmj">
-<link href="https://www.amirrazmjou.com/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/", "jobTitle": "Software Engineer", "image": "https://www.amirrazmjou.com/images/og/home.png", "sameAs": ["https://github.com/arazmj", "https://www.linkedin.com/in/amirrazmjou/", "https://stackoverflow.com/users/2101029"], "knowsAbout": ["Distributed Systems", "Networking", "Cloud Infrastructure", "Performance", "Rust", "Go"]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/", "inLanguage": "en", "author": {"@type": "Person", "name": "Amir Razmjou"}}</script>
+<style id="bg-anim">.grid{animation:gridpan 26s linear infinite}@keyframes gridpan{to{background-position:30px 30px}}@media(prefers-reduced-motion:reduce){.grid{animation:none}}</style>
 </head>
 <body>
-
-<canvas id="space" aria-hidden="true"></canvas>
-<div class="vignette" aria-hidden="true"></div>
-<div id="spotlight" aria-hidden="true"></div>
-<div id="progress" aria-hidden="true"></div>
+<div class="grid" aria-hidden="true"></div>
+<div class="vign" aria-hidden="true"></div>
 
 <div class="wrap">
 
 <nav>
-  <a class="monogram" href="/">AR<span>.</span></a>
+  <a class="monogram" href="/">AR<b>//</b></a>
   <div class="links">
     <a href="#about">About</a>
     <a href="#writing">Writing</a>
@@ -523,717 +136,109 @@ nav.scrolled {
 </nav>
 
 <header>
-  <div class="hero-aura" aria-hidden="true"></div>
-  <div class="kicker" data-depth="6">Amir Razmjou</div>
-  <h1 data-depth="14">Software<br>Engineer.</h1>
-  <p class="tagline" data-depth="8">I build <strong>networked and distributed systems</strong> — from packet-level plumbing to cloud infrastructure — with a soft spot for simplicity and functional programming.</p>
-  <div class="hero-links" data-depth="10">
-    <a class="btn primary" href="mailto:arazmj@gmail.com">
-      <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4.24-8 5-8-5V6.5l8 5 8-5v1.74z"/></svg>
-      Email
-    </a>
-    <a class="btn" href="https://github.com/arazmj" rel="me">
-      <svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.16 1.18a11 11 0 0 1 5.76 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
-      GitHub
-    </a>
-    <a class="btn" href="https://stackoverflow.com/users/2101029" rel="me">
-      <svg viewBox="0 0 24 24"><path d="M17.36 20.2v-5.38h1.79V22H3v-7.18h1.8v5.38h12.56zM6.77 14.32l.37-1.76 8.79 1.85-.37 1.76-8.79-1.85zm1.16-4.21.74-1.64 8.14 3.78-.74 1.64-8.14-3.78zm2.26-3.99 1.13-1.4 6.91 5.75-1.13 1.4-6.91-5.75zM14.65 2l5.36 7.21-1.44 1.07-5.36-7.21L14.65 2zM6.59 18.41v-1.8h8.98v1.8H6.59z"/></svg>
-      Stack Overflow
-    </a>
-    <a class="btn" href="https://www.linkedin.com/in/amirrazmjou/" rel="me">
-      <svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-      LinkedIn
-    </a>
+  <div class="kicker"><span class="dot"></span>capture &middot; 1 packet &middot; decoding</div>
+  <div class="wire"><div class="packet" id="packet"></div></div>
+  <div class="datagram" id="datagram">
+    <div class="bitruler"><span>0</span><span>8</span><span>16</span><span>24</span><span>31</span></div>
+    <div class="drow">
+      <div class="off">0x00</div><div class="f">name</div>
+      <div class="v"><span class="big type" data-text="Amir Razmjou"></span></div>
+    </div>
+    <div class="drow">
+      <div class="off">0x10</div><div class="f">role</div>
+      <div class="v"><span class="role type" data-text="Software Engineer"></span></div>
+    </div>
+    <div class="drow">
+      <div class="off">0x20</div><div class="f">payload</div>
+      <div class="v"><span class="pay type" data-text="networked &amp; distributed systems"></span></div>
+    </div>
   </div>
-  <div class="scroll-cue" aria-hidden="true"></div>
+  <p class="tagline">I build <strong>networked and distributed systems</strong> &mdash; from packet-level plumbing to cloud infrastructure &mdash; with a soft spot for simplicity and functional programming.</p>
+  <div class="hero-links">
+    <a class="primary" href="mailto:arazmj@gmail.com"><span class="br">$</span> email</a>
+    <a href="https://github.com/arazmj" rel="me"><span class="br">$</span> github</a>
+    <a href="https://stackoverflow.com/users/2101029" rel="me"><span class="br">$</span> stackoverflow</a>
+    <a href="https://www.linkedin.com/in/amirrazmjou/" rel="me"><span class="br">$</span> linkedin</a>
+  </div>
 </header>
 
-<section id="about">
-  <h2>About</h2>
-  <div class="about-grid">
-    <div>
-      <p>I'm a software engineer with a background that runs from <strong>network research</strong> — SDN, OpenFlow, traffic analysis — to <strong>cloud infrastructure</strong> and data-heavy backend systems.</p>
-      <p>I started out building business intelligence into collaboration products, spent grad school deep in computer networks at Florida Tech, and have been shipping production systems ever since. The throughline: making complex systems <strong>visible, fast, and simple</strong>.</p>
-    </div>
-    <div class="chips">
-      <span class="chip">Distributed Systems</span>
-      <span class="chip">Networking &amp; SDN</span>
-      <span class="chip">Cloud Infrastructure</span>
-      <span class="chip">Performance</span>
-      <span class="chip">Functional Programming</span>
-      <span class="chip">Data Visualization</span>
-    </div>
+<section id="about" class="about">
+  <div class="section-head"><h2 class="mlabel">// about</h2></div>
+  <p>I'm a software engineer whose background runs from <strong>network research</strong> &mdash; SDN, OpenFlow, traffic analysis &mdash; to <strong>cloud infrastructure</strong> and data-heavy backend systems.</p>
+  <p>I started out building business intelligence into collaboration products, spent grad school deep in computer networks at Florida Tech, and have been shipping production systems ever since. The throughline: making complex systems <strong>visible, fast, and simple</strong>.</p>
+  <div class="flags">
+    <span>distributed-systems</span><span>networking/sdn</span><span>cloud-infra</span><span>performance</span><span>functional-programming</span><span>data-viz</span>
   </div>
 </section>
 
 <section id="writing">
-  <h2>Selected Writing</h2>
-  <div class="cards">
-    <a class="card" href="/neural-networks-from-scratch-softmax-and-cross-entropy/">
-      <span class="tag">Machine Learning · Python</span>
-      <h3>Neural Networks from Scratch, Part 3</h3>
-      <p>Softmax and cross-entropy — why squared error is wrong for classification, extending the autograd engine with exp/log/div, and the exact loss every LLM trains with.</p>
-    </a>
-    <a class="card" href="/neural-networks-from-scratch-multilayer-perceptrons/">
-      <span class="tag">Machine Learning · Python</span>
-      <h3>Neural Networks from Scratch, Part 2</h3>
-      <p>Why a single neuron can't learn XOR, and how stacking neurons into layers solves it — Neuron, Layer, MLP, trained by the very same backward() from Part 1.</p>
-    </a>
-    <a class="card" href="/neural-networks-from-scratch-the-neuron/">
-      <span class="tag">Machine Learning · Python</span>
-      <h3>Neural Networks from Scratch, Part 1</h3>
-      <p>Building a neural net from first principles, no frameworks — a neuron as a tiny function, the chain rule, and a working scalar autograd engine that trains one neuron.</p>
-    </a>
-    <a class="card" href="/building-a-search-engine-in-rust/">
-      <span class="tag">Rust · Search</span>
-      <h3>Building a Search Engine in Rust</h3>
-      <p>A Semaphore-bounded Tokio web crawler, an inverted index, and BM25 ranking that beats naive keyword counting — crawl, index, rank in a few hundred lines.</p>
-    </a>
-    <a class="card" href="/declarative-network-chaos-with-ebpf/">
-      <span class="tag">Kubernetes · eBPF</span>
-      <h3>NetChaos: Declarative Network Chaos with eBPF</h3>
-      <p>Describe network faults as Kubernetes CRDs, drive them with an operator reconcile loop, and deliver packet drops at kernel speed with eBPF.</p>
-    </a>
-    <a class="card" href="/snake-on-a-cube-rust-wasm/">
-      <span class="tag">Rust · WebAssembly</span>
-      <h3>Snake on a Cube</h3>
-      <p>3D Snake crawling across all six faces of a cube, compiled to WebAssembly with three-d. The whole game lives in the seams where one face's coordinates meet another's.</p>
-    </a>
-    <a class="card" href="/building-an-s3-object-store-in-rust/">
-      <span class="tag">Rust · Storage</span>
-      <h3>Reimplementing S3 from Scratch in Rust</h3>
-      <p>An S3-compatible object store: filesystem-backed objects, multipart upload assembly, and versioning with delete markers — where the real difficulty is the metadata, not the bytes.</p>
-    </a>
-    <a class="card" href="/a-linux-kernel-tunnel-bug/">
-      <span class="tag">Linux · Networking</span>
-      <h3>How a Local IP Broke IPv6 Tunnels in the Linux Kernel</h3>
-      <p>A one-line kernel fix: routing one app's traffic by UID into a FOU/SIT tunnel, where encapsulated IPv6 to a local peer silently vanished — an RTN_LOCAL route the transmit path refused.</p>
-    </a>
-    <a class="card" href="/building-a-key-value-store-in-go/">
-      <span class="tag">Go · Distributed Systems</span>
-      <h3>Gerdu: A Raft-Backed Key-Value Store in Go</h3>
-      <p>One small cache interface behind LRU/LFU/weak implementations, four wire protocols at once, and Raft replication where the cache itself is the state machine.</p>
-    </a>
-    <a class="card" href="/writing-a-bgp-daemon-in-rust/">
-      <span class="tag">Rust · Networking</span>
-      <h3>PathForge: A BGP-4 Daemon from Scratch in Rust</h3>
-      <p>Implementing the protocol that holds the internet together against RFC 4271 — wire framing, a session state machine, and the best-path decision process as a sort comparator.</p>
-    </a>
-    <a class="card" href="/writing-an-s3-proxy-in-rust/">
-      <span class="tag">Rust · Cloud</span>
-      <h3>Writing a Small S3 Proxy in Rust</h3>
-      <p>Routing requests to the right backend by bucket name, API-key auth with per-user roles and allow-lists, and a sliding-window rate limiter.</p>
-    </a>
-    <a class="card" href="/building-sentry-a-secure-job-runner/">
-      <span class="tag">Systems · Go</span>
-      <h3>Building Sentry: A Secure Job Runner</h3>
-      <p>Running Linux processes under hard CPU, memory, and I/O limits with cgroups v2, streaming logs over gRPC, and authenticating with mutual TLS.</p>
-    </a>
-    <a class="card" href="/rate-limited-file-transfer-in-java/">
-      <span class="tag">Java · Networking</span>
-      <h3>Stacking Streams: A Rate-Limited File Transfer in Java</h3>
-      <p>A stack of FilterOutputStreams — compression, then throttling, then socket — governed by one shared token bucket that caps total egress and self-balances across clients.</p>
-    </a>
-    <a class="card" href="/data-mining-pcap-files-using-weka-and-python-dpkt-library/">
-      <span class="tag">Security · ML</span>
-      <h3>Data-Mining PCAP Files with Weka &amp; dpkt</h3>
-      <p>Hunting malicious traffic flows in FTP control channels using Weka and Python's dpkt library.</p>
-    </a>
-    <a class="card" href="/why-does-functional-programming-matter/">
-      <span class="tag">Programming</span>
-      <h3>Why Does Functional Programming Matter?</h3>
-      <p>On modularity, laziness, and why FP's ideas outlive the hype cycles around it.</p>
-    </a>
-    <a class="card" href="/playing-with-k-nearest-neighbors-algorithm/">
-      <span class="tag">Machine Learning</span>
-      <h3>Playing with k-Nearest Neighbors</h3>
-      <p>A deliberately simple implementation of k-NN classification, built to understand it rather than to ship it.</p>
-    </a>
-    <a class="card" href="/hello-complex-networks/">
-      <span class="tag">Networks</span>
-      <h3>Hello, Complex Networks</h3>
-      <p>First steps into complex-network analysis — graphs, motifs, and the structure hiding in real systems.</p>
-    </a>
+  <div class="section-head">
+    <h2 class="mlabel">// selected writing</h2>
+    <a class="more" href="/posts/">full capture (22 packets) &rarr;</a>
+  </div>
+  <div class="cap-wrap">
+    <table class="cap">
+      <thead><tr><th class="no">No.</th><th class="time">Time</th><th class="len">Length</th><th>Info</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="no">022</td><td class="time">2026-06-18</td><td class="len">32.0k</td><td class="info"><a href="/neural-networks-from-scratch-softmax-and-cross-entropy/">Neural Networks from Scratch, Part 3: Softmax and Cross-Entropy</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">021</td><td class="time">2026-06-18</td><td class="len">31.7k</td><td class="info"><a href="/neural-networks-from-scratch-multilayer-perceptrons/">Neural Networks from Scratch, Part 2: Multilayer Perceptrons</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">020</td><td class="time">2026-06-18</td><td class="len">33.7k</td><td class="info"><a href="/neural-networks-from-scratch-the-neuron/">Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">019</td><td class="time">2026-06-12</td><td class="len">28.8k</td><td class="info"><a href="/building-a-key-value-store-in-go/">Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">018</td><td class="time">2026-05-24</td><td class="len">28.7k</td><td class="info"><a href="/building-sentry-a-secure-job-runner/">Building Sentry: A Secure Job Runner with cgroups and mTLS</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">017</td><td class="time">2026-05-22</td><td class="len">27.0k</td><td class="info"><a href="/building-a-search-engine-in-rust/">Building a Search Engine in Rust: Crawl, Index, Rank</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">016</td><td class="time">2026-05-17</td><td class="len">28.9k</td><td class="info"><a href="/writing-an-s3-proxy-in-rust/">Writing a Small S3 Proxy in Rust</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">015</td><td class="time">2026-05-10</td><td class="len">30.5k</td><td class="info"><a href="/writing-a-bgp-daemon-in-rust/">PathForge: Writing a BGP-4 Daemon from Scratch in Rust</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">014</td><td class="time">2025-11-27</td><td class="len">26.9k</td><td class="info"><a href="/snake-on-a-cube-rust-wasm/">Snake on a Cube: 3D Snake in Rust and WebAssembly</a></td><td class="mark">&gt;</td></tr>
+        <tr><td class="no">013</td><td class="time">2025-05-23</td><td class="len">29.8k</td><td class="info"><a href="/building-an-s3-object-store-in-rust/">Reimplementing S3 from Scratch: An Object Store in Rust</a></td><td class="mark">&gt;</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
-<section id="contact">
+<section id="contact" class="contact">
+  <div class="section-head"><h2 class="mlabel">// contact</h2></div>
   <div class="big">Let's talk.</div>
-  <p>The fastest way to reach me is email — for everything else, the usual places work too.</p>
-  <div class="hero-links" style="justify-content:center">
-    <a class="btn primary" href="mailto:arazmj@gmail.com">arazmj@gmail.com</a>
-    <a class="btn" href="https://www.linkedin.com/in/amirrazmjou/" rel="me">
-      <svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-      LinkedIn
-    </a>
+  <p>The fastest way to reach me is email &mdash; for everything else, the usual places work too.</p>
+  <div class="hero-links">
+    <a class="primary" href="mailto:arazmj@gmail.com"><span class="br">$</span> arazmj@gmail.com</a>
+    <a href="https://www.linkedin.com/in/amirrazmjou/" rel="me"><span class="br">$</span> linkedin</a>
   </div>
 </section>
 
 </div>
 
-<footer>© 2026 Amir Razmjou · amirrazmjou.com</footer>
-
-<script type="module">
-import * as THREE from "/assets/js/three.module.min.js";
-
-const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/* ---------------- scroll reveals ---------------- */
-const revealEls = document.querySelectorAll(
-  "section h2, .about-grid > *, .card, #contact .big, #contact p, #contact .btn"
-);
-revealEls.forEach(el => el.classList.add("reveal"));
-if (reduced) {
-  revealEls.forEach(el => el.classList.add("in"));
-} else {
-  const io = new IntersectionObserver(entries => {
-    for (const e of entries) {
-      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-    }
-  }, { threshold: 0.12 });
-  revealEls.forEach(el => io.observe(el));
-}
-
-/* ---------------- 3D tilt cards with glare ---------------- */
-if (!reduced && matchMedia("(hover: hover)").matches) {
-  document.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("pointermove", e => {
-      const r = card.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      card.style.transform =
-        "rotateY(" + ((px - 0.5) * 18).toFixed(2) + "deg)" +
-        " rotateX(" + ((0.5 - py) * 18).toFixed(2) + "deg)" +
-        " translateZ(18px)";
-      card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
-      card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
-    });
-    card.addEventListener("pointerleave", () => { card.style.transform = ""; });
-  });
-}
-
-/* ---------------- WebGL: morphing particle universe ----------------
-   ~14k GPU particles morph between four shapes as you scroll:
-   spiral galaxy -> globe -> trefoil knot -> ring nebula.
-   Morph blending, stagger and glow all happen in the vertex/fragment
-   shaders; the CPU only feeds two uniforms per frame.               */
-const canvas = document.getElementById("space");
-let renderer = null;
-try {
-  renderer = new THREE.WebGLRenderer({
-    canvas, alpha: true, antialias: false, powerPreference: "high-performance"
-  });
-} catch (err) {
-  canvas.remove(); // no WebGL: gradient + vignette background remains
-}
-
-if (renderer) {
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 300);
-  camera.position.z = 46; // flies in to 26
-
-  const N = innerWidth < 760 ? 7000 : 14000;
-  const rnd = Math.random;
-  const g = () => (rnd() + rnd() + rnd() - 1.5) / 1.5; // ~gaussian, [-1,1]
-
-  function galaxy(n) {
-    const a = new Float32Array(n * 3);
-    const arms = 4;
-    for (let i = 0; i < n; i++) {
-      if (i % 9 === 0) {
-        // dense, rounded central bulge
-        const r = Math.pow(rnd(), 1.8) * 2.3;
-        const phi = Math.acos(1 - 2 * rnd());
-        const th = rnd() * Math.PI * 2;
-        a[i * 3] = r * Math.sin(phi) * Math.cos(th);
-        a[i * 3 + 1] = r * Math.cos(phi) * 0.6;
-        a[i * 3 + 2] = r * Math.sin(phi) * Math.sin(th);
-      } else {
-        // logarithmic spiral arms on a thin disk
-        const arm = (i % arms) * (Math.PI * 2 / arms);
-        const r = Math.pow(rnd(), 0.5) * 12;
-        const ang = arm + r * 0.42 + g() * 0.18;
-        const spread = 0.32 + r * 0.05;
-        a[i * 3] = Math.cos(ang) * r + g() * spread;
-        a[i * 3 + 1] = g() * Math.max(0.12, 1.4 - r * 0.1);
-        a[i * 3 + 2] = Math.sin(ang) * r + g() * spread;
-      }
-    }
-    return a;
-  }
-
-  function globe(n) {
-    const a = new Float32Array(n * 3);
-    const GA = Math.PI * (1 + Math.sqrt(5));
-    for (let i = 0; i < n; i++) {
-      const phi = Math.acos(1 - 2 * (i + 0.5) / n);
-      const th = GA * i;
-      const r = 7.5 + g() * 0.12;
-      a[i * 3] = r * Math.sin(phi) * Math.cos(th);
-      a[i * 3 + 1] = r * Math.cos(phi);
-      a[i * 3 + 2] = r * Math.sin(phi) * Math.sin(th);
-    }
-    return a;
-  }
-
-  function knot(n) { // trefoil
-    const a = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      const t = rnd() * Math.PI * 2;
-      const rr = Math.cos(3 * t) + 2.2;
-      a[i * 3] = rr * Math.cos(2 * t) * 2.9 + g() * 0.32;
-      a[i * 3 + 1] = rr * Math.sin(2 * t) * 2.9 + g() * 0.32;
-      a[i * 3 + 2] = -Math.sin(3 * t) * 4.6 + g() * 0.32;
-    }
-    return a;
-  }
-
-  function ring(n) { // saturn-like ring with a bright core
-    const a = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      if (i % 7 === 0) {
-        const r = Math.pow(rnd(), 0.5) * 1.9;
-        const phi = Math.acos(1 - 2 * rnd());
-        const th = rnd() * Math.PI * 2;
-        a[i * 3] = r * Math.sin(phi) * Math.cos(th);
-        a[i * 3 + 1] = r * Math.cos(phi);
-        a[i * 3 + 2] = r * Math.sin(phi) * Math.sin(th);
-      } else {
-        const th = rnd() * Math.PI * 2;
-        const r = 8.2 + g() * 0.55;
-        a[i * 3] = Math.cos(th) * r;
-        a[i * 3 + 1] = g() * 0.35;
-        a[i * 3 + 2] = Math.sin(th) * r;
-      }
-    }
-    return a;
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(galaxy(N), 3));
-  geo.setAttribute("p1", new THREE.BufferAttribute(globe(N), 3));
-  geo.setAttribute("p2", new THREE.BufferAttribute(knot(N), 3));
-  geo.setAttribute("p3", new THREE.BufferAttribute(ring(N), 3));
-  const rands = new Float32Array(N);
-  for (let i = 0; i < N; i++) rands[i] = rnd();
-  geo.setAttribute("aRand", new THREE.BufferAttribute(rands, 1));
-  const rands2 = new Float32Array(N);
-  for (let i = 0; i < N; i++) rands2[i] = rnd();
-  geo.setAttribute("aRand2", new THREE.BufferAttribute(rands2, 1));
-
-  // monogram target: sample the letters "AR" and map filled pixels to points
-  function monogram(n) {
-    const a = new Float32Array(n * 3);
-    const W = 280, H = 130;
-    const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
-    const cx = cv.getContext("2d");
-    cx.fillStyle = "#fff";
-    cx.font = "700 92px 'Space Grotesk', system-ui, sans-serif";
-    cx.textAlign = "center"; cx.textBaseline = "middle";
-    cx.fillText("AR", W / 2, H / 2 + 4);
-    const px = cx.getImageData(0, 0, W, H).data;
-    const hit = [];
-    for (let y = 0; y < H; y += 2)
-      for (let x = 0; x < W; x += 2)
-        if (px[(y * W + x) * 4 + 3] > 128) hit.push(x, y);
-    const m = hit.length / 2;
-    for (let i = 0; i < n; i++) {
-      if (m > 0) {
-        const k = ((rnd() * m) | 0) * 2;
-        a[i * 3] = (hit[k] - W / 2) / W * 24 + g() * 0.12;
-        a[i * 3 + 1] = -(hit[k + 1] - H / 2) / H * 11 + g() * 0.12;
-        a[i * 3 + 2] = g() * 0.5;
-      } else {
-        a[i * 3] = g() * 6; a[i * 3 + 1] = g() * 3; a[i * 3 + 2] = g() * 0.5;
-      }
-    }
-    return a;
-  }
-  geo.setAttribute("pMono", new THREE.BufferAttribute(monogram(N), 3));
-
-  const uniforms = {
-    uMorph: { value: 0 },
-    uTime: { value: 0 },
-    uSize: { value: 1.8 * Math.min(devicePixelRatio || 1, 2) },
-    uAlpha: { value: 1 },
-    uColA: { value: new THREE.Color("#5eead4") },
-    uColB: { value: new THREE.Color("#818cf8") },
-    uColC: { value: new THREE.Color("#c084fc") },
-    uColCore: { value: new THREE.Color("#fff3d6") },
-    uMouse: { value: new THREE.Vector3(999, 999, 999) },
-    uMouseForce: { value: 0 },
-    uIntro: { value: 1 }
-  };
-
-  const material = new THREE.ShaderMaterial({
-    uniforms,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    vertexShader: `
-      attribute vec3 p1;
-      attribute vec3 p2;
-      attribute vec3 p3;
-      attribute float aRand;
-      attribute float aRand2;
-      attribute vec3 pMono;
-      uniform float uMorph;
-      uniform float uTime;
-      uniform float uSize;
-      uniform vec3 uMouse;
-      uniform float uMouseForce;
-      uniform float uIntro;
-      varying float vRand;
-      varying float vFade;
-      varying float vCore;
-      varying float vTw;
-
-      float stagger(float f, float r) {
-        float t = clamp((f - r * 0.35) / 0.65, 0.0, 1.0);
-        return t * t * (3.0 - 2.0 * t);
-      }
-      mat2 rot(float a) { float s = sin(a), c = cos(a); return mat2(c, -s, s, c); }
-
-      void main() {
-        vRand = aRand;
-        float m = clamp(uMorph, 0.0, 3.0);
-        vec3 a, b;
-        float f;
-        if (m < 1.0)      { a = position; b = p1; f = m; }
-        else if (m < 2.0) { a = p1; b = p2; f = m - 1.0; }
-        else              { a = p2; b = p3; f = m - 2.0; }
-        vec3 pos = mix(a, b, stagger(f, aRand));
-
-        // differential rotation: inner stars spin faster, only while near the galaxy
-        float galaxyAmt = 1.0 - clamp(uMorph, 0.0, 1.0);
-        float rad = length(pos.xz);
-        pos.xz = rot(uTime * (0.5 / (1.0 + rad * 0.35)) * galaxyAmt) * pos.xz;
-
-        // gentle turbulence
-        pos += 0.13 * vec3(
-          sin(uTime * 0.6 + aRand * 31.0),
-          cos(uTime * 0.5 + aRand * 57.0),
-          sin(uTime * 0.7 + aRand * 13.0)
-        );
-
-        // intro: particles begin assembled as the "AR" monogram, then disperse
-        pos = mix(pos, pMono, uIntro);
-
-        // cursor gravity: gently part the field around the pointer
-        vec3 dm = pos - uMouse;
-        pos += normalize(dm + vec3(0.0001)) * uMouseForce * exp(-dot(dm, dm) * 0.05);
-
-        vCore = 1.0 - smoothstep(0.0, 9.0, length(pos));   // bright toward the center
-        vTw = 0.6 + 0.4 * sin(uTime * 2.2 + aRand2 * 120.0); // per-star twinkle
-
-        vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-        float twSize = mix(1.0, vTw, 0.55);
-        gl_PointSize = uSize * (0.5 + 1.1 * aRand) * twSize * (1.0 + 0.5 * vCore) * (60.0 / -mv.z);
-        vFade = smoothstep(75.0, 14.0, -mv.z);
-        gl_Position = projectionMatrix * mv;
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColA;
-      uniform vec3 uColB;
-      uniform vec3 uColC;
-      uniform vec3 uColCore;
-      uniform float uAlpha;
-      varying float vRand;
-      varying float vFade;
-      varying float vCore;
-      varying float vTw;
-
-      void main() {
-        float d = length(gl_PointCoord - 0.5);
-        float halo = smoothstep(0.5, 0.18, d);
-        float core = smoothstep(0.5, 0.0, d);
-        float alpha = halo * 0.65 + pow(core, 3.0) * 0.6;
-
-        vec3 col = mix(uColA, uColB, vRand);
-        col = mix(col, uColC, smoothstep(0.55, 1.0, vRand) * 0.6);
-        col = mix(col, uColCore, pow(vCore, 2.4) * 0.6);   // subtle warm nucleus
-
-        alpha *= (0.15 + 0.46 * vFade) * uAlpha * vTw;
-        gl_FragColor = vec4(col, alpha);
-      }
-    `
-  });
-
-  const points = new THREE.Points(geo, material);
-
-  // distant static starfield for depth
-  const starGeo = new THREE.BufferGeometry();
-  const starN = 1400;
-  const sp = new Float32Array(starN * 3);
-  for (let i = 0; i < starN; i++) {
-    const phi = Math.acos(1 - 2 * rnd());
-    const th = rnd() * Math.PI * 2;
-    const r = 40 + rnd() * 70;
-    sp[i * 3] = r * Math.sin(phi) * Math.cos(th);
-    sp[i * 3 + 1] = r * Math.cos(phi);
-    sp[i * 3 + 2] = r * Math.sin(phi) * Math.sin(th);
-  }
-  starGeo.setAttribute("position", new THREE.BufferAttribute(sp, 3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
-    size: 0.14, sizeAttenuation: true, color: 0x9aa6c8,
-    transparent: true, opacity: 0.45, depthWrite: false
-  }));
-
-  // soft circular sprite for the nebula haze
-  const softCanvas = document.createElement("canvas");
-  softCanvas.width = softCanvas.height = 64;
-  const sctx = softCanvas.getContext("2d");
-  const grd = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, "rgba(255,255,255,1)");
-  grd.addColorStop(0.4, "rgba(255,255,255,0.32)");
-  grd.addColorStop(1, "rgba(255,255,255,0)");
-  sctx.fillStyle = grd;
-  sctx.fillRect(0, 0, 64, 64);
-  const softTex = new THREE.CanvasTexture(softCanvas);
-
-  // a few large, faint clouds that drift behind the particles for depth
-  const hazeN = 28;
-  const hp = new Float32Array(hazeN * 3);
-  for (let i = 0; i < hazeN; i++) {
-    hp[i * 3] = (rnd() * 2 - 1) * 15;
-    hp[i * 3 + 1] = (rnd() * 2 - 1) * 8;
-    hp[i * 3 + 2] = (rnd() * 2 - 1) * 9 - 3;
-  }
-  const hazeGeo = new THREE.BufferGeometry();
-  hazeGeo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
-  const haze = new THREE.Points(hazeGeo, new THREE.PointsMaterial({
-    size: 11, sizeAttenuation: true, map: softTex, color: 0x6d5bd0,
-    transparent: true, opacity: 0.05, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-
-  const group = new THREE.Group();
-  group.add(points, stars, haze);
-
-  // constellation: a faint, stable web that drifts with the scene
-  const cN = 90, cPts = [];
-  for (let i = 0; i < cN; i++) {
-    const r = 16 + rnd() * 16, th = rnd() * Math.PI * 2, ph = Math.acos(1 - 2 * rnd());
-    cPts.push(new THREE.Vector3(r * Math.sin(ph) * Math.cos(th), (rnd() * 2 - 1) * 10, r * Math.sin(ph) * Math.sin(th) - 6));
-  }
-  const linkArr = [];
-  for (let i = 0; i < cN; i++) {
-    let c = 0;
-    for (let j = i + 1; j < cN && c < 2; j++) {
-      if (cPts[i].distanceTo(cPts[j]) < 9) {
-        linkArr.push(cPts[i].x, cPts[i].y, cPts[i].z, cPts[j].x, cPts[j].y, cPts[j].z); c++;
-      }
-    }
-  }
-  const clGeo = new THREE.BufferGeometry();
-  clGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linkArr), 3));
-  const constellation = new THREE.LineSegments(clGeo, new THREE.LineBasicMaterial({
-    color: 0x5eead4, transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-  const cdArr = new Float32Array(cN * 3);
-  cPts.forEach((p, i) => { cdArr[i * 3] = p.x; cdArr[i * 3 + 1] = p.y; cdArr[i * 3 + 2] = p.z; });
-  const cdGeo = new THREE.BufferGeometry();
-  cdGeo.setAttribute("position", new THREE.BufferAttribute(cdArr, 3));
-  const cdots = new THREE.Points(cdGeo, new THREE.PointsMaterial({
-    size: 0.5, sizeAttenuation: true, map: softTex, color: 0x9fb0e0,
-    transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-  group.add(constellation, cdots);
-  scene.add(group);
-
-  // shooting stars: a small pool of additive streaks across the foreground
-  const METEORS = 7;
-  const mPos = new Float32Array(METEORS * 6), mCol = new Float32Array(METEORS * 6);
-  const mGeo = new THREE.BufferGeometry();
-  mGeo.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
-  mGeo.setAttribute("color", new THREE.BufferAttribute(mCol, 3));
-  const meteors = new THREE.LineSegments(mGeo, new THREE.LineBasicMaterial({
-    vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
-  }));
-  meteors.frustumCulled = false;
-  scene.add(meteors);
-  const mS = [];
-  for (let i = 0; i < METEORS; i++) mS.push({ wait: rnd() * 9, fly: -1, dur: 1, x: 0, y: 0, vx: 0, vy: 0, len: 0, z: -3 - rnd() * 6 });
-  function launchMeteor(s) {
-    s.fly = 0; s.dur = 0.55 + rnd() * 0.5;
-    const left = rnd() < 0.5;
-    s.x = (left ? -1 : 1) * (13 + rnd() * 6);
-    s.y = 5 + rnd() * 9;
-    const sp = 34 + rnd() * 22;
-    s.vx = (left ? 1 : -1) * sp * (0.6 + rnd() * 0.3);
-    s.vy = -sp * (0.45 + rnd() * 0.3);
-    s.len = 1.4 + rnd() * 1.6;
-  }
-  function updateMeteors(dt) {
-    for (let i = 0; i < METEORS; i++) {
-      const s = mS[i], o = i * 6;
-      if (s.fly < 0) {
-        s.wait -= dt;
-        if (s.wait <= 0) launchMeteor(s);
-        else { for (let k = 0; k < 6; k++) { mPos[o + k] = 0; mCol[o + k] = 0; } continue; }
-      }
-      s.fly += dt;
-      if (s.fly >= s.dur) { s.fly = -1; s.wait = 2 + rnd() * 6; for (let k = 0; k < 6; k++) { mPos[o + k] = 0; mCol[o + k] = 0; } continue; }
-      const hx = s.x + s.vx * s.fly, hy = s.y + s.vy * s.fly, nl = 1 / Math.hypot(s.vx, s.vy);
-      mPos[o] = hx; mPos[o + 1] = hy; mPos[o + 2] = s.z;
-      mPos[o + 3] = hx - s.vx * nl * s.len; mPos[o + 4] = hy - s.vy * nl * s.len; mPos[o + 5] = s.z;
-      const fade = Math.sin(Math.min(1, s.fly / s.dur) * Math.PI);
-      mCol[o] = 0.75 * fade; mCol[o + 1] = fade; mCol[o + 2] = 0.95 * fade;
-      mCol[o + 3] = 0; mCol[o + 4] = 0; mCol[o + 5] = 0;
-    }
-    mGeo.attributes.position.needsUpdate = true;
-    mGeo.attributes.color.needsUpdate = true;
-  }
-  const ndcV = new THREE.Vector3(), worldM = new THREE.Vector3();
-
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-  renderer.setSize(innerWidth, innerHeight);
-
-  function scrollMorph() {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    return max > 0 ? (scrollY / max) * 3 : 0;
-  }
-
-  // slide each shape toward the right margin so it never sits behind the
-  // text column: galaxy / globe / knot / ring (ring stays centered)
-  const shapeOffsets = [4, 11, 9, 0];
-  let sideFactor = 0;
-  function layout() {
-    sideFactor = Math.min(1, Math.max(0, (innerWidth - 560) / 560));
-    uniforms.uAlpha.value = innerWidth < 760 ? 0.55 : 1;
-  }
-  layout();
-  function applyOffset(m) {
-    const i = Math.min(2, Math.floor(m));
-    const f = Math.min(1, Math.max(0, m - i));
-    group.position.x = (shapeOffsets[i] + (shapeOffsets[i + 1] - shapeOffsets[i]) * f) * sideFactor;
-  }
-
-  let targetMorph = scrollMorph();
-  uniforms.uMorph.value = targetMorph;
-  let mx = 0, my = 0, rx = 0, ry = 0;
-
-  addEventListener("scroll", () => { targetMorph = scrollMorph(); }, { passive: true });
-  addEventListener("resize", () => {
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
-    targetMorph = scrollMorph();
-    layout();
-  });
-
-  const clock = new THREE.Clock();
-  let elapsed = 0;
-  function tick() {
-    const dt = Math.min(0.05, clock.getDelta());
-    elapsed += dt;
-    const t = elapsed;
-    uniforms.uTime.value = t;
-    if (t > 0.8) uniforms.uIntro.value += (0.0 - uniforms.uIntro.value) * 0.02;
-    uniforms.uMorph.value += (targetMorph - uniforms.uMorph.value) * 0.045;
-    applyOffset(uniforms.uMorph.value);
-    camera.position.z += (26 - camera.position.z) * 0.025; // intro fly-in
-    if (uniforms.uMouseForce.value > 0.001) {
-      ndcV.set(mx, -my, 0.5).unproject(camera).sub(camera.position).normalize();
-      worldM.copy(camera.position).addScaledVector(ndcV, -camera.position.z / ndcV.z);
-      group.worldToLocal(worldM);
-      uniforms.uMouse.value.lerp(worldM, 0.18);
-    }
-    updateMeteors(dt);
-    ry += (mx * 0.35 - ry) * 0.03;
-    rx += (my * 0.22 - rx) * 0.03;
-    group.rotation.y = t * 0.05 + ry;
-    group.rotation.x = -0.5 + rx + Math.sin(t * 0.11) * 0.05;
-    renderer.render(scene, camera);
-  }
-
-  canvas.style.opacity = "1";
-
-  if (reduced) {
-    camera.position.z = 26;
-    group.rotation.x = -0.5;
-    uniforms.uTime.value = 1;
-    uniforms.uIntro.value = 0;
-    applyOffset(uniforms.uMorph.value);
-    renderer.render(scene, camera);
-    addEventListener("scroll", () => {
-      uniforms.uMorph.value = scrollMorph();
-      applyOffset(uniforms.uMorph.value);
-      renderer.render(scene, camera);
-    }, { passive: true });
-  } else {
-    const finePtr = matchMedia("(hover: hover) and (pointer: fine)").matches;
-    addEventListener("pointermove", e => {
-      mx = (e.clientX / innerWidth) * 2 - 1;
-      my = (e.clientY / innerHeight) * 2 - 1;
-      if (finePtr) uniforms.uMouseForce.value = 2.2;
-    }, { passive: true });
-    addEventListener("blur", () => { uniforms.uMouseForce.value = 0; });
-    let running = !document.hidden;
-    document.addEventListener("visibilitychange", () => { running = !document.hidden; });
-    renderer.setAnimationLoop(() => { if (running) tick(); });
-  }
-}
-</script>
+<footer>
+  <span>&copy; 2026 Amir Razmjou</span>
+  <span><a href="/feed.xml">feed</a> &middot; <a href="/posts/">posts</a> &middot; amirrazmjou.com // EOF</span>
+</footer>
 
 <script>
-/* extraordinary-layer interactions: progress beam, sticky nav,
-   cursor spotlight, multi-layer parallax, magnetic hero buttons */
-(function () {
+(function(){
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-  var prog = document.getElementById("progress");
-  var nav = document.querySelector("nav");
-  var doc = document.documentElement;
-
-  function onScroll() {
-    var max = doc.scrollHeight - doc.clientHeight;
-    var top = window.pageYOffset || doc.scrollTop || 0;
-    if (prog) prog.style.width = max > 0 ? (top / max * 100).toFixed(2) + "%" : "0";
-    if (nav) nav.classList.toggle("scrolled", top > 24);
+  var nav = document.querySelector("nav"), doc = document.documentElement;
+  addEventListener("scroll", function(){ if(nav) nav.classList.toggle("scrolled",(window.pageYOffset||doc.scrollTop||0)>24); }, {passive:true});
+  var fields = [].slice.call(document.querySelectorAll(".type"));
+  if (reduce){ fields.forEach(function(el){ el.innerHTML = el.getAttribute("data-text"); el.classList.add("done"); }); return; }
+  var pkt = document.getElementById("packet");
+  if (pkt) pkt.animate(
+    [{transform:"translateX(0)",opacity:0},{opacity:1,offset:.15},{opacity:1,offset:.85},{transform:"translateX(calc(100vw - 120px))",opacity:0}],
+    {duration:900,easing:"cubic-bezier(.4,0,.2,1)"});
+  function decode(el){
+    return new Promise(function(res){
+      var raw = el.getAttribute("data-text").replace(/&amp;/g,"&"), i = 0;
+      (function step(){
+        var shown = raw.slice(0,i);
+        if (el.classList.contains("pay")) shown = shown.replace(/&/g,"<em>&amp;</em>");
+        else shown = shown.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+        el.innerHTML = shown; i++;
+        if (i <= raw.length) setTimeout(step, 26 + Math.random()*22);
+        else { el.classList.add("done"); res(); }
+      })();
+    });
   }
-  addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-
-  if (reduce || !fine) return;
-
-  var depths = [].slice.call(document.querySelectorAll("[data-depth]"));
-  var btns = [].slice.call(document.querySelectorAll(".hero-links .btn"));
-  var tx = 0, ty = 0, cx = 0, cy = 0, started = false;
-
-  addEventListener("pointermove", function (e) {
-    document.body.style.setProperty("--sx", e.clientX + "px");
-    document.body.style.setProperty("--sy", e.clientY + "px");
-    tx = e.clientX / innerWidth - 0.5;
-    ty = e.clientY / innerHeight - 0.5;
-    for (var i = 0; i < btns.length; i++) {
-      var b = btns[i], r = b.getBoundingClientRect();
-      var dx = e.clientX - (r.left + r.width / 2);
-      var dy = e.clientY - (r.top + r.height / 2);
-      b.style.transform = Math.hypot(dx, dy) < 130
-        ? "translate(" + (dx * 0.25).toFixed(1) + "px," + (dy * 0.35).toFixed(1) + "px)"
-        : "";
-    }
-  }, { passive: true });
-
-  // let the hero entrance animation finish, then take over with parallax
-  setTimeout(function () { started = true; }, 1200);
-  (function loop() {
-    cx += (tx - cx) * 0.08;
-    cy += (ty - cy) * 0.08;
-    if (started) {
-      for (var i = 0; i < depths.length; i++) {
-        var d = parseFloat(depths[i].getAttribute("data-depth")) || 0;
-        depths[i].style.transform =
-          "translate3d(" + (-cx * d * 2.2).toFixed(1) + "px," + (-cy * d * 2).toFixed(1) + "px,0)";
-      }
-    }
-    requestAnimationFrame(loop);
-  })();
+  fields.reduce(function(p,el){ return p.then(function(){ return decode(el); }); }, new Promise(function(r){ setTimeout(r,650); }));
 })();
 </script>
-
 
 <script>
 /* Cmd-K / Ctrl-K command palette */
@@ -1298,6 +303,89 @@ if (renderer) {
   addEventListener("keydown", function (e) {
     if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); open(); }
   });
+})();
+</script>
+
+<script>
+/* on-the-wire: animated packet-flow background (subtle, theme-grounded) */
+(function () {
+  if (window.__netflow) return; window.__netflow = 1;
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return;
+  var c = document.createElement("canvas");
+  c.setAttribute("aria-hidden", "true");
+  var s = c.style;
+  s.position = "fixed"; s.left = "0"; s.top = "0"; s.width = "100%"; s.height = "100%";
+  s.zIndex = "1"; s.pointerEvents = "none";
+  document.body.insertBefore(c, document.body.firstChild);
+  var ctx = c.getContext("2d");
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var GRID = 30, W = 0, H = 0, cols = 0, rowsN = 0;
+  function resize() {
+    W = c.width = Math.floor(innerWidth * DPR);
+    H = c.height = Math.floor(innerHeight * DPR);
+    cols = Math.max(1, Math.floor(innerWidth / GRID));
+    rowsN = Math.max(1, Math.floor(innerHeight / GRID));
+  }
+  resize(); addEventListener("resize", resize, { passive: true });
+
+  var CYAN = "127,178,230", COPPER = "255,138,61";
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function Packet(seed) { this.init(seed); }
+  Packet.prototype.init = function (seed) {
+    this.h = Math.random() < 0.5;
+    this.copper = Math.random() < 0.18;
+    this.col = this.copper ? COPPER : CYAN;
+    this.speed = rnd(0.8, 2.2) * DPR * (this.copper ? 1.3 : 1);
+    this.len = rnd(40, 120) * DPR;
+    this.alpha = rnd(0.18, 0.5);
+    if (this.h) {
+      this.y = Math.round(rnd(0, rowsN)) * GRID * DPR;
+      this.dir = Math.random() < 0.5 ? 1 : -1;
+      this.x = seed ? rnd(0, W) : (this.dir > 0 ? -this.len : W + this.len);
+    } else {
+      this.x = Math.round(rnd(0, cols)) * GRID * DPR;
+      this.dir = Math.random() < 0.5 ? 1 : -1;
+      this.y = seed ? rnd(0, H) : (this.dir > 0 ? -this.len : H + this.len);
+    }
+  };
+  Packet.prototype.step = function () {
+    if (this.h) {
+      this.x += this.dir * this.speed;
+      if (this.dir > 0 && this.x - this.len > W) this.init(false);
+      else if (this.dir < 0 && this.x + this.len < 0) this.init(false);
+    } else {
+      this.y += this.dir * this.speed;
+      if (this.dir > 0 && this.y - this.len > H) this.init(false);
+      else if (this.dir < 0 && this.y + this.len < 0) this.init(false);
+    }
+  };
+  Packet.prototype.draw = function () {
+    var x2 = this.x, y2 = this.y, x1 = this.x, y1 = this.y;
+    if (this.h) x1 = this.x - this.dir * this.len; else y1 = this.y - this.dir * this.len;
+    var g = ctx.createLinearGradient(x1, y1, x2, y2);
+    g.addColorStop(0, "rgba(" + this.col + ",0)");
+    g.addColorStop(1, "rgba(" + this.col + "," + this.alpha + ")");
+    ctx.strokeStyle = g; ctx.lineWidth = 1.3 * DPR;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.fillStyle = "rgba(" + this.col + "," + Math.min(1, this.alpha + 0.3) + ")";
+    ctx.beginPath(); ctx.arc(x2, y2, 1.6 * DPR, 0, 6.283); ctx.fill();
+  };
+
+  var N = Math.max(10, Math.min(26, Math.round(innerWidth / 70)));
+  var packets = []; for (var i = 0; i < N; i++) packets.push(new Packet(true));
+  var running = true;
+  document.addEventListener("visibilitychange", function () {
+    running = !document.hidden; if (running) requestAnimationFrame(frame);
+  });
+  function frame() {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < packets.length; i++) { packets[i].step(); packets[i].draw(); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
