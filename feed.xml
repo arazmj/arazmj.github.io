@@ -120,6 +120,14 @@
     <author><name>Amir Razmjou</name></author>
   </entry>
   <entry>
+    <title>Decoding Text: A Huffman Codec in Haskell</title>
+    <link href="https://www.amirrazmjou.com/huffman-coding-in-haskell/"/>
+    <id>https://www.amirrazmjou.com/huffman-coding-in-haskell/</id>
+    <updated>2015-12-06T10:00:00Z</updated>
+    <summary>A Fall 2015 course project in Haskell: a Huffman codec that compresses text into a prefix-code tree plus a stream of bits, and decodes it back by walking the tree one bit at a time.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
+  <entry>
     <title>Data-Mining PCAP files using Weka and Python DPKT library</title>
     <link href="https://www.amirrazmjou.com/data-mining-pcap-files-using-weka-and-python-dpkt-library/"/>
     <id>https://www.amirrazmjou.com/data-mining-pcap-files-using-weka-and-python-dpkt-library/</id>
