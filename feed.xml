@@ -5,8 +5,16 @@
   <link href="https://www.amirrazmjou.com/feed.xml" rel="self"/>
   <link href="https://www.amirrazmjou.com/"/>
   <id>https://www.amirrazmjou.com/</id>
-  <updated>2026-06-23T10:00:00Z</updated>
+  <updated>2026-06-25T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
+  <entry>
+    <title>Restoring a Thorens TD-124</title>
+    <link href="https://www.amirrazmjou.com/restoring-a-thorens-td-124/"/>
+    <id>https://www.amirrazmjou.com/restoring-a-thorens-td-124/</id>
+    <updated>2026-06-25T10:00:00Z</updated>
+    <summary>A full nut-and-bolt restoration of a 1958 Thorens TD-124 idler-wheel turntable -- new idler, belt, bearing, motor, springs, wiring and plinth -- and why this Swiss machine is still worth the trouble.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
   <entry>
     <title>The Software Stack is Collapsing</title>
     <link href="https://www.amirrazmjou.com/the-software-stack-is-collapsing/"/>
