@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.amirrazmjou.com/</loc><lastmod>2026-06-25</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://www.amirrazmjou.com/posts/</loc><lastmod>2026-06-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.amirrazmjou.com/</loc><lastmod>2026-06-28</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.amirrazmjou.com/posts/</loc><lastmod>2026-06-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.amirrazmjou.com/about/</loc><lastmod>2026-06-21</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.amirrazmjou.com/portfolio/</loc><lastmod>2026-06-21</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.amirrazmjou.com/papers/</loc><lastmod>2026-06-21</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.amirrazmjou.com/presentations/</loc><lastmod>2026-06-21</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.amirrazmjou.com/inside-my-guitar-rig/</loc><lastmod>2026-06-28</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.amirrazmjou.com/the-software-stack-is-collapsing/</loc><lastmod>2026-06-23</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.amirrazmjou.com/restoring-a-thorens-td-124/</loc><lastmod>2026-06-25</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.amirrazmjou.com/neural-networks-from-scratch-softmax-and-cross-entropy/</loc><lastmod>2026-06-18</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
