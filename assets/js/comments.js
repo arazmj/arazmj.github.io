@@ -11,7 +11,7 @@
  * it (the script then renders nothing).
  */
 (function () {
-  var SHORTNAME = "arazm"; // Disqus shortname (from disqus.com)
+  var SHORTNAME = "amirrazmjounet"; // Disqus shortname (from disqus.com)
 
   var mount = document.getElementById("disqus_thread");
   if (!mount || !SHORTNAME || SHORTNAME === "DISQUS_SHORTNAME") return;
