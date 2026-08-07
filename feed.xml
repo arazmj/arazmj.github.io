@@ -5,8 +5,16 @@
   <link href="https://www.amirrazmjou.com/feed.xml" rel="self"/>
   <link href="https://www.amirrazmjou.com/"/>
   <id>https://www.amirrazmjou.com/</id>
-  <updated>2026-06-28T10:00:00Z</updated>
+  <updated>2026-08-07T10:00:00Z</updated>
   <author><name>Amir Razmjou</name></author>
+  <entry>
+    <title>From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go</title>
+    <link href="https://www.amirrazmjou.com/chord-2go-spotify-connect/"/>
+    <id>https://www.amirrazmjou.com/chord-2go-spotify-connect/</id>
+    <updated>2026-08-07T10:00:00Z</updated>
+    <summary>How I reverse engineered the Chord 2go's owner-authorized BLE control path, integrated ARMv7 librespot and safe audio handoff, investigated the lossless dead end, and shipped a reversible Ogg 320 installer for macOS and Windows.</summary>
+    <author><name>Amir Razmjou</name></author>
+  </entry>
   <entry>
     <title>Wall of Sound: Inside My Stereo Guitar Rig</title>
     <link href="https://www.amirrazmjou.com/inside-my-guitar-rig/"/>

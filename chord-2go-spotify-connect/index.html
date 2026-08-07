@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go &#8211; Amir Razmjou</title>
+<meta name="description" content="How I reverse engineered the Chord 2go&#x27;s owner-authorized BLE control path, integrated ARMv7 librespot and safe audio handoff, investigated the lossless dead end, and shipped a reversible Ogg 320 installer for macOS and Windows.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Amir Razmjou">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+
+<link rel="canonical" href="https://www.amirrazmjou.com/chord-2go-spotify-connect/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go">
+<meta property="og:description" content="How I reverse engineered the Chord 2go&#x27;s owner-authorized BLE control path, integrated ARMv7 librespot and safe audio handoff, investigated the lossless dead end, and shipped a reversible Ogg 320 installer for macOS and Windows.">
+<meta property="og:url" content="https://www.amirrazmjou.com/chord-2go-spotify-connect/">
+<meta property="og:image" content="https://www.amirrazmjou.com/images/og/chord-2go-spotify-connect.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://www.amirrazmjou.com/images/og/chord-2go-spotify-connect.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@arazmj">
+
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Amir Razmjou Feed">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a2540;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e8eef5;
+  --muted: #8fa6be;
+  --prose: #cdd8e6;
+  --accent-1: #ff8a3d;
+  --accent-2: #7fb2e6;
+  --accent-3: #a9c7e8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Newsreader", system-ui, -apple-system, sans-serif;
+  font-size: 17px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: "Martian Mono", "Newsreader", sans-serif; }
+
+.bg-grad, .vignette, .aurora { position: fixed; inset: 0; pointer-events: none; }
+.bg-grad {
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(127, 178, 230, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(255, 138, 61, 0.06), transparent 60%);
+}
+.aurora {
+  z-index: 0; filter: blur(45px);
+  background:
+    radial-gradient(closest-side 42% 42% at 16% 24%, rgba(255, 138, 61, 0.10), transparent),
+    radial-gradient(closest-side 42% 42% at 84% 30%, rgba(127, 178, 230, 0.10), transparent);
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift { from { transform: translate3d(-12px, -10px, 0); } to { transform: translate3d(16px, 12px, 0); } }
+.vignette { z-index: 1; background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(7, 25, 44, 0.92)); }
+#spotlight {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(380px circle at var(--sx, 50%) var(--sy, -30%), rgba(127, 178, 230, 0.08), transparent 65%);
+}
+#progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 8;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2) 50%, var(--accent-3));
+  box-shadow: 0 0 18px rgba(127, 178, 230, 0.7);
+}
+
+.wrap { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0; border-bottom: 1px solid transparent; transition: 0.3s;
+}
+nav.scrolled {
+  background: rgba(7, 25, 44, 0.6); backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--border); padding: 14px 16px; margin: 0 -16px;
+}
+.monogram {
+  font-family: "Martian Mono", sans-serif; font-weight: 700; font-size: 20px;
+  text-decoration: none; color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; background: var(--surface);
+}
+.monogram span { color: var(--accent-1); }
+nav .links { display: flex; gap: 22px; }
+nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; transition: color 0.2s; }
+nav .links a:hover { color: var(--text); }
+
+article { padding: 48px 0 20px; }
+.post-kicker {
+  color: var(--accent-1); font-family: "Martian Mono", sans-serif; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.post-kicker .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.post-title {
+  font-size: clamp(32px, 5.5vw, 52px); line-height: 1.08; letter-spacing: -1px; font-weight: 700;
+  background: linear-gradient(120deg, var(--text) 35%, var(--accent-2) 75%, var(--accent-3));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.prose { margin-top: 36px; color: var(--prose); font-size: 17.5px; }
+.prose > p { margin: 0 0 22px; }
+.prose h2 {
+  font-size: 25px; color: var(--text); margin: 46px 0 14px; line-height: 1.25;
+  padding-left: 14px; border-left: 3px solid var(--accent-2);
+}
+.prose h3 { font-size: 20px; color: var(--text); margin: 32px 0 12px; }
+.prose a { color: var(--accent-1); text-decoration: none; border-bottom: 1px solid rgba(255, 138, 61, 0.25); transition: border-color 0.2s; }
+.prose a:hover { border-bottom-color: var(--accent-1); }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose em { color: #d8def0; }
+.prose ul, .prose ol { margin: 0 0 22px; padding-left: 24px; }
+.prose li { margin: 6px 0; }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); margin: 8px 0; }
+.prose blockquote {
+  margin: 0 0 22px; padding: 8px 18px; border-left: 3px solid var(--accent-1);
+  color: var(--muted); background: var(--surface); border-radius: 0 10px 10px 0;
+}
+.prose hr { border: 0; height: 1px; background: var(--border); margin: 36px 0; }
+.prose :not(pre) > code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em;
+  background: rgba(127, 178, 230, 0.12); color: #dbe9ff; padding: 2px 7px;
+  border-radius: 6px; border: 1px solid rgba(127, 178, 230, 0.18);
+}
+.prose pre {
+  background: #0b1020; border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; overflow-x: auto; margin: 0 0 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.prose pre code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px; line-height: 1.6; color: #e8eef5; background: none; border: 0; padding: 0;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+  text-decoration: none; font-size: 14px; margin-top: 40px; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent-1); }
+
+.related { margin: 64px 0 0; }
+.related h4 {
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-1); font-weight: 500; margin-bottom: 18px;
+}
+.related-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px; list-style: none;
+}
+.related-grid a {
+  display: block; text-decoration: none; color: var(--text); padding: 18px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+  backdrop-filter: blur(8px); transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  font-size: 15.5px; line-height: 1.4;
+}
+.related-grid a:hover {
+  border-color: rgba(127, 178, 230, 0.45);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); transform: translateY(-3px);
+}
+
+footer {
+  position: relative; z-index: 2; text-align: center; color: var(--muted);
+  font-size: 13.5px; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 64px;
+}
+footer a { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aurora { animation: none; }
+  #spotlight, #progress { display: none; }
+}
+
+.code-wrap { position: relative; }
+.code-wrap .copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  font: 500 12px "Newsreader", system-ui, sans-serif; color: var(--muted);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  opacity: 0; transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.code-wrap:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.code-wrap .copy-btn:hover { color: var(--text); border-color: rgba(255, 138, 61, 0.4); }
+.code-wrap .copy-btn.done { color: var(--accent-1); border-color: rgba(255, 138, 61, 0.5); }
+.prose pre code .t-c { color: #6b7394; font-style: italic; }
+.prose pre code .t-s { color: #9be8c9; }
+.prose pre code .t-n { color: #f5b07a; }
+.prose pre code .t-k { color: #b6a6ff; }
+
+/* command palette */
+#cmdk-overlay { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(4, 12, 22,0.6); backdrop-filter: blur(4px); }
+#cmdk-overlay.open { display: block; }
+#cmdk { position: absolute; top: 14vh; left: 50%; transform: translateX(-50%); width: min(560px, 92vw);
+  background: rgba(10, 30, 52,0.96); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden; font-family: "Newsreader", system-ui, sans-serif; }
+#cmdk input { width: 100%; border: 0; outline: 0; background: transparent; color: #e8eef5;
+  font-size: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+#cmdk-list { list-style: none; margin: 0; padding: 6px; max-height: 46vh; overflow-y: auto; }
+#cmdk-list li { padding: 11px 14px; border-radius: 10px; color: #c5ccda; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+#cmdk-list li .sub { color: #6b7394; font-size: 12px; align-self: center; white-space: nowrap; }
+#cmdk-list li.sel, #cmdk-list li:hover { background: rgba(127, 178, 230,0.16); color: #fff; }
+#cmdk-empty { padding: 18px 20px; color: #6b7394; font-size: 14px; }
+#cmdk-hint { padding: 9px 16px; border-top: 1px solid rgba(255,255,255,0.07); color: #6b7394; font-size: 12px; display: flex; gap: 14px; }
+@media (prefers-reduced-motion: reduce) { #cmdk-overlay { backdrop-filter: none; } }
+</style>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go", "description": "How I reverse engineered the Chord 2go's owner-authorized BLE control path, integrated ARMv7 librespot and safe audio handoff, investigated the lossless dead end, and shipped a reversible Ogg 320 installer for macOS and Windows.", "image": "https://www.amirrazmjou.com/images/og/chord-2go-spotify-connect.png", "articleSection": "Audio", "datePublished": "2026-08-07", "dateModified": "2026-08-07", "author": {"@type": "Person", "name": "Amir Razmjou", "url": "https://www.amirrazmjou.com/"}, "publisher": {"@type": "Person", "name": "Amir Razmjou"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.amirrazmjou.com/chord-2go-spotify-connect/"}, "url": "https://www.amirrazmjou.com/chord-2go-spotify-connect/", "keywords": "Audio, Linux, Rust, Reverse Engineering, Spotify Connect", "inLanguage": "en"}
+</script>
+<!-- seo-extra -->
+<meta property="og:image:alt" content="From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go">
+<meta name="twitter:creator" content="@arazmj">
+<style id="mobile-fix">
+@media(max-width:600px){
+  .wrap{padding:0 18px}
+  nav .links{gap:14px;flex-wrap:wrap;justify-content:flex-end}
+  nav .links a{font-size:12px}
+  .section-head{flex-wrap:wrap;gap:6px}
+  .drow{display:block;padding:14px 16px}
+  .drow .off{display:none}
+  .drow .f{display:block;border:0;background:none;padding:0 0 6px}
+  .drow .v{display:block;padding:0;min-height:0}
+  .v .big{font-size:clamp(22px,7vw,30px);letter-spacing:-.5px}
+  .v .role{font-size:clamp(16px,5vw,20px)}
+  .v .pay{font-size:16px}
+  .bitruler{padding-left:16px}
+  .cap .info{min-width:0}
+  .cap td,.cap thead th{padding:11px 8px}
+  .cap .time{font-size:11.5px}
+  .post-title{font-size:clamp(24px,7vw,34px);letter-spacing:-1px;overflow-wrap:break-word}
+  .lead{font-size:17px}
+  .prose{overflow-wrap:break-word}
+}
+@media(max-width:380px){
+  nav .links{gap:10px}
+}
+</style>
+<style id="figs">
+.fig{margin:34px 0;border:1px solid var(--border);border-radius:14px;background:rgba(7,25,44,.45);padding:20px 18px}
+.fig svg{display:block;width:100%;height:auto;max-width:100%}
+.fig figcaption{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.55;color:var(--muted);text-align:center}
+.fig figcaption b{color:var(--accent-1);font-weight:500}
+</style>
+</head>
+
+<body>
+<div class="bg-grad" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div id="spotlight" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<nav>
+  <a class="monogram" href="/">AR<span>.</span></a>
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/#writing">Writing</a>
+    <a href="/posts/">All Posts</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</nav>
+
+<article>
+  <div class="post-kicker"><span>August 7, 2026</span><span class="dot"></span><span>21 min read</span></div>
+  <h1 class="post-title">From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go</h1>
+  <div class="prose">
+<p>I wasn&#8217;t interested in making my Chord 2go play Spotify once on my own bench. Bench hacks are cheap. The thing I wanted was harder: a public installer another owner could run from macOS or Windows, get stable Spotify Connect at Ogg Vorbis 320 kbps, and undo cleanly if they changed their mind. That meant the investigation had to go deep, but the release had to be boring in the best possible way: predictable, reversible, and honest about what it actually does.</p>
+
+<p>The source is now public at <a href="https://github.com/arazmj/chord-2go-spotify">github.com/arazmj/chord-2go-spotify</a>, and the first packaged release is <a href="https://github.com/arazmj/chord-2go-spotify/releases/tag/v0.1.0">v0.1.0</a>. It is unofficial, it is not affiliated with Chord Electronics or Spotify, and it absolutely does <strong>not</strong> claim Spotify Lossless. What it does do is add a stable Spotify Connect target to a 2go on tested firmware 1.6.1, with fixed <code>install</code>, <code>status</code>, and <code>uninstall</code> operations and enough safety rails that I felt comfortable publishing it.</p>
+
+<p>The interesting part is how it got there. The 2go is not a dev board with a friendly shell. It is a closed audio appliance with Bluetooth control, LAN behavior, multiple competing audio services, and exactly zero interest in explaining itself. So the job started the way good reverse engineering often does: not with force, but with observation.</p>
+
+<blockquote>
+  <p>If you just want the tool, start with the <a href="https://github.com/arazmj/chord-2go-spotify">repository</a> and the <a href="https://github.com/arazmj/chord-2go-spotify/releases/tag/v0.1.0">v0.1.0 release</a>. The rest of this post is the full engineering story behind why the public version is deliberately narrow, stable, and reversible.</p>
+</blockquote>
+
+<h2>Start on the wire you can watch</h2>
+
+<p>The 2go was a hard target for two reasons. First, it sits at the worst possible spot for casual tinkering: too closed to feel like a hobby board, but just open enough to tempt you into sloppy assumptions. Second, the thing I cared about was not merely “can I make it work?” but “can I publish something safe for other owners?” That changes your first move. If you go invasive too early, you contaminate the only evidence you have. You stop learning how the stock system behaves and start learning how it behaves after you have already disturbed it.</p>
+
+<p>So I began on the LAN for the same reason a locksmith listens before drilling: you learn the shape of the mechanism without destroying the evidence. I watched the device in its normal life. DHCP. DNS. Outbound requests. Service announcements. What changed when Gofigure opened? What changed when it edited settings? What changed when it prepared an update? The goal was not to scrape secrets from the network. It was to separate responsibilities: which actions belonged to the phone, which belonged to the 2go, and which parts of the system were merely bystanders.</p>
+
+<p>That non-invasive phase mattered more than it sounds. It told me where not to waste time. There was no obvious hidden Spotify client suddenly phoning home. There was no firmware blob shuttling wholesale over the network by accident. There was, instead, a device with a very particular control plane: Bluetooth for authorization and instruction, LAN for device-side work, and a stack of audio services that already treated the hardware as contested ground.</p>
+
+<h2>The phone was the remote, not the truck</h2>
+
+<p>The first truly useful clue came from updates. Gofigure clearly initiated something over BLE, but the bulk transfer was not BLE at all. Once the sequence started, the 2go fetched firmware itself. That sounds like a small detail. It wasn&#8217;t. It collapsed the problem into a much more interesting shape.</p>
+
+<p>If the phone was only the remote control and the 2go was the thing actually downloading artifacts, then a public installer did not need to smuggle megabytes through Bluetooth. It needed an owner-authorized way to tell the device where to fetch a small, known payload on the local network. That is a very different design space. BLE stops being the cargo path and becomes the switchboard. The LAN stops being a place to observe only and becomes a place to serve a tightly scoped, checksummed payload the device can retrieve for itself.</p>
+
+<p>That one observation also made the whole project safer. Shipping arbitrary binary data over a reverse-engineered BLE transport would have been fragile, slow, and harder to reason about. Letting the device do what it already knew how to do — fetch something over IP after an authorized instruction — was both cleaner and closer to the manufacturer&#8217;s own model for update behavior.</p>
+
+<h2>Learning just enough BLE to talk back</h2>
+
+<p>Once I knew BLE was the control plane, the reverse engineering target got narrower and, ironically, more tractable. I did <em>not</em> need to understand every attribute, every UI feature, or every possible command path. I needed enough of Gofigure&#8217;s encrypted BLE protocol to communicate with a device the owner had already authorized, read reliable preflight information, and send one carefully constrained instruction at the right time.</p>
+
+<p>In practice that meant understanding the session shape around the owner-auth flow, the request/response framing, and the minimum crypto necessary to behave like a legitimate, already-authorized controller rather than a random scanner shouting into the air. Once that worked, I could reliably ask for the same facts Gofigure obviously knew already: the device name, model, firmware, and LAN address. Those are small details, but they are exactly the details a public installer needs to avoid guessing.</p>
+
+<p>I am intentionally not publishing packet captures, device-specific authentication material, or packet-level reproduction steps. This is one of those places where “I know how it works” and “the world benefits from me writing down every step” are not the same statement. The public value here is the installer and its safety properties, not a generic playbook for driving every hidden endpoint the box exposes.</p>
+
+<p>That boundary also kept the work honest. Reverse engineering can easily become a collector&#8217;s hobby — one more command, one more flag, one more proof that you can make the device twitch on demand. For a public tool, that instinct is poison. The goal was not maximum reach. The goal was minimum necessary authority.</p>
+
+<h2>The most important capability is the one I did not ship</h2>
+
+<p>Once I had an owner-authorized command path, I hit the first major product decision of the project. Yes, I had found a route that could do more than three fixed things. No, I was not going to publish it as a generic shell. A generic shell would have made for a flashier repository and a much worse security story. It would also have collapsed the boundary between “installer” and “remote execution framework,” which is exactly the line I wanted to keep bright.</p>
+
+<p>So the public CLI freezes the capability surface into exactly three verbs:</p>
+
+<pre><code>subparsers.add_parser(&quot;install&quot;, parents=[shared], help=&quot;Install the payload.&quot;)
+subparsers.add_parser(&quot;status&quot;, parents=[shared], help=&quot;Read remote status.&quot;)
+subparsers.add_parser(&quot;uninstall&quot;, parents=[shared], help=&quot;Run the remote uninstall script.&quot;)</code></pre>
+
+<p>That constraint is not a missing feature. It <em>is</em> the feature. The tool preflights, installs, reports status, and uninstalls. It does not become a Swiss Army knife for undisclosed control paths. It does not publish a shell, an arbitrary upload interface, or an invitation to discover what else the device might do under owner authorization. The safest public reverse-engineering work is usually the work that throws away power on purpose.</p>
+
+<p>If you read the repository and feel that the tool is opinionated, you are reading it correctly. It is designed to be a narrow bridge from a known starting state to a known ending state. That narrowness is why I felt comfortable attaching my name to it.</p>
+
+<h2>The Spotify flag that went nowhere</h2>
+
+<p>In the middle of the investigation I found one of those clues that can waste a week if you let it: a dormant Spotify-looking flag. For a minute it seemed plausible that the 2go once intended to ship Spotify support and merely forgot to expose it. That hypothesis is emotionally irresistible because it suggests the solution might be a hidden toggle rather than a real integration.</p>
+
+<p>But a flag only matters if there is working code behind the switch. There wasn&#8217;t. No usable Spotify client shipped on the box in a form I could responsibly resurrect. The flag was dead code — a light switch screwed to drywall with no wire behind it. That ended the fantasy version of the project. The path forward was not “re-enable secret feature.” It was “install a known-good client and integrate it cleanly.”</p>
+
+<h2>Making an ARM appliance speak librespot</h2>
+
+<p>That known-good client became librespot. The stable public path ended up pinned to librespot 0.8.0, cross-built as a static ARMv7 binary so the 2go does not depend on whatever shared-library accident happens to be present on the device that day. The public repository pins the upstream state explicitly and builds for the actual target architecture rather than hand-waving it away.</p>
+
+<pre><code>COMMIT=d36f9f1907e8cc9d68a93f8ebc6b627b1bf7267d
+TARGET=armv7-unknown-linux-musleabihf
+...
+cargo +&quot;$TOOLCHAIN&quot; zigbuild \
+    --release \
+    --locked \
+    --target &quot;$TARGET&quot; \
+    --no-default-features \
+    --features rustls-tls-webpki-roots,with-libmdns</code></pre>
+
+<p>I liked this approach for two reasons. First, it made the payload deterministic. Second, it let me validate the Spotify side before I committed to any persistent on-device changes. Early on, I staged the binary temporarily and launched it from a disposable location before touching systemd, manifests, or service restoration. That sounds almost too cautious, but it saved time. Persistent installs make every bug look architectural. Temporary staging lets you answer the simpler question first: does the binary actually run, discover, authenticate, and emit audio on this box?</p>
+
+<p>Only after that answer became “yes, repeatedly” did the project graduate from an experiment into an installer. That order matters. Install last. Prove first.</p>
+
+<h2>The DAC wanted 32 bits and nothing less</h2>
+
+<p>Then the Hugo 2 taught me humility. My first instinct was the same instinct many Linux audio paths reward: start with a simple 16-bit PCM assumption and iterate upward only if the hardware demands it. On this stack, that assumption was wrong. Reliable playback required <strong>S32_LE</strong>, <strong>stereo</strong>, and <strong>44.1 kHz</strong>. Sixteen-bit output did not become “slightly worse.” It just failed.</p>
+
+<p>The fix in the public payload is brutally simple, which is exactly what I wanted after the mystery was gone:</p>
+
+<pre><code>exec &quot;$APLAY_CMD&quot; -q -D soundcard -f S32_LE -c 2 -r 44100 -t raw</code></pre>
+
+<p>This is one of those hardware lessons that looks obvious in retrospect and inscrutable in the moment. Once you know the lock only turns if you push up while twisting clockwise, the move seems trivial. Before that, you can spend hours convinced the key is wrong when the problem is really your wrist.</p>
+
+<h2>Audio was a one-lane bridge</h2>
+
+<p>Getting one track to play is not the same thing as making the appliance behave like an appliance. The 2go already had opinions about who owned the DAC: Roon, AirPlay, DLNA/MPD, and Bluetooth all wanted a turn. Those services are not decorative background daemons. They are competing claimants to one physical output. So I treated audio ownership like a one-lane bridge. When Spotify arrives, traffic from the other side has to pause in an orderly way. When Spotify leaves, the bridge has to reopen exactly as it was.</p>
+
+<p>The public service entrypoint makes that intent explicit. It launches librespot with the stable 320 kbps configuration and hands sink events to a helper that arbitrates ownership of the output:</p>
+
+<pre><code>ExecStart=/usr/local/bin/librespot --name Chord-2go-Spotify --backend subprocess \
+  --device /usr/local/bin/librespot-aplay --format S32 --bitrate 320 --initial-volume 50 \
+  --cache /var/cache/chord-2go-spotify --onevent /usr/local/sbin/librespot-audio \
+  --emit-sink-events</code></pre>
+
+<p>Under the hood, that helper records which services were active, pauses MPD-style playback where possible, stops the active owners cleanly, and then restores them when Spotify stops or disconnects. In practice that means temporary yielding around Roon RAAT, AirPlay via shairport-sync, DLNA/UPnP and local MPD variants, and Bluetooth audio. I did not want “Spotify works” to really mean “Spotify works, but only if you never use anything else again.” The point was coexistence, not conquest.</p>
+
+<p>This is also where the difference between a bench hack and a public tool becomes obvious. On the bench, you can kill services by hand, shrug, and reboot later. In a release, you have to treat other playback paths as first-class citizens because to the owner they are. If Spotify steals the DAC and fails to give it back, the installer has not succeeded. It has vandalized the listening room.</p>
+
+<h2>A demo is easy; an installer is hard</h2>
+
+<p>By this point I had proven that the binary could run and that the audio path could work. I still did not have something I could publish. Publishing starts when you can survive interruption: a reboot midway through testing, an install run twice, an uninstall weeks later, a modified file on disk, or a previously installed private experiment that should not be orphaned forever. Most of the real engineering time went there.</p>
+
+<p>The device payload now stages its files, fingerprints them, records a manifest, captures backups of anything it replaces, and only commits after the new service is enabled, restarted, and verified active. Uninstall works in the opposite direction: it restores prior service state when it can, removes project-owned files when their fingerprints still match, and refuses to pretend certainty when the owner or a future firmware update has changed something underneath it. That fingerprint-aware rollback is not glamorous, but it is the difference between “I can remove my code” and “I can responsibly restore your device.”</p>
+
+<p>I also had to think about persistence across reboots. If the stable path only worked until the next power cycle, it was not stable. So systemd became part of the design, but only after repeated manual proof. The service had to come back cleanly after reboot, reacquire the right state, advertise itself properly, and then relinquish control when the owner stopped using Spotify. Reboot testing sounds dull until you skip it and discover your heroic hack dies every Tuesday.</p>
+
+<p>Another quiet requirement was migration. I had old private experiment artifacts from earlier branches. The public installer could not simply bulldoze them and hope for the best, nor could it leave them behind like land mines for future uninstalls. So the payload explicitly migrates known legacy experiment footprints into the new manifest/backups model. That is not a feature most users will ever notice, which is precisely why it is worth doing.</p>
+
+<h2>The lossless mirage</h2>
+
+<p>The most important failure in the whole project was one that looked, from the outside, like success. At one point the Spotify UI showed the magic word: <em>Lossless</em>. If I had been reckless, that screenshot could have become the headline and maybe even the release. It would also have been wrong.</p>
+
+<p>Diagnostics proved actual playback remained <code>OGG_VORBIS_320</code>. The label had changed. The transport had not. That was the false summit of the project, and I am grateful it happened before I published anything because it forced the most important discipline on the whole effort: validate the media you are actually decrypting and playing, not the user interface label you wish were true.</p>
+
+<p>That lesson sounds embarrassingly obvious in print, but it is exactly the kind of mistake reverse engineering invites. The closer you get to a desired outcome, the more tempting it becomes to stop at a plausible proxy. A convincing UI is one kind of evidence. Transport proof is another. Only one of them deserves a release note.</p>
+
+<h2>Where the private lossless branch actually got</h2>
+
+<p>That false summit did not mean the lossless line of inquiry was pure fantasy. In a private branch, the investigation went far enough to reach real FLAC and 24-bit FLAC metadata and to resolve versioned CDN storage locations rather than merely stare at an optimistic label. That was the moment the work crossed from UI theater into real transport evidence.</p>
+
+<p>But the branch still hit a wall: decryption depended on PlayPlay-derived key material that I am not publishing and did not complete in a way I could responsibly turn into instructions. I want to be precise here. I am not publishing tokens, addresses, hashes, proprietary DLL details, cryptographic vectors, or circumvention steps. I am only saying, at a high level, that the remaining blocker was not “does the service have better assets?” but “can those assets be lawfully and safely turned into working playback on this device?” For the public project, the answer remained “not in a releasable way.”</p>
+
+<p>That is why the public repository stops where it does. It contains the proven, stable Ogg Vorbis 320 kbps path. It does not contain the private notebook that explored where a lossless branch became technically interesting but still not publishable.</p>
+
+<h2>Fail safe or do not ship</h2>
+
+<p>Several of the ugliest bugs in this project shared the same pattern: they looked exciting right up until they failed in a way a real user would hate. A dead Spotify flag looked promising until it turned out to be cosmetic. The 16-bit output assumption looked reasonable until it produced silence. The lossless UI looked triumphant until it resolved to Ogg transport. An install flow looked healthy until remote diagnostics proved the script had actually failed. Every one of those moments pushed the design in the same direction.</p>
+
+<p>The rule became simple: validate the thing that matters, and if validation fails, fall back safely. In practice that meant lossless experiments could not be allowed to cause silence, skipping, or request patterns that smelled enough like breakage to trigger rate limiting. If an experiment could not prove decrypted media, stable playback, and correct device-state restoration, it was demoted immediately to the boring path that worked: Spotify Connect over Ogg Vorbis up to 320 kbps. Boring won because boring kept playing music.</p>
+
+<h2>Why I open-sourced the boring part</h2>
+
+<p>That is the real reason I open-sourced only the proven stable Ogg 320 path. Not because there was no other research, but because private research and public tooling are different responsibilities. A private notebook gets to be incomplete, ugly, and full of dead ends. A public release does not.</p>
+
+<p>The thing worth publishing was the part I could defend in daylight: owner-authorized preflight, deterministic payload transfer, stable audio output, service restoration, clear status, clean uninstall, and explicit documentation saying what the tool does <strong>not</strong> do. The thrillier branch remains private because it is more sensitive, less complete, and not something I could justify dropping into a public README just because it made for a better story.</p>
+
+<h2>What the public CLI actually does</h2>
+
+<p>The desktop CLI is intentionally small, but a lot happens inside that small surface area. It discovers nearby 2go devices over BLE, authenticates against an owner-authorized device, reads preflight facts like firmware and LAN address, and then blocks untested firmware unless the user explicitly passes <code>--force</code>. For the first release, firmware 1.6.1 is the tested line in the sand.</p>
+
+<p>Once preflight passes, the tool automatically selects the local IPv4 route that can actually reach the device on the LAN. That sounds mundane, but it solved a real packaging problem: people do not run installers in idealized single-interface lab networks. They have Wi-Fi, Ethernet, VPNs, and firewalls. So the CLI chooses a usable host address, starts a temporary local HTTP server, and serves exactly two things: the embedded payload archive and its checksum.</p>
+
+<p>The 2go then pulls that payload itself, verifies the checksum, extracts it, runs the appropriate fixed action, and posts back a bounded report. The desktop side does not trust vibes. It checks the reported action, the remote exit code, and the final success marker before it reports success. That last part fixed a subtle but important class of false positives: a service that happened to be active was never allowed to masquerade as a successful install if the remote script had actually failed.</p>
+
+<p>Just as importantly, the CLI tries to fail like a product rather than like a pile of stack traces. Unsupported firmware gets a clear message. Route selection errors explain what LAN condition failed. Missing payload assets fail loudly at package-build time instead of silently at install time. The whole point of the fixed-command surface is that the tool can afford to be opinionated and explicit.</p>
+
+<h2>What lives on the device</h2>
+
+<p>The on-device payload is equally deliberate. It ships a pinned upstream librespot binary, a tiny playback wrapper for the Hugo 2-compatible output format, an audio-arbitration helper, a systemd unit, project documentation and licenses, and install/uninstall scripts that track what they changed. It also keeps its own cache and state directories instead of scattering files across the box and hoping future me remembers where they went.</p>
+
+<p>The installation path is transactional by construction. Files are staged first. Fingerprints are computed before commit. Existing files are backed up when appropriate. The new service is enabled and validated. Only then is the manifest updated as the new source of truth. Uninstall is targeted rather than destructive: restore what should be restored, remove what the project can prove it created, and leave modified unknowns alone with a warning instead of pretending omniscience.</p>
+
+<p>That same payload layer also handles legacy experiment migration so early private branches do not become permanent ghosts on the filesystem. If this all sounds slightly obsessive for a hobby audio integration, good. Filesystem hygiene is what lets hobby software age without turning into archaeology.</p>
+
+<h2>Packaging it for other people&#8217;s computers</h2>
+
+<p>Once the device story was stable, there was still one more translation to do: from “works from my source tree” to “works for another human on their own computer.” The public release therefore ships packaged host binaries for Apple silicon Macs, Intel Macs, and Windows x86-64 machines via PyInstaller:</p>
+
+<pre><code>chord-2go-spotify-macos-arm64.zip
+chord-2go-spotify-macos-x86_64.zip
+chord-2go-spotify-windows-x86_64.zip</code></pre>
+
+<p>The release automation lives in GitHub Actions. It builds the ARM device payload once, packages the host-side CLI per platform, generates <code>SHA256SUMS.txt</code>, emits an SBOM, and publishes build provenance attestations alongside the archives. That is a lot of machinery for a first release, but it directly supports the thing I cared about most: a user should be able to download a known artifact from a public tag, verify it, run it, and get the same result I got from source.</p>
+
+<p>The first release is unsigned, which means macOS Gatekeeper and Windows SmartScreen can warn. I would rather state that plainly than play coy about it. A clear warning plus checksums, SBOMs, and provenance is a better story than overclaiming trust I have not yet earned through signing and reputation.</p>
+
+<h2>The failures that only appear when you try to ship</h2>
+
+<p>Release engineering produced its own pile of bugs, and I want to document them because they are the difference between “I demoed this” and “I released this.”</p>
+
+<ul>
+  <li><strong>Windows tried to run Linux payload tests.</strong> That was a category error in CI, and the fix was to split Linux device-payload tests into their own Ubuntu job while keeping host packaging cross-platform.</li>
+  <li><strong>An early cargo-zigbuild/Rust combination did not agree.</strong> The release workflow now pins Rust 1.85.0 with cargo-zigbuild 0.21.8 instead of hoping whatever happened to be current that week would cooperate.</li>
+  <li><strong>The ARM target was missing.</strong> Obvious once seen, invisible until a clean runner tells you the cross-compile cannot even start. The workflow now adds <code>armv7-unknown-linux-musleabihf</code> explicitly.</li>
+  <li><strong>License material was missing from artifacts.</strong> The public archives now include the project license and third-party notices, and the device payload carries the upstream librespot license as well.</li>
+  <li><strong>Raw route-selection OSErrors were useless.</strong> They now surface as clear “could not determine a local IPv4 route” failures rather than as unexplained packaging noise.</li>
+  <li><strong>Cache ownership and lifecycle needed to be deterministic.</strong> The payload now creates and uses its own dedicated cache path rather than inheriting whatever ambient state happened to exist.</li>
+  <li><strong>Install reporting could look successful when it was not.</strong> The CLI now requires remote action markers, a zero exit code, and the final success marker before it says the device was installed successfully.</li>
+</ul>
+
+<p>None of those bugs are romantic. All of them are the kind that quietly decide whether a first release feels trustworthy or amateur.</p>
+
+<h2>What I validated before publishing</h2>
+
+<p>I did not want the public launch to depend on a developer-only path, so validation covered both the source CLI and the packaged CLI. I tested first install, idempotent re-install, uninstall, restore, and reinstall. I tested reboot persistence. I tested the device pulling a public asset and verifying its checksum. I tested reinstalling from the public packaged release rather than from my working tree. I checked that the resulting target advertised correctly over mDNS and showed up in Spotify the way a normal user would expect.</p>
+
+<p>That matrix sounds tedious because it is. It is also how you discover the difference between “my system converges to the right files” and “someone else can actually trust the release artifact.” For a reversible installer, idempotence matters just as much as first-run success.</p>
+
+<h2>Current limitations</h2>
+
+<ul>
+  <li><strong>Playback today is Spotify Connect over Ogg Vorbis up to 320 kbps only.</strong></li>
+  <li><strong>It is not Spotify Lossless.</strong></li>
+  <li><strong>Firmware 1.6.1 is the tested target for this release.</strong> Other firmware requires <code>--force</code> and is untested.</li>
+  <li><strong>You need BLE and the same LAN.</strong> The computer must be near the 2go for Bluetooth and reachable on the same network for the transfer step.</li>
+  <li><strong>The first public release is unsigned.</strong> Expect normal macOS and Windows trust prompts.</li>
+  <li><strong>Future firmware may break compatibility.</strong> This is an unofficial integration riding on behavior I do not control.</li>
+</ul>
+
+<p>If those constraints still fit your use case, start with the <a href="https://github.com/arazmj/chord-2go-spotify">repository</a> and the <a href="https://github.com/arazmj/chord-2go-spotify/releases/tag/v0.1.0">v0.1.0 release</a>.</p>
+
+<h2>Responsible disclosure and safety note</h2>
+
+<p>Use this only on a 2go you own or are explicitly authorized to manage. The public release is deliberately narrower than the private investigation. I am not publishing updater credentials, private IPs, exact exploit or circumvention payloads, device-specific credentials, tokens, or proprietary binaries. The repository documents a stable owner-authorized installer path, not a general-purpose exploitation toolkit.</p>
+
+<p>The project is unofficial and is not affiliated with, endorsed by, sponsored by, or approved by Chord Electronics Ltd. or Spotify AB. It is simply the version of the work I could defend publishing: stable Spotify Connect at Ogg Vorbis 320 kbps, with rollback, uninstall, and clear limits.</p>
+
+<h2>AI attribution</h2>
+
+<p>I used GitHub Copilot CLI powered by GPT-5.6 Sol throughout the investigation and implementation. I sometimes described it conversationally as ChatGPT 5.6 (Sol), but the actual interface was GitHub Copilot CLI.</p>
+
+<h2>What I learned</h2>
+
+<p>The satisfying part of this project was not making the 2go do one improbable thing. Bench tricks are fun, but they age badly. The satisfying part was stripping the problem down until the public answer could be small, honest, and reversible. Reverse engineering gets romanticized as revelation — one magical payload, one hidden switch, one final screenshot. In reality it is usually subtraction. Learn which levers matter. Refuse to ship the ones that should stay private. Turn the rest into something another person can trust.</p>
+
+<p>In that sense, the final release says as much about restraint as technique. The public tool is not the most powerful thing I found. It is the most <em>defensible</em> thing I found: owner-authorized, stable, recoverable, and truthful about still being Ogg 320. I mean it as praise when I say the end result is boring. Music systems deserve boring. They deserve installers that either work or fail clearly, that do not hijack the rest of the box, and that do not sell a fantasy codec in place of verified transport.</p>
+
+<p>And maybe that is the real through-line between this project and other things I tinker with, whether it is kernel bugs, secure job runners, a <a href="/inside-my-guitar-rig/">guitar rig</a>, or a <a href="/restoring-a-thorens-td-124/">1950s turntable</a>. The romance is always in the weird details, but the craft is in making the system behave. Here, behavior beat mythology. The Chord 2go got Spotify Connect. It got it publicly. And it got it in a form I can stand behind.</p>
+  </div>
+  <a class="back-link" href="/posts/">&#8592; All posts</a>
+</article>
+
+<div id="disqus_thread"></div>
+<script src="/assets/js/comments.js" defer></script>
+
+<section class="related">
+  <h4>You might also enjoy</h4>
+  <ul class="related-grid">
+  <li><a href="/inside-my-guitar-rig/">Wall of Sound: Inside My Stereo Guitar Rig</a></li>
+  <li><a href="/restoring-a-thorens-td-124/">Restoring a Thorens TD-124</a></li>
+  <li><a href="/a-linux-kernel-tunnel-bug/">How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel</a></li>
+</ul>
+</section>
+
+</div>
+
+<footer>&copy; 2026 Amir Razmjou &middot; <a href="/">amirrazmjou.com</a></footer>
+
+<script>
+(function () {
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var prog = document.getElementById("progress");
+  var nav = document.querySelector("nav");
+  var doc = document.documentElement;
+  function onScroll() {
+    var max = doc.scrollHeight - doc.clientHeight;
+    var t = window.pageYOffset || 0;
+    if (prog) prog.style.width = max > 0 ? (t / max * 100).toFixed(2) + "%" : "0";
+    if (nav) nav.classList.toggle("scrolled", t > 24);
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  if (reduce || !fine) return;
+  addEventListener("pointermove", function (e) {
+    document.body.style.setProperty("--sx", e.clientX + "px");
+    document.body.style.setProperty("--sy", e.clientY + "px");
+  }, { passive: true });
+})();
+</script>
+
+
+<script>
+/* lightweight syntax highlighting + copy buttons for code blocks */
+(function () {
+  var KW = ["fn","let","const","mut","pub","use","impl","struct","enum","trait","match","move",
+    "async","await","return","if","else","for","while","loop","in","as","where","func","package",
+    "import","type","var","go","defer","chan","interface","map","range","select","switch","case",
+    "default","break","continue","new","class","function","void","true","false","null","nil",
+    "None","Some","Ok","Err","self","super","static","unsafe","extern","crate","mod","ref","dyn",
+    "throw","try","catch","finally","typeof","instanceof","of"];
+  var TOKEN = new RegExp(
+    "(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*)" +
+    "|(\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|`(?:\\\\.|[^`\\\\])*`)" +
+    "|(\\b0[xX][0-9a-fA-F]+\\b|\\b\\d[\\d_]*(?:\\.\\d+)?\\b)" +
+    "|(\\b(?:" + KW.join("|") + ")\\b)", "g");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hl(raw) {
+    var out = "", last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(raw))) {
+      out += esc(raw.slice(last, m.index));
+      var cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "n" : "k";
+      out += '<span class="t-' + cls + '">' + esc(m[0]) + "</span>";
+      last = m.index + m[0].length;
+    }
+    return out + esc(raw.slice(last));
+  }
+  document.querySelectorAll(".prose pre").forEach(function (pre) {
+    var code = pre.querySelector("code") || pre;
+    var raw = code.textContent;
+    code.innerHTML = hl(raw);
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement("button");
+    btn.className = "copy-btn"; btn.type = "button"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(raw) : Promise.reject()).then(function () {
+        btn.textContent = "Copied!"; btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1400);
+      }).catch(function () {});
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
+
+<script>
+/* Cmd-K / Ctrl-K command palette */
+(function () {
+  var DATA = [{"t": "Home", "u": "/", "k": "home"}, {"t": "All Posts", "u": "/posts/", "k": "posts writing"}, {"t": "About", "u": "/about/", "k": "about bio"}, {"t": "Portfolio", "u": "/portfolio/", "k": "portfolio work projects"}, {"t": "Papers", "u": "/papers/", "k": "papers publications"}, {"t": "Talks", "u": "/presentations/", "k": "talks presentations"}, {"t": "From BLE Reverse Engineering to a Public Spotify Connect Installer for the Chord 2go", "u": "/chord-2go-spotify-connect/", "k": "audio linux rust reverse engineering spotify connect chord 2go ble librespot armv7 installer ogg macos windows lossless"}, {"t": "Wall of Sound: Inside My Stereo Guitar Rig", "u": "/inside-my-guitar-rig/", "k": "guitar gear metal djent progressive strandberg jackson king-v prs mt15 mesa strymon timeline bigsky pedalboard tone stereo 4cm amp cab rig"}, {"t": "The Software Stack is Collapsing", "u": "/the-software-stack-is-collapsing/", "k": "ai architecture agents llm devops interfaces"}, {"t": "Restoring a Thorens TD-124", "u": "/restoring-a-thorens-td-124/", "k": "audio restoration hi-fi turntable thorens vinyl idler"}, {"t": "Neural Networks from Scratch, Part 3: Softmax and Cross-Entropy", "u": "/neural-networks-from-scratch-softmax-and-cross-entropy/", "k": "machine learning neural networks python"}, {"t": "Neural Networks from Scratch, Part 2: Multilayer Perceptrons", "u": "/neural-networks-from-scratch-multilayer-perceptrons/", "k": "machine learning neural networks python"}, {"t": "Neural Networks from Scratch, Part 1: The Neuron and the Chain Rule", "u": "/neural-networks-from-scratch-the-neuron/", "k": "machine learning neural networks python"}, {"t": "Gerdu: A Multi-Protocol, Raft-Backed Key-Value Store in Go", "u": "/building-a-key-value-store-in-go/", "k": "go distributed systems"}, {"t": "Building Sentry: A Secure Job Runner with cgroups and mTLS", "u": "/building-sentry-a-secure-job-runner/", "k": "go systems"}, {"t": "Building a Search Engine in Rust: Crawl, Index, Rank", "u": "/building-a-search-engine-in-rust/", "k": "rust search"}, {"t": "Writing a Small S3 Proxy in Rust", "u": "/writing-an-s3-proxy-in-rust/", "k": "rust cloud"}, {"t": "PathForge: Writing a BGP-4 Daemon from Scratch in Rust", "u": "/writing-a-bgp-daemon-in-rust/", "k": "rust networking"}, {"t": "Snake on a Cube: 3D Snake in Rust and WebAssembly", "u": "/snake-on-a-cube-rust-wasm/", "k": "rust webassembly graphics"}, {"t": "Reimplementing S3 from Scratch: An Object Store in Rust", "u": "/building-an-s3-object-store-in-rust/", "k": "rust storage"}, {"t": "NetChaos: Declarative Network Chaos with eBPF and Kubernetes", "u": "/declarative-network-chaos-with-ebpf/", "k": "kubernetes ebpf networking"}, {"t": "How a Local IP Address Broke IPv6 Tunnels in the Linux Kernel", "u": "/a-linux-kernel-tunnel-bug/", "k": "linux networking"}, {"t": "Stacking Streams: A Rate-Limited File Transfer in Java", "u": "/rate-limited-file-transfer-in-java/", "k": "java networking"}, {"t": "Decoding Text: A Huffman Codec in Haskell", "u": "/huffman-coding-in-haskell/", "k": "haskell algorithms huffman compression functional"}, {"t": "Data-Mining PCAP files using Weka and Python DPKT library", "u": "/data-mining-pcap-files-using-weka-and-python-dpkt-library/", "k": "security networking"}, {"t": "GSoC 2015 RouteFlow Proposal", "u": "/gsoc-2015-routeflow-proposal/", "k": "networking"}, {"t": "Playing With K-nearest Neighbors Algorithm", "u": "/playing-with-k-nearest-neighbors-algorithm/", "k": "machine learning classification"}, {"t": "Why does functional programming matter?", "u": "/why-does-functional-programming-matter/", "k": "programming"}, {"t": "Collecting Data Using Windows Azure Part 2", "u": "/collecting-data-using-windows-azure-part-2/", "k": "cloud data"}, {"t": "Spanning Tree", "u": "/spanning-tree/", "k": "networking"}, {"t": "Hello Complex Networks!!!", "u": "/hello-complex-networks/", "k": "networks"}, {"t": "Collecting Data using Windows Azure Part 1", "u": "/collecting-twitter-data-linq2twitter/", "k": "cloud data"}, {"t": "QoS optimization for real-time services in FreeBSD", "u": "/qos-voice-freebsd/", "k": "networking"}];
+  var overlay, input, list, empty, items = [], sel = 0;
+  function build() {
+    overlay = document.createElement("div"); overlay.id = "cmdk-overlay";
+    overlay.innerHTML =
+      '<div id="cmdk" role="dialog" aria-label="Search">' +
+      '<input type="text" placeholder="Search posts and pages\u2026" aria-label="Search posts and pages" autocomplete="off">' +
+      '<ul id="cmdk-list"></ul><div id="cmdk-empty" style="display:none">No matches</div>' +
+      '<div id="cmdk-hint"><span>\u2191\u2193 navigate</span><span>\u21B5 open</span><span>esc close</span></div></div>';
+    document.body.appendChild(overlay);
+    input = overlay.querySelector("input");
+    list = overlay.querySelector("#cmdk-list");
+    empty = overlay.querySelector("#cmdk-empty");
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+    input.addEventListener("input", function () { render(input.value); });
+    input.addEventListener("keydown", onKey);
+  }
+  function score(q, it) {
+    q = q.toLowerCase(); var t = it.t.toLowerCase();
+    if (!q) return 1;
+    if (t.indexOf(q) !== -1) return 3;
+    if ((it.k || "").indexOf(q) !== -1) return 2;
+    var qi = 0; for (var i = 0; i < t.length && qi < q.length; i++) if (t[i] === q[qi]) qi++;
+    return qi === q.length ? 1 : 0;
+  }
+  function render(q) {
+    var scored = DATA.map(function (it) { return { it: it, s: score(q, it) }; })
+      .filter(function (x) { return x.s > 0; })
+      .sort(function (a, b) { return b.s - a.s; });
+    items = scored.map(function (x) { return x.it; });
+    sel = 0;
+    list.innerHTML = "";
+    empty.style.display = items.length ? "none" : "block";
+    items.forEach(function (it, i) {
+      var li = document.createElement("li");
+      li.className = i === 0 ? "sel" : "";
+      li.innerHTML = '<span>' + it.t + '</span><span class="sub">' + (it.u === "/" || it.u === "/posts/" || it.k.indexOf("about") > -1 || it.k.indexOf("portfolio") > -1 || it.k.indexOf("papers") > -1 || it.k.indexOf("talks") > -1 ? "page" : "post") + '</span>';
+      li.addEventListener("click", function () { go(it); });
+      li.addEventListener("mousemove", function () { setSel(i); });
+      list.appendChild(li);
+    });
+  }
+  function setSel(i) {
+    var lis = list.children; if (!lis.length) return;
+    lis[sel] && lis[sel].classList.remove("sel");
+    sel = (i + lis.length) % lis.length;
+    lis[sel].classList.add("sel"); lis[sel].scrollIntoView({ block: "nearest" });
+  }
+  function go(it) { location.href = it.u; }
+  function onKey(e) {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSel(sel + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel(sel - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (items[sel]) go(items[sel]); }
+    else if (e.key === "Escape") { close(); }
+  }
+  function open() { if (!overlay) build(); overlay.classList.add("open"); input.value = ""; render(""); input.focus(); }
+  function close() { if (overlay) overlay.classList.remove("open"); }
+  addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); open(); }
+  });
+})();
+</script>
+
+</body>
+</html>
